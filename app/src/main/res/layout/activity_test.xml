@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".TestActivity">
+
+    <androidx.gridlayout.widget.GridLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"
+        app:columnCount="8"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:rowCount="8">
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView3" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView4" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView5" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView6" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView7" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView8" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView9" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView10" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView11" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView12" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView13" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView14" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView15" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView17" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView18" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView19" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView20" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView21" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView22" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView23" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView24" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView25" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView26" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView27" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView28" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView29" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView30" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView31" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView32" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView33" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView34" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView35" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView36" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView37" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView38" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView39" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView40" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView41" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView42" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView43" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView44" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView45" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView46" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView47" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView48" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView49" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView50" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView51" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView52" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView53" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView54" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView55" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView56" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView57" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView58" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView59" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView60" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView61" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView62" />
+
+        <com.leverett.chessrepertoirepractice.ui.views.SquareView
+            android:id="@+id/squareView63" />
+    </androidx.gridlayout.widget.GridLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
