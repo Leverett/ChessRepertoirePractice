@@ -6,10 +6,12 @@
     android:layout_height="wrap_content"
     tools:context=".BoardFragment">
 
-    <androidx.gridlayout.widget.GridLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/board_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:columnCount="8"
-        app:rowCount="8" />
+        android:layout_height="wrap_content" >
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </FrameLayout>

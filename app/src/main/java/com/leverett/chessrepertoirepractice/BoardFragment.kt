@@ -1,24 +1,22 @@
 package com.leverett.chessrepertoirepractice
 
-import android.graphics.Color
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
-import androidx.gridlayout.widget.GridLayout
-import androidx.gridlayout.widget.GridLayout.LayoutParams
 import androidx.lifecycle.ViewModelProvider
-import com.leverett.chessrepertoirepractice.repertoire.representation.PieceChars.EMPTY
-import com.leverett.chessrepertoirepractice.repertoire.representation.Position.Companion.GRID_SIZE
-import com.leverett.chessrepertoirepractice.ui.views.SquareView
+import com.leverett.rules.chess.basic.piece.Pawn
+import com.leverett.chessrepertoirepractice.ui.views.SquareLayout
+import com.leverett.rules.chess.representation.Move
+import com.leverett.rules.chess.representation.MoveStatus
+import com.leverett.rules.chess.representation.PieceEnum.EMPTY
+import com.leverett.rules.chess.representation.Position.Companion.GRID_SIZE
 
 
-class BoardFragment : Fragment() {
+class BoardFragment() : Fragment() {
 
     companion object {
         fun newInstance() = BoardFragment()
@@ -26,40 +24,57 @@ class BoardFragment : Fragment() {
 
     private lateinit var viewModel: BoardViewModel
 
+    private lateinit var squares: Array<Array<SquareLayout>>
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        Log.e("BoardFragment","HEREEEE")
         val view: View = inflater.inflate(R.layout.board_fragment, container, false)
-        val boardLayout = view.findViewById<GridLayout>(R.id.board_layout)
+        val boardLayout = view.findViewById<ConstraintLayout>(R.id.board_layout)
+        val context = requireContext()
+        Log.e("BoardFragment","HEREEEE2")
+        val tem = BoardViewModel()
+        Log.e("BoardFragment","HEREEEE22")
+        viewModel = BoardViewModel()
 
-        val squareSize: Int = boardLayout.width / GRID_SIZE
+        Log.e("BoardFragment","HEREEEE3")
+        squares = Array(GRID_SIZE) {i -> Array(GRID_SIZE) {j -> SquareLayout(context, viewModel, i, j).also{boardLayout.addView(it)}} }
+        Log.e("BoardFragment","HEREEEE4")
+
         for (i in 0 until GRID_SIZE) {
             for (j in 0 until GRID_SIZE) {
-                Log.i("BoardFrag", String.format("i: $i, j: $j"))
-//                val color: Int = if ((i + j) % 2 == 0) Color.WHITE else Color.BLACK
-//                val squareImage = makeSquareView(squareSize, color)
-//                val layoutParams = GridLayout.LayoutParams(GridLayout.spec(i), GridLayout.spec(j))
-//                boardLayout.addView(squareImage, layoutParams)
-//                val squareView = SquareView(context, null, color, EMPTY, i, j)
-                val drawable = if ((i + j) % 2 == 0) R.drawable.light_square else R.drawable.dark_square
-                val squareView = ImageView(context).also { it.setImageResource(drawable) }
-                view.visibility = View.VISIBLE
-                val param = LayoutParams()
-                param.height = LayoutParams.WRAP_CONTENT
-                param.width = LayoutParams.WRAP_CONTENT
-                param.columnSpec = GridLayout.spec(j, 1)
-                param.rowSpec = GridLayout.spec(i, 1)
-                squareView.layoutParams = param
-                boardLayout.addView(squareView, i * GRID_SIZE + j)
-                Log.i("BoardFrag", String.format("imageview size " + squareView.height))
-            }
-        }
 
-        val childCount = boardLayout.childCount
-        val width = boardLayout.measuredWidth
-        Log.i("BoardFrag", String.format("childCount  $childCount, width $width"))
-        boardLayout.refreshDrawableState()
+                val square = squares[i][j]
+                val layoutParams = ConstraintLayout.LayoutParams(0, 0)
+                layoutParams.dimensionRatio = "1:1"
+                if (i == 0) {
+                    layoutParams.leftToLeft = boardLayout.id
+                } else {
+                    layoutParams.leftToRight = squares[i-1][j].id
+                }
+                if (i == GRID_SIZE - 1) {
+                    layoutParams.rightToRight = boardLayout.id
+                } else {
+                    layoutParams.rightToLeft = squares[i+1][j].id
+                }
+                if (j == 0) {
+                    layoutParams.bottomToBottom = boardLayout.id
+                } else {
+                    layoutParams.bottomToTop = squares[i][j-1].id
+                }
+                if (j == GRID_SIZE - 1) {
+                    layoutParams.topToTop = boardLayout.id
+                } else {
+                    layoutParams.topToBottom = squares[i][j+1].id
+                }
+                square.layoutParams = layoutParams
+            }
+//            setOnClickListener(boardLayout)
+//            setOnDragListener(boardLayout)
+        }
+        Log.e("BoardFragment","HEREEEE5")
         return view
     }
 
@@ -70,5 +85,74 @@ class BoardFragment : Fragment() {
 
         // TODO: Use the ViewModel
     }
+
+    private fun setOnClickListener(board: ConstraintLayout) {
+        board.setOnClickListener { view ->
+            if (view is SquareLayout) {
+                val activeSquareCoords = viewModel.activeSquareCoords
+                if (activeSquareCoords != null) {
+                    val targetCoords = view.coords
+                    if (targetCoords == activeSquareCoords &&
+                        view.activeSquare
+                    ) { // TODO This should be a redundant check
+                        viewModel.activeSquareCoords = null
+                        view.activeSquare = false
+                    } else if (Pawn.isPromotionRank(targetCoords.second)) {
+                        makePromotionDialog(targetCoords) //TODO this
+                        //TODO also preempt this if no promotion is a legal move
+                    } else {
+                        makeAndDoMove(activeSquareCoords, targetCoords)
+
+                    }
+                }
+            }
+        }
+    }
+    private fun setOnDragListener(board: ConstraintLayout) {
+        //TODO dragging
+//        board.setOnDragListener{ view, event ->
+//            if (view is SquareLayout) {
+//                val startCoords = view.coords
+//            }
+//            false
+//        }
+    }
+
+    private fun makeAndDoMove(startCoords: Pair<Int,Int>, endCoords: Pair<Int,Int>) {
+        val capturePiece =
+            viewModel.placements[endCoords.first][endCoords.second]
+        val move = Move(startCoords, endCoords, capturePiece, EMPTY)
+        val moveStatus = viewModel.rulesEngine.validateMove(move)
+        when (moveStatus) {
+            MoveStatus.ILLEGAL ->  makeIllegalMoveReaction(endCoords)//do nothing
+            MoveStatus.LEGAL -> doMove(move)
+            MoveStatus.CAPTURE -> doCaptureMove(move)
+        }
+        viewModel.rulesEngine.getNextPosition(move)
+
+    }
+
+    fun makePromotionDialog(coords: Pair<Int,Int>) {
+
+    }
+
+    fun makeIllegalMoveReaction(coords: Pair<Int,Int>) {
+
+    }
+
+    fun doMove(move: Move) {
+        //TODO sound effect
+        makeMove(move)
+    }
+
+    fun doCaptureMove(move: Move) {
+        //TODO sound effect
+        makeMove(move)
+    }
+
+    fun makeMove(move: Move) {
+
+    }
+
 
 }

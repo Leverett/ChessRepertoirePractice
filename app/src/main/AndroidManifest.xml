@@ -9,13 +9,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ChessRepertoirePractice">
-        <activity android:name=".TestActivity"></activity>
-        <activity android:name=".SandboxActivity" />
+        <activity android:name="com.leverett.chessrepertoirepractice.TestActivity"></activity>
+        <activity android:name="com.leverett.chessrepertoirepractice.SandboxActivity" />
         <activity
             android:name=".ui.activities.SandboxActivity"
             android:label="@string/title_activity_sandbox"
             android:theme="@style/Theme.ChessRepertoirePractice.NoActionBar" />
-        <activity android:name=".MainActivity">
+        <activity android:name="com.leverett.chessrepertoirepractice.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
