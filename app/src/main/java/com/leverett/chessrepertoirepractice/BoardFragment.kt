@@ -10,10 +10,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.leverett.rules.chess.basic.piece.Pawn
 import com.leverett.chessrepertoirepractice.ui.views.SquareLayout
+import com.leverett.rules.chess.representation.GRID_SIZE
 import com.leverett.rules.chess.representation.Move
 import com.leverett.rules.chess.representation.MoveStatus
 import com.leverett.rules.chess.representation.PieceEnum.EMPTY
-import com.leverett.rules.chess.representation.Position.Companion.GRID_SIZE
 
 
 class BoardFragment() : Fragment() {
@@ -30,84 +30,60 @@ class BoardFragment() : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Log.e("BoardFragment","HEREEEE")
         val view: View = inflater.inflate(R.layout.board_fragment, container, false)
         val boardLayout = view.findViewById<ConstraintLayout>(R.id.board_layout)
         val context = requireContext()
-        Log.e("BoardFragment","HEREEEE2")
-        val tem = BoardViewModel()
-        Log.e("BoardFragment","HEREEEE22")
-        viewModel = BoardViewModel()
+        viewModel = BoardViewModel(this)
 
-        Log.e("BoardFragment","HEREEEE3")
-        squares = Array(GRID_SIZE) {i -> Array(GRID_SIZE) {j -> SquareLayout(context, viewModel, i, j).also{boardLayout.addView(it)}} }
-        Log.e("BoardFragment","HEREEEE4")
+        squares = Array(GRID_SIZE) {x -> Array(GRID_SIZE) {y -> SquareLayout(context, viewModel, x, y).also{boardLayout.addView(it)}} }
 
-        for (i in 0 until GRID_SIZE) {
-            for (j in 0 until GRID_SIZE) {
-
-                val square = squares[i][j]
+        for (x in 0 until GRID_SIZE) {
+            for (y in 0 until GRID_SIZE) {
+                val square = squares[x][y]
                 val layoutParams = ConstraintLayout.LayoutParams(0, 0)
                 layoutParams.dimensionRatio = "1:1"
-                if (i == 0) {
+                if (x == 0) {
                     layoutParams.leftToLeft = boardLayout.id
                 } else {
-                    layoutParams.leftToRight = squares[i-1][j].id
+                    layoutParams.leftToRight = squares[x-1][y].id
                 }
-                if (i == GRID_SIZE - 1) {
+                if (x == GRID_SIZE - 1) {
                     layoutParams.rightToRight = boardLayout.id
                 } else {
-                    layoutParams.rightToLeft = squares[i+1][j].id
+                    layoutParams.rightToLeft = squares[x+1][y].id
                 }
-                if (j == 0) {
+                if (y == 0) {
                     layoutParams.bottomToBottom = boardLayout.id
                 } else {
-                    layoutParams.bottomToTop = squares[i][j-1].id
+                    layoutParams.bottomToTop = squares[x][y-1].id
                 }
-                if (j == GRID_SIZE - 1) {
+                if (y == GRID_SIZE - 1) {
                     layoutParams.topToTop = boardLayout.id
                 } else {
-                    layoutParams.topToBottom = squares[i][j+1].id
+                    layoutParams.topToBottom = squares[x][y+1].id
                 }
                 square.layoutParams = layoutParams
             }
-//            setOnClickListener(boardLayout)
 //            setOnDragListener(boardLayout)
         }
-        Log.e("BoardFragment","HEREEEE5")
         return view
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(BoardViewModel::class.java)
-
-
-        // TODO: Use the ViewModel
-    }
-
-    private fun setOnClickListener(board: ConstraintLayout) {
-        board.setOnClickListener { view ->
-            if (view is SquareLayout) {
-                val activeSquareCoords = viewModel.activeSquareCoords
-                if (activeSquareCoords != null) {
-                    val targetCoords = view.coords
-                    if (targetCoords == activeSquareCoords &&
-                        view.activeSquare
-                    ) { // TODO This should be a redundant check
-                        viewModel.activeSquareCoords = null
-                        view.activeSquare = false
-                    } else if (Pawn.isPromotionRank(targetCoords.second)) {
-                        makePromotionDialog(targetCoords) //TODO this
-                        //TODO also preempt this if no promotion is a legal move
-                    } else {
-                        makeAndDoMove(activeSquareCoords, targetCoords)
-
-                    }
-                }
+    fun updateSquaresToPosition() {
+        for (x in 0 until GRID_SIZE) {
+            for (y in 0 until GRID_SIZE) {
+                squares[x][y].updateSquare()
             }
         }
     }
+
+//    override fun onActivityCreated(savedInstanceState: Bundle?) {
+//        super.onActivityCreated(savedInstanceState)
+//        viewModel = ViewModelProvider(this).get(BoardViewModel::class.java)
+//
+//
+//        // TODO: Use the ViewModel
+//    }
     private fun setOnDragListener(board: ConstraintLayout) {
         //TODO dragging
 //        board.setOnDragListener{ view, event ->
@@ -116,42 +92,6 @@ class BoardFragment() : Fragment() {
 //            }
 //            false
 //        }
-    }
-
-    private fun makeAndDoMove(startCoords: Pair<Int,Int>, endCoords: Pair<Int,Int>) {
-        val capturePiece =
-            viewModel.placements[endCoords.first][endCoords.second]
-        val move = Move(startCoords, endCoords, capturePiece, EMPTY)
-        val moveStatus = viewModel.rulesEngine.validateMove(move)
-        when (moveStatus) {
-            MoveStatus.ILLEGAL ->  makeIllegalMoveReaction(endCoords)//do nothing
-            MoveStatus.LEGAL -> doMove(move)
-            MoveStatus.CAPTURE -> doCaptureMove(move)
-        }
-        viewModel.rulesEngine.getNextPosition(move)
-
-    }
-
-    fun makePromotionDialog(coords: Pair<Int,Int>) {
-
-    }
-
-    fun makeIllegalMoveReaction(coords: Pair<Int,Int>) {
-
-    }
-
-    fun doMove(move: Move) {
-        //TODO sound effect
-        makeMove(move)
-    }
-
-    fun doCaptureMove(move: Move) {
-        //TODO sound effect
-        makeMove(move)
-    }
-
-    fun makeMove(move: Move) {
-
     }
 
 

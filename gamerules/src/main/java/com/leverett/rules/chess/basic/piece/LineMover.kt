@@ -1,10 +1,10 @@
 package com.leverett.rules.chess.basic.piece
 
+import com.leverett.rules.chess.representation.GRID_SIZE
 import com.leverett.rules.chess.representation.Move
 import com.leverett.rules.chess.representation.PieceEnum
 import com.leverett.rules.chess.representation.PieceEnum.*
 import com.leverett.rules.chess.representation.Position
-import com.leverett.rules.chess.representation.Position.Companion.GRID_SIZE
 
 abstract class LineMover(i: Int, j: Int, private val directions: Array<Pair<Int,Int>>):
     PieceBase(i, j) {
@@ -20,14 +20,14 @@ abstract class LineMover(i: Int, j: Int, private val directions: Array<Pair<Int,
             while (moveable) {
                 moveFile += direction.first
                 moveRank += direction.second
-                if (moveFile in 0..GRID_SIZE && moveRank in 0..GRID_SIZE) {
+                if (moveFile in 0 until GRID_SIZE && moveRank in 0 until GRID_SIZE) {
                     val locationPiece = position.placements[moveFile][moveRank]
                     if (locationPiece == EMPTY) {
-                        candidateMoves.add(Move(startCoord, Pair(moveFile, moveRank), EMPTY, EMPTY))
+                        candidateMoves.add(Move(startCoord, Pair(moveFile, moveRank), EMPTY))
                     }
                     else if ((activeColor && !locationPiece.color) ||
                         (!activeColor && locationPiece.color)) {
-                        candidateMoves.add(Move(startCoord, Pair(moveFile, moveRank), locationPiece, EMPTY))
+                        candidateMoves.add(Move(startCoord, Pair(moveFile, moveRank), locationPiece))
                         moveable = false
                     }
                     else {

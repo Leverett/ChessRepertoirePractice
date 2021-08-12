@@ -1,10 +1,10 @@
 package com.leverett.rules.chess.basic.piece
 
+import com.leverett.rules.chess.basic.BasicRulesEngine.underAttack
 import com.leverett.rules.chess.representation.Move
 import com.leverett.rules.chess.representation.PieceEnum.*
 import com.leverett.rules.chess.representation.Position
-import com.leverett.rules.chess.representation.Position.Companion.GRID_SIZE
-import com.leverett.rules.chess.basic.BasicRulesEngine.Companion.underAttack
+import com.leverett.rules.chess.representation.GRID_SIZE
 import com.leverett.rules.chess.representation.PieceEnum
 
 class King(i: Int, j: Int) : SquareMover(i, j, KING_DIRECTIONS) {
@@ -57,14 +57,15 @@ class King(i: Int, j: Int) : SquareMover(i, j, KING_DIRECTIONS) {
 
     companion object {
         val KING_DIRECTIONS: Array<Pair<Int,Int>> = arrayOf(
-            Pair(1, 2),
-            Pair(1, -2),
-            Pair(-1, 2),
-            Pair(-1, -2),
-            Pair(2, 1),
-            Pair(2, -1),
-            Pair(-2, 1),
-            Pair(-2, -1),
+            Pair(-1, -1),
+            Pair(-1, 0),
+            Pair(-1, 1),
+            Pair(0, -1),
+            Pair(0, 0),
+            Pair(0, 1),
+            Pair(1, -1),
+            Pair(1, 0),
+            Pair(1, 1),
         )
         val KINGSIDE_CASTLING_EMPTY_FILE_COORDS: IntArray = intArrayOf(5, 6)
         val QUEENSIDE_CASTLING_EMPTY_FILE_COORDS: IntArray = intArrayOf(1, 2, 3)

@@ -2,19 +2,19 @@ package com.leverett.rules.chess.representation
 
 enum class PieceEnum(val color: Boolean, val type: PieceType, val pieceChar: Char) {
 
-    BLACK_PAWN(false, PieceType.PAWN, PieceChars.BLACK_PAWN),
-    BLACK_KNIGHT(false, PieceType.KNIGHT, PieceChars.BLACK_KNIGHT),
-    BLACK_BISHOP(false, PieceType.BISHOP, PieceChars.BLACK_BISHOP),
-    BLACK_ROOK(false, PieceType.ROOK, PieceChars.BLACK_ROOK),
-    BLACK_QUEEN(false, PieceType.QUEEN, PieceChars.BLACK_QUEEN),
-    BLACK_KING(false, PieceType.KING, PieceChars.BLACK_KING),
-    WHITE_PAWN(true, PieceType.PAWN, PieceChars.BLACK_PAWN),
-    WHITE_KNIGHT(true, PieceType.KNIGHT, PieceChars.WHITE_KNIGHT),
-    WHITE_BISHOP(true, PieceType.BISHOP, PieceChars.WHITE_BISHOP),
-    WHITE_ROOK(true, PieceType.ROOK, PieceChars.WHITE_ROOK),
-    WHITE_QUEEN(true, PieceType.QUEEN, PieceChars.WHITE_QUEEN),
-    WHITE_KING(true, PieceType.KING, PieceChars.WHITE_KING),
-    EMPTY(true, PieceType.EMPTY, PieceChars.EMPTY);
+    BLACK_PAWN(false, PieceType.PAWN, BLACK_PAWN_CHAR),
+    BLACK_KNIGHT(false, PieceType.KNIGHT, BLACK_KNIGHT_CHAR),
+    BLACK_BISHOP(false, PieceType.BISHOP, BLACK_BISHOP_CHAR),
+    BLACK_ROOK(false, PieceType.ROOK, BLACK_ROOK_CHAR),
+    BLACK_QUEEN(false, PieceType.QUEEN, BLACK_QUEEN_CHAR),
+    BLACK_KING(false, PieceType.KING, BLACK_KING_CHAR),
+    WHITE_PAWN(true, PieceType.PAWN, WHITE_PAWN_CHAR),
+    WHITE_KNIGHT(true, PieceType.KNIGHT, WHITE_KNIGHT_CHAR),
+    WHITE_BISHOP(true, PieceType.BISHOP, WHITE_BISHOP_CHAR),
+    WHITE_ROOK(true, PieceType.ROOK, WHITE_ROOK_CHAR),
+    WHITE_QUEEN(true, PieceType.QUEEN, WHITE_QUEEN_CHAR),
+    WHITE_KING(true, PieceType.KING, WHITE_KING_CHAR),
+    EMPTY(true, PieceType.EMPTY, EMPTY_CHAR);
 
     enum class PieceType {
         PAWN,
@@ -29,18 +29,18 @@ enum class PieceEnum(val color: Boolean, val type: PieceType, val pieceChar: Cha
     companion object {
         fun getPiece(pieceChar: Char): PieceEnum {
             return when (pieceChar) {
-                PieceChars.BLACK_PAWN -> BLACK_PAWN
-                PieceChars.BLACK_KNIGHT -> BLACK_KNIGHT
-                PieceChars.BLACK_BISHOP -> BLACK_BISHOP
-                PieceChars.BLACK_ROOK -> BLACK_ROOK
-                PieceChars.BLACK_QUEEN -> BLACK_QUEEN
-                PieceChars.BLACK_KING -> BLACK_KING
-                PieceChars.WHITE_PAWN -> WHITE_PAWN
-                PieceChars.WHITE_KNIGHT -> WHITE_KNIGHT
-                PieceChars.WHITE_BISHOP -> WHITE_BISHOP
-                PieceChars.WHITE_ROOK -> WHITE_ROOK
-                PieceChars.WHITE_QUEEN -> WHITE_QUEEN
-                PieceChars.WHITE_KING -> WHITE_KING
+                BLACK_PAWN_CHAR -> BLACK_PAWN
+                BLACK_KNIGHT_CHAR -> BLACK_KNIGHT
+                BLACK_BISHOP_CHAR -> BLACK_BISHOP
+                BLACK_ROOK_CHAR -> BLACK_ROOK
+                BLACK_QUEEN_CHAR -> BLACK_QUEEN
+                BLACK_KING_CHAR -> BLACK_KING
+                WHITE_PAWN_CHAR -> WHITE_PAWN
+                WHITE_KNIGHT_CHAR -> WHITE_KNIGHT
+                WHITE_BISHOP_CHAR -> WHITE_BISHOP
+                WHITE_ROOK_CHAR -> WHITE_ROOK
+                WHITE_QUEEN_CHAR -> WHITE_QUEEN
+                WHITE_KING_CHAR -> WHITE_KING
                 else -> EMPTY
             }
         }
@@ -69,13 +69,16 @@ enum class PieceEnum(val color: Boolean, val type: PieceType, val pieceChar: Cha
             }
         }
 
-
         val PROMOTION_TYPES = arrayOf(
             PieceType.KNIGHT,
             PieceType.BISHOP,
             PieceType.ROOK,
             PieceType.QUEEN
         )
+    }
+
+    override fun toString(): String {
+        return pieceChar.toString()
     }
 
 }

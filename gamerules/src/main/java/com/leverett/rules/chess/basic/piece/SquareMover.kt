@@ -1,5 +1,6 @@
 package com.leverett.rules.chess.basic.piece;
 
+import com.leverett.rules.chess.representation.GRID_SIZE
 import com.leverett.rules.chess.representation.Move
 import com.leverett.rules.chess.representation.PieceEnum
 import com.leverett.rules.chess.representation.PieceEnum.EMPTY
@@ -14,9 +15,9 @@ abstract class SquareMover(i: Int, j: Int, private val directions: Array<Pair<In
         val startCoords = Pair(i,j)
         for (direction in directions) {
             val moveFile = i + direction.first
-            if (moveFile in 0..Position.GRID_SIZE) {
+            if (moveFile in 0 until GRID_SIZE) {
                 val moveRank = j + direction.second
-                if (moveRank in 0..Position.GRID_SIZE) {
+                if (moveRank in 0 until GRID_SIZE) {
                     val locationPiece = position.placements[moveFile][moveRank]
                     if (locationPiece == EMPTY ||
                         (activeColor && !locationPiece.color) ||
@@ -24,9 +25,7 @@ abstract class SquareMover(i: Int, j: Int, private val directions: Array<Pair<In
                         candidateMoves.add(
                             Move(startCoords,
                                 Pair(moveFile,moveRank),
-                                locationPiece,
-                                EMPTY
-                        )
+                                locationPiece)
                         )
                     }
                 }
@@ -39,9 +38,9 @@ abstract class SquareMover(i: Int, j: Int, private val directions: Array<Pair<In
         val threateningPiece = threateningPiece(threateningColor)
         for (direction in directions) {
             val attackerFile = i + direction.first
-            if (attackerFile in 0..Position.GRID_SIZE) {
+            if (attackerFile in 0 until GRID_SIZE) {
                 val attackerRank = j + direction.second
-                if (attackerRank in 0..Position.GRID_SIZE) {
+                if (attackerRank in 0 until GRID_SIZE) {
                     val locationChar = placements[attackerFile][attackerRank]
                     if (locationChar == threateningPiece) {
                         return true

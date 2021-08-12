@@ -1,7 +1,5 @@
 package com.leverett.rules.chess.representation
 
-import com.leverett.rules.chess.representation.Position.Companion.GRID_SIZE
-
 class Castling(var whiteKingside: Boolean,
                var whiteQueenside: Boolean,
                var blackKingside: Boolean,
