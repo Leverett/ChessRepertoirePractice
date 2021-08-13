@@ -40,59 +40,56 @@ enum class PieceEnum(val color: Boolean, val type: PieceType, val pieceChar: Cha
         EMPTY
     }
 
-    companion object {
-        fun getPiece(pieceChar: Char): PieceEnum {
-            return when (pieceChar) {
-                BLACK_PAWN_CHAR -> BLACK_PAWN
-                BLACK_KNIGHT_CHAR -> BLACK_KNIGHT
-                BLACK_BISHOP_CHAR -> BLACK_BISHOP
-                BLACK_ROOK_CHAR -> BLACK_ROOK
-                BLACK_QUEEN_CHAR -> BLACK_QUEEN
-                BLACK_KING_CHAR -> BLACK_KING
-                WHITE_PAWN_CHAR -> WHITE_PAWN
-                WHITE_KNIGHT_CHAR -> WHITE_KNIGHT
-                WHITE_BISHOP_CHAR -> WHITE_BISHOP
-                WHITE_ROOK_CHAR -> WHITE_ROOK
-                WHITE_QUEEN_CHAR -> WHITE_QUEEN
-                WHITE_KING_CHAR -> WHITE_KING
-                else -> EMPTY
-            }
-        }
-
-        fun getPiece(color: Boolean, pieceType: PieceType): PieceEnum {
-            if (color) {
-                return when (pieceType) {
-                    PieceType.PAWN -> WHITE_PAWN
-                    PieceType.KNIGHT -> WHITE_KNIGHT
-                    PieceType.BISHOP -> WHITE_BISHOP
-                    PieceType.ROOK -> WHITE_ROOK
-                    PieceType.QUEEN -> WHITE_QUEEN
-                    PieceType.KING -> WHITE_KING
-                    else -> EMPTY
-                }
-            } else {
-                return when (pieceType) {
-                    PieceType.PAWN -> BLACK_PAWN
-                    PieceType.KNIGHT -> BLACK_KNIGHT
-                    PieceType.BISHOP -> BLACK_BISHOP
-                    PieceType.ROOK -> BLACK_ROOK
-                    PieceType.QUEEN -> BLACK_QUEEN
-                    PieceType.KING -> BLACK_KING
-                    else -> EMPTY
-                }
-            }
-        }
-
-        val PROMOTION_TYPES = arrayOf(
-            PieceType.KNIGHT,
-            PieceType.BISHOP,
-            PieceType.ROOK,
-            PieceType.QUEEN
-        )
-    }
-
     override fun toString(): String {
         return pieceChar.toString()
     }
 
 }
+fun getPiece(pieceChar: Char): PieceEnum {
+    return when (pieceChar) {
+        BLACK_PAWN_CHAR -> PieceEnum.BLACK_PAWN
+        BLACK_KNIGHT_CHAR -> PieceEnum.BLACK_KNIGHT
+        BLACK_BISHOP_CHAR -> PieceEnum.BLACK_BISHOP
+        BLACK_ROOK_CHAR -> PieceEnum.BLACK_ROOK
+        BLACK_QUEEN_CHAR -> PieceEnum.BLACK_QUEEN
+        BLACK_KING_CHAR -> PieceEnum.BLACK_KING
+        WHITE_PAWN_CHAR -> PieceEnum.WHITE_PAWN
+        WHITE_KNIGHT_CHAR -> PieceEnum.WHITE_KNIGHT
+        WHITE_BISHOP_CHAR -> PieceEnum.WHITE_BISHOP
+        WHITE_ROOK_CHAR -> PieceEnum.WHITE_ROOK
+        WHITE_QUEEN_CHAR -> PieceEnum.WHITE_QUEEN
+        WHITE_KING_CHAR -> PieceEnum.WHITE_KING
+        else -> PieceEnum.EMPTY
+    }
+}
+
+fun getPiece(color: Boolean, pieceType: PieceEnum.PieceType): PieceEnum {
+    if (color) {
+        return when (pieceType) {
+            PieceEnum.PieceType.PAWN -> PieceEnum.WHITE_PAWN
+            PieceEnum.PieceType.KNIGHT -> PieceEnum.WHITE_KNIGHT
+            PieceEnum.PieceType.BISHOP -> PieceEnum.WHITE_BISHOP
+            PieceEnum.PieceType.ROOK -> PieceEnum.WHITE_ROOK
+            PieceEnum.PieceType.QUEEN -> PieceEnum.WHITE_QUEEN
+            PieceEnum.PieceType.KING -> PieceEnum.WHITE_KING
+            else -> PieceEnum.EMPTY
+        }
+    } else {
+        return when (pieceType) {
+            PieceEnum.PieceType.PAWN -> PieceEnum.BLACK_PAWN
+            PieceEnum.PieceType.KNIGHT -> PieceEnum.BLACK_KNIGHT
+            PieceEnum.PieceType.BISHOP -> PieceEnum.BLACK_BISHOP
+            PieceEnum.PieceType.ROOK -> PieceEnum.BLACK_ROOK
+            PieceEnum.PieceType.QUEEN -> PieceEnum.BLACK_QUEEN
+            PieceEnum.PieceType.KING -> PieceEnum.BLACK_KING
+            else -> PieceEnum.EMPTY
+        }
+    }
+}
+
+val PROMOTION_TYPES = arrayOf(
+    PieceEnum.PieceType.KNIGHT,
+    PieceEnum.PieceType.BISHOP,
+    PieceEnum.PieceType.ROOK,
+    PieceEnum.PieceType.QUEEN
+)

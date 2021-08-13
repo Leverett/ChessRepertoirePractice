@@ -5,9 +5,9 @@ import com.leverett.rules.chess.parsing.positionFromFen
 
 const val GRID_SIZE = 8
 val NO_ENPASSANT_TARGET_COORDINATE = Pair(-1,-1)
-
+private const val testingFen: String = STARTING_FEN //TODO remember to remove this
 fun startingPosition(): Position {
-    return positionFromFen((STARTING_FEN))
+    return positionFromFen(testingFen)
 }
 
 fun newPlacements(): Array<Array<PieceEnum>> {

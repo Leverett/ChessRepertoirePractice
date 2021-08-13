@@ -5,4 +5,6 @@ const val CAPTURE_MOVE_SOUND = -1
 const val CASTLE_MOVE_SOUND = -1
 const val MOVE_SOUND = -1
 
-fun playSound(id: Int) {}
+fun playSound(id: Int) {
+    //TODO audio
+}

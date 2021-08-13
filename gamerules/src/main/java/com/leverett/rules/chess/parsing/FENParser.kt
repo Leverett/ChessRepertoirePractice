@@ -50,7 +50,7 @@ private fun placementsFromFen(fenToken: String): Array<Array<PieceEnum>> {
         when {
             currentChar.isDigit() -> i+= currentChar.digitToInt()
             currentChar == ROW_DELIMITER -> {j++; i = 0}
-            else -> { placements[i][GRID_SIZE - j - 1] = PieceEnum.getPiece(currentChar); i++ }
+            else -> { placements[i][GRID_SIZE - j - 1] = getPiece(currentChar); i++ }
         }
         fenIndex++
     }

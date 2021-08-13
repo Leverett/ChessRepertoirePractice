@@ -1,13 +1,8 @@
 package com.leverett.rules.chess.basic.piece
 
-import com.leverett.rules.chess.representation.GRID_SIZE
-import com.leverett.rules.chess.representation.Move
-import com.leverett.rules.chess.representation.PieceEnum
+import com.leverett.rules.chess.representation.*
 import com.leverett.rules.chess.representation.PieceEnum.EMPTY
 import com.leverett.rules.chess.representation.PieceEnum.PieceType.PAWN
-import com.leverett.rules.chess.representation.PieceEnum.Companion.PROMOTION_TYPES
-import com.leverett.rules.chess.representation.PieceEnum.Companion.getPiece
-import com.leverett.rules.chess.representation.Position
 
 class Pawn(i: Int, j: Int) : PieceBase(i, j) {
 
