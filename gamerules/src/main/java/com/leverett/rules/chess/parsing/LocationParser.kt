@@ -1,8 +1,8 @@
 package com.leverett.rules.chess.parsing
 
-fun notationToCoordinate(coord: String) : Pair<Int,Int> {
+fun notationToLocation(loc: String) : Pair<Int,Int> {
     // TODO Validate input
-    val i: Int = when(coord[0]) {
+    val i: Int = when(loc[0]) {
         'a' -> 0
         'b' -> 1
         'c' -> 2
@@ -13,11 +13,11 @@ fun notationToCoordinate(coord: String) : Pair<Int,Int> {
         'h' -> 7
         else -> -1 //TODO ERROR
     }
-    val j: Int = coord[1].digitToInt() - 1
+    val j: Int = loc[1].digitToInt() - 1
     return Pair(i, j)
 }
 
-fun coordinateToNotation(i: Int, j: Int): String {
+fun locationToNotation(i: Int, j: Int): String {
     if (i < 0 || i > 7 || j < 0 || j > 7) {
         //TODO ERROR
     }

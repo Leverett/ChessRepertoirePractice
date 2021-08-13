@@ -1,13 +1,11 @@
 package com.leverett.rules.chess.parsing
 
 import com.leverett.rules.chess.representation.*
-import com.leverett.rules.log
-import java.util.logging.Level
-import java.util.logging.Logger
 
 private const val FEN_TOKEN_LENGTH = 6
 
 private const val WHITE_CHAR = "w"
+private const val BLACK_CHAR = "b"
 
 private const val ROW_DELIMITER = '/'
 
@@ -18,6 +16,7 @@ private const val CASTLING_INDEX = 2
 private const val ENPASSANT_TARGET_INDEX = 3
 private const val TURN_INDEX = 5
 
+const val NO_CASTLING = '-'
 private const val NO_ENPASSANT_TARGET = '-'
 
 const val STARTING_FEN: String = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -28,13 +27,11 @@ fun positionFromFen(fen: String): Position {
         //TODO throw error
     }
     val placements = placementsFromFen(tokens[PLACEMENT_INDEX])
-    val activeColor = (tokens[ACTIVE_COLOR_INDEX].equals(WHITE_CHAR))
-    log("FENPARSING", tokens[ACTIVE_COLOR_INDEX])
-    log("FENPARSING", activeColor.toString())
+    val activeColor = (tokens[ACTIVE_COLOR_INDEX] == WHITE_CHAR)
     val castling = castlingFromFen(tokens[CASTLING_INDEX])
     val enPassantTarget =
         if (tokens[ENPASSANT_TARGET_INDEX] == NO_ENPASSANT_TARGET.toString()) NO_ENPASSANT_TARGET_COORDINATE
-        else notationToCoordinate(tokens[ENPASSANT_TARGET_INDEX])
+        else notationToLocation(tokens[ENPASSANT_TARGET_INDEX])
     val turn = tokens[TURN_INDEX].toInt()
     return Position(placements, activeColor, castling, enPassantTarget, turn)
 }
@@ -50,14 +47,10 @@ private fun placementsFromFen(fenToken: String): Array<Array<PieceEnum>> {
     var fenIndex = 0
     while (fenIndex < fenToken.length) {
         var currentChar: Char = fenToken[fenIndex]
-        if (currentChar.isDigit()) {
-            i += currentChar.digitToInt()
-        } else if (currentChar == ROW_DELIMITER) {
-            j++
-            i = 0
-        } else {
-            placements[i][GRID_SIZE - j - 1] = PieceEnum.getPiece(currentChar);
-            i++
+        when {
+            currentChar.isDigit() -> i+= currentChar.digitToInt()
+            currentChar == ROW_DELIMITER -> {j++; i = 0}
+            else -> { placements[i][GRID_SIZE - j - 1] = PieceEnum.getPiece(currentChar); i++ }
         }
         fenIndex++
     }
@@ -65,9 +58,57 @@ private fun placementsFromFen(fenToken: String): Array<Array<PieceEnum>> {
 }
 
 private fun castlingFromFen(fenToken: String): Castling {
-    return Castling(
-        fenToken.contains(WHITE_KING_CHAR),
-        fenToken.contains(WHITE_QUEEN_CHAR),
-        fenToken.contains(BLACK_KING_CHAR),
-        fenToken.contains(BLACK_QUEEN_CHAR))
+    return Castling(fenToken.contains(WHITE_KING_CHAR),
+                  fenToken.contains(WHITE_QUEEN_CHAR),
+                  fenToken.contains(BLACK_KING_CHAR),
+                  fenToken.contains(BLACK_QUEEN_CHAR))
+}
+
+fun fenFromPosition(position: Position) {
+    val turnlessFen = turnlessFenFromPosition(position)
+    val halfmoveClockToken = "0" //TODO Halfmove clock
+    val fullmoveClockToken = position.turn.toString()
+    arrayOf(turnlessFen, halfmoveClockToken, fullmoveClockToken).joinToString(DELIMITER)
+}
+
+fun turnlessFenFromPosition(position: Position): String {
+    val placementsToken = fenPlacementsFromPosition(position)
+    val activeColorToken = if (position.activeColor) WHITE_CHAR else BLACK_CHAR
+    val castlingToken = position.castling.toString()
+
+    val enPassantTarget = position.enPassantTarget
+    val enPassantTargetToken =
+        if (enPassantTarget != NO_ENPASSANT_TARGET_COORDINATE)
+            locationToNotation(enPassantTarget.first, enPassantTarget.second)
+        else
+            NO_ENPASSANT_TARGET
+
+    return arrayOf(placementsToken, activeColorToken, castlingToken, enPassantTargetToken).joinToString(DELIMITER)
+}
+
+private fun fenPlacementsFromPosition(position: Position): String {
+    val placements = position.placements
+    var result = ""
+    var emptyCount = 0
+    for (i in 0 until GRID_SIZE) {
+        for (j in 0 until GRID_SIZE) {
+            val piece = placements[i][GRID_SIZE - j - 1]
+            if (piece == PieceEnum.EMPTY) {
+                emptyCount++
+            } else {
+                if (emptyCount > 0) {
+                    result += emptyCount
+                    emptyCount = 0
+                }
+                result += piece.pieceChar
+            }
+        }
+        if (emptyCount > 0) {
+            result += emptyCount
+            emptyCount = 0
+        }
+        result += ROW_DELIMITER
+    }
+
+    return result
 }

@@ -1,11 +1,8 @@
 package com.leverett.rules.chess.basic.piece
 
 import com.leverett.rules.chess.basic.BasicRulesEngine.underAttack
-import com.leverett.rules.chess.representation.Move
+import com.leverett.rules.chess.representation.*
 import com.leverett.rules.chess.representation.PieceEnum.*
-import com.leverett.rules.chess.representation.Position
-import com.leverett.rules.chess.representation.GRID_SIZE
-import com.leverett.rules.chess.representation.PieceEnum
 
 class King(i: Int, j: Int) : SquareMover(i, j, KING_DIRECTIONS) {
 
@@ -18,22 +15,22 @@ class King(i: Int, j: Int) : SquareMover(i, j, KING_DIRECTIONS) {
         if (position.castleAvailable(true) &&
             squaresEmpty(placements, backRank, KINGSIDE_CASTLING_EMPTY_FILE_COORDS) &&
             squaresNotUnderThreat(placements, backRank, KINGSIDE_CASTLING_UNTHREATENED_FILE_COORDS, !activeColor)) {
-            candidateMoves.add(Move.WHITE_KINGSIDE_CASTLE)
+            candidateMoves.add(WHITE_KINGSIDE_CASTLE)
         }
         if (position.castleAvailable(false) &&
             squaresEmpty(placements, backRank, QUEENSIDE_CASTLING_EMPTY_FILE_COORDS) &&
             squaresNotUnderThreat(placements, backRank, QUEENSIDE_CASTLING_UNTHREATENED_FILE_COORDS, !activeColor)) {
-            candidateMoves.add(Move.WHITE_QUEENSIDE_CASTLE)
+            candidateMoves.add(WHITE_QUEENSIDE_CASTLE)
         }
         if (position.castleAvailable(true) &&
             squaresEmpty(placements, backRank, KINGSIDE_CASTLING_EMPTY_FILE_COORDS) &&
             squaresNotUnderThreat(placements, backRank, KINGSIDE_CASTLING_UNTHREATENED_FILE_COORDS, !activeColor)) {
-            candidateMoves.add(Move.BLACK_KINGSIDE_CASTLE)
+            candidateMoves.add(BLACK_KINGSIDE_CASTLE)
         }
         if (position.castleAvailable(false) &&
             squaresEmpty(placements, backRank, QUEENSIDE_CASTLING_EMPTY_FILE_COORDS) &&
             squaresNotUnderThreat(placements, backRank, QUEENSIDE_CASTLING_UNTHREATENED_FILE_COORDS, !activeColor)) {
-            candidateMoves.add(Move.BLACK_QUEENSIDE_CASTLE)
+            candidateMoves.add(BLACK_QUEENSIDE_CASTLE)
         }
         return candidateMoves
     }

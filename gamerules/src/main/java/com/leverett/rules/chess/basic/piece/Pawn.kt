@@ -107,10 +107,7 @@ class Pawn(i: Int, j: Int) : PieceBase(i, j) {
     override fun threateningPiece(color: Boolean): PieceEnum {
         return getPiece(color, PAWN)
     }
-
-    companion object {
-        fun isPromotionRank(rank: Int): Boolean {
-            return (rank == 0 || rank == GRID_SIZE - 1)
-        }
-    }
+}
+fun isPromotionRank(rank: Int): Boolean {
+    return (rank == 0 || rank == GRID_SIZE - 1)
 }

@@ -1,14 +1,5 @@
 package com.leverett.rules.chess.basic
 
-import com.leverett.rules.chess.representation.Castling.Companion.BLACK_KINGSIDE_ROOK_HOME_COORD
-import com.leverett.rules.chess.representation.Castling.Companion.BLACK_QUEENSIDE_ROOK_HOME_COORD
-import com.leverett.rules.chess.representation.Castling.Companion.KINGSIDE_KING_DESTINATION_FILE
-import com.leverett.rules.chess.representation.Castling.Companion.KINGSIDE_ROOK_DESTINATION_FILE
-import com.leverett.rules.chess.representation.Castling.Companion.KING_HOME_FILE
-import com.leverett.rules.chess.representation.Castling.Companion.QUEENSIDE_KING_DESTINATION_FILE
-import com.leverett.rules.chess.representation.Castling.Companion.QUEENSIDE_ROOK_DESTINATION_FILE
-import com.leverett.rules.chess.representation.Castling.Companion.WHITE_KINGSIDE_ROOK_HOME_COORD
-import com.leverett.rules.chess.representation.Castling.Companion.WHITE_QUEENSIDE_ROOK_HOME_COORD
 import com.leverett.rules.chess.representation.PieceEnum
 import com.leverett.rules.chess.representation.PieceEnum.EMPTY
 import com.leverett.rules.chess.representation.PieceEnum.*
@@ -16,43 +7,37 @@ import com.leverett.rules.chess.representation.PieceEnum.PieceType.*
 import com.leverett.rules.RulesEngine
 import com.leverett.rules.chess.basic.piece.*
 import com.leverett.rules.chess.representation.*
-import com.leverett.rules.log
 import java.util.stream.Collectors
 
 object BasicRulesEngine: RulesEngine {
 
     override fun validateMove(position: Position, move: Move): MoveStatus {
-        log("VALIDATE MOVE", move.toString())
-        if (position.legalMoves(this).contains(move)) {
-            return MoveStatus.LEGAL
-        }
-        if (position.illegalMoves(this).contains(move)) {
-            return MoveStatus.ILLEGAL
-        }
-        return MoveStatus.INVALID
+        return gameStatus(position).moveStatus(move)
     }
 
     override fun isMovePromotion(start: Pair<Int, Int>, end: Pair<Int, Int>) {
         TODO("Not yet implemented")
     }
 
+    override fun gameStatus(position: Position): GameStatus {
+        val validMoves = validMoves(position)
+        val inCheck = isInCheck(position)
+        return GameStatus(validMoves.first, validMoves.second, inCheck)
+    }
+
     override fun isInCheck(position: Position): Boolean {
-        if (position.statusCalculated()) {
-            return position.gameStatus(this).inCheck
-        }
         return inLegalCheck(position)
     }
 
     override fun isInCheckMate(position: Position): Boolean {
-        return position.gameStatus(this).inCheckmate
+        return gameStatus(position).inCheckmate
     }
 
     override fun isInStaleMate(position: Position): Boolean {
-        return position.gameStatus(this).inStalemate
+        return gameStatus(position).inStalemate
     }
 
     override fun validMoves(position: Position): Pair<List<Move>, List<Move>> {
-        log("VALID MOVES", "HEREEEE")
         val activeColor = position.activeColor
         val pieces: MutableList<Piece> = mutableListOf()
         for (i in 0 until GRID_SIZE) {
@@ -72,8 +57,6 @@ object BasicRulesEngine: RulesEngine {
         }
         val candidateMovesLists: List<List<Move>> = pieces.parallelStream().map { it.candidateMoves(position) }.collect(Collectors.toList())
         val candidateMoves = candidateMovesLists.flatten()
-        log("Candidate MOVES", candidateMoves.toString())
-        log("Candidate MOVES", candidateMoves.size.toString())
         val legalityList = candidateMoves.parallelStream().map { isMoveLegal(it, position) }.collect(Collectors.toList())
         val legalMovesBuilder: MutableList<Move> = mutableListOf()
         val illegalMovesBuilder: MutableList<Move> = mutableListOf()
@@ -85,8 +68,6 @@ object BasicRulesEngine: RulesEngine {
                 illegalMovesBuilder.add(candidateMoves[i])
             }
         }
-        log("LEGAL", legalMovesBuilder.toString())
-        log("ILLEGAL", illegalMovesBuilder.toString())
         return Pair(legalMovesBuilder, illegalMovesBuilder)
     }
 
@@ -149,10 +130,10 @@ object BasicRulesEngine: RulesEngine {
 
 
     override fun getNextPosition(position: Position, move: Move): Position {
-        if (move == Move.WHITE_KINGSIDE_CASTLE ||
-            move == Move.WHITE_QUEENSIDE_CASTLE ||
-            move == Move.BLACK_KINGSIDE_CASTLE ||
-            move == Move.BLACK_QUEENSIDE_CASTLE
+        if (move == WHITE_KINGSIDE_CASTLE ||
+            move == WHITE_QUEENSIDE_CASTLE ||
+            move == BLACK_KINGSIDE_CASTLE ||
+            move == BLACK_QUEENSIDE_CASTLE
         ) {
             return doCastle(position, move)
         }
@@ -176,28 +157,28 @@ object BasicRulesEngine: RulesEngine {
         val newPlacements = position.copyPlacements()
         val castleRank = if (position.activeColor) 0 else GRID_SIZE - 1
         val newCastling = position.castling.copy()
-        if (move == Move.WHITE_KINGSIDE_CASTLE) {
+        if (move == WHITE_KINGSIDE_CASTLE) {
             newPlacements[KINGSIDE_KING_DESTINATION_FILE][castleRank] = WHITE_KING
             newPlacements[KINGSIDE_ROOK_DESTINATION_FILE][castleRank] = WHITE_ROOK
             newPlacements[GRID_SIZE-1][castleRank] = EMPTY
             newCastling.whiteKingside = false
             newCastling.whiteQueenside = false
         }
-        if (move == Move.WHITE_QUEENSIDE_CASTLE) {
+        if (move == WHITE_QUEENSIDE_CASTLE) {
             newPlacements[QUEENSIDE_KING_DESTINATION_FILE][castleRank] = WHITE_QUEEN
             newPlacements[QUEENSIDE_ROOK_DESTINATION_FILE][castleRank] = WHITE_ROOK
             newPlacements[0][castleRank] = EMPTY
             newCastling.whiteKingside = false
             newCastling.whiteQueenside = false
         }
-        if (move == Move.BLACK_KINGSIDE_CASTLE) {
+        if (move == BLACK_KINGSIDE_CASTLE) {
             newPlacements[KINGSIDE_KING_DESTINATION_FILE][castleRank] = BLACK_KING
             newPlacements[KINGSIDE_ROOK_DESTINATION_FILE][castleRank] = BLACK_ROOK
             newPlacements[GRID_SIZE-1][castleRank] = EMPTY
             newCastling.blackKingside = false
             newCastling.blackQueenside = false
         }
-        if (move == Move.BLACK_QUEENSIDE_CASTLE) {
+        if (move == BLACK_QUEENSIDE_CASTLE) {
             newPlacements[QUEENSIDE_KING_DESTINATION_FILE][castleRank] = BLACK_KING
             newPlacements[QUEENSIDE_ROOK_DESTINATION_FILE][castleRank] = BLACK_ROOK
             newPlacements[0][castleRank] = EMPTY

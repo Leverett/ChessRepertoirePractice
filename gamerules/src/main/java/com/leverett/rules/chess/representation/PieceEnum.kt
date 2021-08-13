@@ -1,5 +1,19 @@
 package com.leverett.rules.chess.representation
 
+const val WHITE_PAWN_CHAR = 'P'
+const val BLACK_PAWN_CHAR = 'p'
+const val WHITE_KNIGHT_CHAR = 'N'
+const val BLACK_KNIGHT_CHAR = 'n'
+const val WHITE_BISHOP_CHAR = 'B'
+const val BLACK_BISHOP_CHAR = 'b'
+const val WHITE_ROOK_CHAR = 'R'
+const val BLACK_ROOK_CHAR = 'r'
+const val WHITE_QUEEN_CHAR = 'Q'
+const val BLACK_QUEEN_CHAR = 'q'
+const val WHITE_KING_CHAR = 'K'
+const val BLACK_KING_CHAR = 'k'
+const val EMPTY_CHAR = ' '
+
 enum class PieceEnum(val color: Boolean, val type: PieceType, val pieceChar: Char) {
 
     BLACK_PAWN(false, PieceType.PAWN, BLACK_PAWN_CHAR),
