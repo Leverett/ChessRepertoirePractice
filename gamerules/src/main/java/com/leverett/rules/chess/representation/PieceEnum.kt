@@ -14,6 +14,13 @@ const val WHITE_KING_CHAR = 'K'
 const val BLACK_KING_CHAR = 'k'
 const val EMPTY_CHAR = ' '
 
+const val PAWN_CHAR = 'P'
+const val KNIGHT_CHAR = 'N'
+const val BISHOP_CHAR = 'B'
+const val ROOK_CHAR = 'R'
+const val QUEEN_CHAR = 'Q'
+const val KING_CHAR = 'K'
+
 enum class PieceEnum(val color: Boolean, val type: PieceType, val pieceChar: Char) {
 
     BLACK_PAWN(false, PieceType.PAWN, BLACK_PAWN_CHAR),
@@ -30,14 +37,14 @@ enum class PieceEnum(val color: Boolean, val type: PieceType, val pieceChar: Cha
     WHITE_KING(true, PieceType.KING, WHITE_KING_CHAR),
     EMPTY(true, PieceType.EMPTY, EMPTY_CHAR);
 
-    enum class PieceType {
-        PAWN,
-        KNIGHT,
-        BISHOP,
-        ROOK,
-        QUEEN,
-        KING,
-        EMPTY
+    enum class PieceType(val pieceTypeChar: Char) {
+        PAWN(PAWN_CHAR),
+        KNIGHT(KNIGHT_CHAR),
+        BISHOP(BISHOP_CHAR),
+        ROOK(ROOK_CHAR),
+        QUEEN(QUEEN_CHAR),
+        KING(KING_CHAR),
+        EMPTY(EMPTY_CHAR)
     }
 
     override fun toString(): String {
@@ -84,6 +91,18 @@ fun getPiece(color: Boolean, pieceType: PieceEnum.PieceType): PieceEnum {
             PieceEnum.PieceType.KING -> PieceEnum.BLACK_KING
             else -> PieceEnum.EMPTY
         }
+    }
+}
+
+fun getPieceType(pieceTypeChar: Char): PieceEnum.PieceType {
+    return when (pieceTypeChar) {
+        PAWN_CHAR -> PieceEnum.PieceType.PAWN
+        KNIGHT_CHAR -> PieceEnum.PieceType.KNIGHT
+        BISHOP_CHAR -> PieceEnum.PieceType.BISHOP
+        ROOK_CHAR -> PieceEnum.PieceType.ROOK
+        QUEEN_CHAR -> PieceEnum.PieceType.QUEEN
+        KING_CHAR -> PieceEnum.PieceType.KING
+        else -> PieceEnum.PieceType.EMPTY
     }
 }
 
