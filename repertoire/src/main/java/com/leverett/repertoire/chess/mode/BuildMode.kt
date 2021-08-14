@@ -1,6 +1,5 @@
 package com.leverett.repertoire.chess.mode
 
-import com.leverett.repertoire.chess.State
 import com.leverett.repertoire.chess.lines.Chapter
 import com.leverett.repertoire.chess.lines.LineMove
 import com.leverett.repertoire.chess.lines.Repertoire

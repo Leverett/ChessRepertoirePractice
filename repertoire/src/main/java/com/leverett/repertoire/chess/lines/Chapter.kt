@@ -1,21 +1,20 @@
 package com.leverett.repertoire.chess.lines
 
-import com.leverett.repertoire.chess.State
 import com.leverett.rules.chess.representation.Position
 
-class Chapter(val pgn: String, description: String) : LineTreeBase(description), LineTree {
+class Chapter(name: String, description: String? = null) : LineTreeBase(name, description), LineTree {
 
-    private val positionToStates: MutableMap<Position, MutableList<State>> = mutableMapOf() // unlikely to ever have more than one state but who knows
-    private val stateToMoves: MutableMap<State, MutableList<LineMove>> = mutableMapOf()
+    private val statelessHashToPosition: MutableMap<String, MutableList<Position>> = mutableMapOf() // unlikely to ever have more than one state but who knows
+    private val positionToMoves: MutableMap<Position, MutableList<LineMove>> = mutableMapOf()
 
     override fun getMoves(position: Position): List<LineMove> {
         val moves = mutableListOf<LineMove>()
-        val states = positionToStates[position]
-        if (states != null) {
-            for (state: State in states) {
-                val stateMoves = stateToMoves[state]
-                if (stateMoves != null) {
-                    moves.addAll(stateMoves)
+        val positions = statelessHashToPosition[position.statelessPositionHash]
+        if (positions != null) {
+            for (position in positions) {
+                val lineMoves = positionToMoves[position]
+                if (lineMoves != null) {
+                    moves.addAll(lineMoves)
                 }
             }
         }
@@ -23,58 +22,58 @@ class Chapter(val pgn: String, description: String) : LineTreeBase(description),
     }
 
     fun addMove(move: LineMove) {
-        val previousState = move.previousState
-        val previousPosition = previousState.position
-        val previousStates = positionToStates[previousPosition]
-        if (previousStates != null && !previousStates.contains(previousState)) {
-            previousStates.add(previousState)
+        val previousPosition = move.previousPosition
+        val positionHash = previousPosition.statelessPositionHash
+        val previousPositions = statelessHashToPosition[positionHash]
+        if (previousPositions != null && !previousPositions.contains(previousPosition)) {
+            previousPositions.add(previousPosition)
         } else {
-            positionToStates[previousPosition] = mutableListOf(previousState)
+            statelessHashToPosition[positionHash] = mutableListOf(previousPosition)
         }
-        val moves = stateToMoves[previousState]
+        val moves = positionToMoves[previousPosition]
         if (moves != null && !moves.contains(move)) {
             moves.add(move)
         } else {
-            stateToMoves[previousState] = mutableListOf(move)
+            positionToMoves[previousPosition] = mutableListOf(move)
         }
 
-        val nextState = move.nextState
-        val nextPosition = previousState.position
-        val nextStates = positionToStates[nextPosition]
-        if (nextStates != null && !nextStates.contains(nextState)) {
-            nextStates.add(nextState)
+        val nextPosition = move.nextPosition
+        val nextPositionHash = previousPosition.statelessPositionHash
+        val nextPositions = statelessHashToPosition[nextPositionHash]
+        if (nextPositions != null && !nextPositions.contains(nextPosition)) {
+            nextPositions.add(nextPosition)
         } else {
-            positionToStates[nextPosition] = mutableListOf(nextState)
+            statelessHashToPosition[nextPositionHash] = mutableListOf(nextPosition)
         }
 
     }
 
     fun removeMove(move: LineMove) {
-        val previousState = move.previousState
-        val moves = stateToMoves[previousState]
+        val previousPosition = move.previousPosition
+        val moves = positionToMoves[previousPosition]
         if (moves != null && moves.contains(move)) {
             moves.remove(move)
             if (moves.isEmpty()) {
-                stateToMoves.remove(previousState)
+                positionToMoves.remove(previousPosition)
             }
         }
 
-        val nextState = move.nextState
-        var otherWaysToState = false
-        for (entry in stateToMoves) {
+        val nextPosition = move.nextPosition
+        var otherWaysToPosition = false
+        for (entry in positionToMoves) {
             for (m in entry.value) {
-                if (m.nextState == nextState) {
-                    otherWaysToState = true
+                if (m.nextPosition == nextPosition) {
+                    otherWaysToPosition = true
                 }
             }
         }
-        if (!otherWaysToState) {
-            val position = nextState.position
-            val states = positionToStates[position].also{states ->
-                states?.remove(nextState)
+        if (!otherWaysToPosition) {
+            val positionHash = nextPosition.statelessPositionHash
+            val positions = statelessHashToPosition[positionHash].also{ states ->
+                states?.remove(nextPosition)
             }
-            if (states.isNullOrEmpty()) {
-                positionToStates.remove(position)
+            if (positions.isNullOrEmpty()) {
+                statelessHashToPosition.remove(positionHash)
             }
 
         }

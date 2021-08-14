@@ -6,8 +6,10 @@ import com.leverett.rules.chess.representation.PieceEnum
 import com.leverett.rules.chess.representation.PieceEnum.*
 import com.leverett.rules.chess.representation.Position
 
-abstract class LineMover(i: Int, j: Int, private val directions: Array<Pair<Int,Int>>):
+abstract class LineMover(i: Int, j: Int):
     PieceBase(i, j) {
+
+    abstract val directions: Array<Pair<Int,Int>>
 
     override fun candidateMoves(position: Position): List<Move> {
         val candidateMoves: MutableList<Move> = mutableListOf()
@@ -41,8 +43,8 @@ abstract class LineMover(i: Int, j: Int, private val directions: Array<Pair<Int,
         return candidateMoves
     }
 
-    override fun threatensCoord(placements: Array<Array<PieceEnum>>, threateningColor: Boolean): Boolean {
-        var threatens = false
+    override fun threatensCoord(placements: Array<Array<PieceEnum>>, threateningColor: Boolean): List<Pair<Int,Int>> {
+        val threatens = mutableListOf<Pair<Int,Int>>()
         val threateningPiece = threateningPiece(threateningColor)
         for (direction in directions) {
             var clear = true
@@ -54,7 +56,7 @@ abstract class LineMover(i: Int, j: Int, private val directions: Array<Pair<Int,
                 if (attackerFile in 0 until GRID_SIZE && attackerRank in 0 until GRID_SIZE) {
                     val locationPiece = placements[attackerFile][attackerRank]
                     if (locationPiece == threateningPiece) {
-                        return true;
+                        threatens.add(Pair(attackerFile,attackerRank))
                     } else if (locationPiece != EMPTY) {
                         clear = false
                     }

@@ -64,14 +64,14 @@ private fun castlingFromFen(fenToken: String): Castling {
                   fenToken.contains(BLACK_QUEEN_CHAR))
 }
 
-fun fenFromPosition(position: Position) {
-    val turnlessFen = turnlessFenFromPosition(position)
+fun fenFromPosition(position: Position): String {
+    val statelessFen = statelessFenFromPosition(position)
     val halfmoveClockToken = "0" //TODO Halfmove clock
     val fullmoveClockToken = position.turn.toString()
-    arrayOf(turnlessFen, halfmoveClockToken, fullmoveClockToken).joinToString(DELIMITER)
+    return arrayOf(statelessFen, halfmoveClockToken, fullmoveClockToken).joinToString(DELIMITER)
 }
 
-fun turnlessFenFromPosition(position: Position): String {
+fun statelessFenFromPosition(position: Position): String {
     val placementsToken = fenPlacementsFromPosition(position)
     val activeColorToken = if (position.activeColor) WHITE_CHAR else BLACK_CHAR
     val castlingToken = position.castling.toString()

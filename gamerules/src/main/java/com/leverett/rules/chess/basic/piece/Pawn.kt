@@ -6,6 +6,9 @@ import com.leverett.rules.chess.representation.PieceEnum.PieceType.PAWN
 
 class Pawn(i: Int, j: Int) : PieceBase(i, j) {
 
+    override val pieceType: PieceEnum.PieceType
+        get() = PAWN
+
     private val startCoord: Pair<Int,Int> = Pair(i,j)
 
     override fun candidateMoves(position: Position) : List<Move> {
@@ -80,29 +83,23 @@ class Pawn(i: Int, j: Int) : PieceBase(i, j) {
         return candidateMoves
     }
 
-    override fun threatensCoord(placements: Array<Array<PieceEnum>>, threateningColor: Boolean): Boolean {
+    override fun threatensCoord(placements: Array<Array<PieceEnum>>, threateningColor: Boolean): List<Pair<Int,Int>> {
+        val threatens = mutableListOf<Pair<Int,Int>>()
         val threateningPiece = threateningPiece(threateningColor)
         val direction = if (threateningColor) -1 else 1
         val attackerRank = j + direction
         if (attackerRank >= GRID_SIZE || attackerRank < 0) {
-            return false
+            return threatens
         }
         val leftFile = i - 1
         if (leftFile >= 0 && placements[leftFile][attackerRank] == threateningPiece) {
-            return true
+            threatens.add(Pair(leftFile, attackerRank))
         }
         val rightFile = i + 1
         if ( rightFile < GRID_SIZE && placements[rightFile][attackerRank] == threateningPiece) {
-            return true
+            threatens.add(Pair(rightFile, attackerRank))
         }
-        return false
+        return threatens
 
     }
-
-    override fun threateningPiece(color: Boolean): PieceEnum {
-        return getPiece(color, PAWN)
-    }
-}
-fun isPromotionRank(rank: Int): Boolean {
-    return (rank == 0 || rank == GRID_SIZE - 1)
 }

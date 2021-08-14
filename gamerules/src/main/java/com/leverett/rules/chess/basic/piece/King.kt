@@ -4,7 +4,22 @@ import com.leverett.rules.chess.basic.BasicRulesEngine.underAttack
 import com.leverett.rules.chess.representation.*
 import com.leverett.rules.chess.representation.PieceEnum.*
 
-class King(i: Int, j: Int) : SquareMover(i, j, KING_DIRECTIONS) {
+class King(i: Int, j: Int) : SquareMover(i, j) {
+
+    override val pieceType: PieceType
+        get() = PieceType.KING
+
+    override val directions: Array<Pair<Int,Int>>
+        get() = arrayOf(
+            Pair(-1, -1),
+            Pair(-1, 0),
+            Pair(-1, 1),
+            Pair(0, -1),
+            Pair(0, 0),
+            Pair(0, 1),
+            Pair(1, -1),
+            Pair(1, 0),
+            Pair(1, 1))
 
     override fun candidateMoves(position: Position) : List<Move> {
         val candidateMoves: MutableList<Move> = super.candidateMoves(position) as MutableList<Move>
@@ -53,25 +68,10 @@ class King(i: Int, j: Int) : SquareMover(i, j, KING_DIRECTIONS) {
     }
 
     companion object {
-        val KING_DIRECTIONS: Array<Pair<Int,Int>> = arrayOf(
-            Pair(-1, -1),
-            Pair(-1, 0),
-            Pair(-1, 1),
-            Pair(0, -1),
-            Pair(0, 0),
-            Pair(0, 1),
-            Pair(1, -1),
-            Pair(1, 0),
-            Pair(1, 1),
-        )
         val KINGSIDE_CASTLING_EMPTY_FILE_COORDS: IntArray = intArrayOf(5, 6)
         val QUEENSIDE_CASTLING_EMPTY_FILE_COORDS: IntArray = intArrayOf(1, 2, 3)
 
         val KINGSIDE_CASTLING_UNTHREATENED_FILE_COORDS: IntArray = intArrayOf(4, 5, 6)
         val QUEENSIDE_CASTLING_UNTHREATENED_FILE_COORDS: IntArray = intArrayOf(1, 2, 3, 4)
-    }
-
-    override fun threateningPiece(threateningColor: Boolean): PieceEnum {
-        return if (threateningColor) WHITE_KING else BLACK_KING
     }
 }

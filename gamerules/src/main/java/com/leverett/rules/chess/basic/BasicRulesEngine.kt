@@ -130,6 +130,7 @@ object BasicRulesEngine: RulesEngine {
 
 
     override fun getNextPosition(position: Position, move: Move): Position {
+        //TODO some sort of error handling, esp for parsing
         if (move == WHITE_KINGSIDE_CASTLE ||
             move == WHITE_QUEENSIDE_CASTLE ||
             move == BLACK_KINGSIDE_CASTLE ||
@@ -145,7 +146,6 @@ object BasicRulesEngine: RulesEngine {
         val newPlacements = position.copyPlacements()
         newPlacements[move.startLoc.first][move.startLoc.second] = EMPTY
         newPlacements[move.endLoc.first][move.endLoc.second] = piece
-        // TODO Capture events or something should happen here
 
         val newCastling = calculateNewCastling(move, position.castling, position.activeColor, piece)
         val nextTurn = nextTurn(position)

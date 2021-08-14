@@ -1,20 +1,16 @@
 package com.leverett.rules.chess.basic.piece
 
-import com.leverett.rules.chess.representation.PieceEnum.BLACK_BISHOP
-import com.leverett.rules.chess.representation.PieceEnum.WHITE_BISHOP
 import com.leverett.rules.chess.representation.PieceEnum
 
-class Bishop(i: Int, j: Int) : LineMover(i, j, BISHOP_DIRECTIONS) {
-    companion object {
-        val BISHOP_DIRECTIONS: Array<Pair<Int,Int>> = arrayOf(
+class Bishop(i: Int, j: Int) : LineMover(i, j) {
+
+    override val pieceType: PieceEnum.PieceType
+        get() = PieceEnum.PieceType.BISHOP
+
+    override val directions: Array<Pair<Int,Int>>
+        get() = arrayOf(
             Pair(-1, -1),
             Pair(-1, 1),
             Pair(1, -1),
-            Pair(1, 1)
-        )
-    }
-
-    override fun threateningPiece(threateningColor: Boolean): PieceEnum {
-        return if (threateningColor) WHITE_BISHOP else BLACK_BISHOP
-    }
+            Pair(1, 1))
 }

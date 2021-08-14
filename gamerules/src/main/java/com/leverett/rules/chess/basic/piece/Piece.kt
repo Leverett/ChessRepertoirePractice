@@ -13,7 +13,7 @@ interface Piece {
     fun candidateMoves(position: Position): List<Move>
 
     /**
-     * Determines if the initialized location is under threat from a piece of the instance type
+     * Determines where pieces of the instance type threaten the initialized location, if any
      */
-    fun threatensCoord(placements: Array<Array<PieceEnum>>, threateningColor: Boolean): Boolean
+    fun threatensCoord(placements: Array<Array<PieceEnum>>, threateningColor: Boolean): List<Pair<Int,Int>>
 }

@@ -1,7 +1,9 @@
 package com.leverett.rules.chess.representation
 
 import com.leverett.rules.chess.parsing.STARTING_FEN
+import com.leverett.rules.chess.parsing.fenFromPosition
 import com.leverett.rules.chess.parsing.positionFromFen
+import com.leverett.rules.chess.parsing.statelessFenFromPosition
 
 const val GRID_SIZE = 8
 val NO_ENPASSANT_TARGET_COORDINATE = Pair(-1,-1)
@@ -13,6 +15,9 @@ fun startingPosition(): Position {
 fun newPlacements(): Array<Array<PieceEnum>> {
     return Array(GRID_SIZE) { Array(GRID_SIZE) { PieceEnum.EMPTY } }
 }
+fun isPromotionRank(rank: Int): Boolean {
+    return (rank == 0 || rank == GRID_SIZE - 1)
+}
 
 class Position(val placements:Array<Array<PieceEnum>>,
                val activeColor: Boolean,
@@ -20,8 +25,24 @@ class Position(val placements:Array<Array<PieceEnum>>,
                val enPassantTarget: Pair<Int,Int>,
                val turn: Int) {
 
+    constructor(position: Position): this(position.copyPlacements(), position.activeColor, position.castling.copy(), position.enPassantTarget.copy(), position.turn)
+
+    val fen: String
+        get() {
+            return fenFromPosition(this)
+        }
+
+    val statelessPositionHash: String
+        get() {
+            return statelessFenFromPosition(this)
+        }
+
     fun castleAvailable(side: Boolean): Boolean {
         return castling.castleAvailable(activeColor, side)
+    }
+
+    fun pieceAt(location: Pair<Int,Int>): PieceEnum {
+        return placements[location.first][location.second]
     }
 
     fun copyPlacements(): Array<Array<PieceEnum>> {
@@ -32,6 +53,10 @@ class Position(val placements:Array<Array<PieceEnum>>,
             }
         }
         return newPlacements
+    }
+
+    fun copy(): Position {
+        return Position(this)
     }
 
     fun quickDisplay(): String {

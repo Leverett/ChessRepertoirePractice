@@ -6,8 +6,10 @@ import com.leverett.rules.chess.representation.PieceEnum
 import com.leverett.rules.chess.representation.PieceEnum.EMPTY
 import com.leverett.rules.chess.representation.Position
 
-abstract class SquareMover(i: Int, j: Int, private val directions: Array<Pair<Int,Int>>):
+abstract class SquareMover(i: Int, j: Int):
     PieceBase(i, j) {
+
+    abstract val directions: Array<Pair<Int,Int>>
 
     override fun candidateMoves(position: Position) : List<Move> {
         val candidateMoves: MutableList<Move> = mutableListOf()
@@ -34,20 +36,21 @@ abstract class SquareMover(i: Int, j: Int, private val directions: Array<Pair<In
         return candidateMoves
     }
 
-    override fun threatensCoord(placements: Array<Array<PieceEnum>>, threateningColor: Boolean): Boolean {
+    override fun threatensCoord(placements: Array<Array<PieceEnum>>, threateningColor: Boolean): List<Pair<Int,Int>> {
+        val threatens = mutableListOf<Pair<Int,Int>>()
         val threateningPiece = threateningPiece(threateningColor)
         for (direction in directions) {
             val attackerFile = i + direction.first
             if (attackerFile in 0 until GRID_SIZE) {
                 val attackerRank = j + direction.second
                 if (attackerRank in 0 until GRID_SIZE) {
-                    val locationChar = placements[attackerFile][attackerRank]
-                    if (locationChar == threateningPiece) {
-                        return true
+                    val locationPiece = placements[attackerFile][attackerRank]
+                    if (locationPiece == threateningPiece) {
+                        threatens.add(Pair(attackerFile,attackerRank))
                     }
                 }
             }
         }
-        return false
+        return threatens
     }
 }

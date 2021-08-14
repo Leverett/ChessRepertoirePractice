@@ -8,19 +8,13 @@ class Castling(var whiteKingside: Boolean,
                var blackQueenside: Boolean) {
 
     fun castleAvailable(color: Boolean, side: Boolean): Boolean {
-        if (color && side) {
-            return whiteKingside
+        return when {
+            color && side -> whiteKingside
+            color && !side -> whiteQueenside
+            !color && side -> blackKingside
+            !color && !side -> blackQueenside
+            else -> false
         }
-        if (color && !side) {
-            return whiteQueenside
-        }
-        if (!color && side) {
-            return blackKingside
-        }
-        if (!color && !side) {
-            return blackQueenside
-        }
-        return false
     }
 
     fun copy(): Castling {
@@ -49,3 +43,18 @@ const val KINGSIDE_KING_DESTINATION_FILE = 6
 const val KINGSIDE_ROOK_DESTINATION_FILE = 5
 const val QUEENSIDE_KING_DESTINATION_FILE = 2
 const val QUEENSIDE_ROOK_DESTINATION_FILE = 3
+
+val WHITE_KINGSIDE_CASTLE: Move = Move(Pair(KING_HOME_FILE, 0), Pair(KINGSIDE_KING_DESTINATION_FILE, 0), PieceEnum.EMPTY, castle = Move.CastleMove.WHITE_KINGSIDE_CASTLE)
+val WHITE_QUEENSIDE_CASTLE: Move = Move(Pair(KING_HOME_FILE, 0), Pair(QUEENSIDE_KING_DESTINATION_FILE, 0), PieceEnum.EMPTY, castle = Move.CastleMove.WHITE_QUEENSIDE_CASTLE)
+val BLACK_KINGSIDE_CASTLE: Move = Move(Pair(KING_HOME_FILE, GRID_SIZE-1), Pair(KINGSIDE_KING_DESTINATION_FILE, GRID_SIZE-1), PieceEnum.EMPTY, castle = Move.CastleMove.BLACK_KINGSIDE_CASTLE)
+val BLACK_QUEENSIDE_CASTLE: Move = Move(Pair(KING_HOME_FILE, GRID_SIZE-1), Pair(QUEENSIDE_KING_DESTINATION_FILE, GRID_SIZE-1), PieceEnum.EMPTY, castle = Move.CastleMove.BLACK_QUEENSIDE_CASTLE)
+
+fun castleMove(color: Boolean, side: Boolean): Move? {
+    return when {
+        color && side -> WHITE_KINGSIDE_CASTLE
+        color && !side -> WHITE_QUEENSIDE_CASTLE
+        !color && side -> BLACK_KINGSIDE_CASTLE
+        !color && !side -> BLACK_QUEENSIDE_CASTLE
+        else -> null
+    }
+}

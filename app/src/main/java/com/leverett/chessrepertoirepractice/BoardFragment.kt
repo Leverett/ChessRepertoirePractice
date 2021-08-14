@@ -13,7 +13,6 @@ import com.leverett.chessrepertoirepractice.ui.views.SquareLayout
 import com.leverett.chessrepertoirepractice.utils.CAPTURE_MOVE_SOUND
 import com.leverett.chessrepertoirepractice.utils.playSound
 import com.leverett.rules.chess.basic.BasicRulesEngine
-import com.leverett.rules.chess.basic.piece.isPromotionRank
 import com.leverett.rules.chess.representation.*
 
 
