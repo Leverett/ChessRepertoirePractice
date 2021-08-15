@@ -3,18 +3,18 @@ package com.leverett.chessrepertoirepractice.utils
 import com.leverett.chessrepertoirepractice.R
 import com.leverett.rules.chess.representation.PieceEnum
 
-enum class PieceStyle(val whitePawn: Int,
-                      val whiteKnight: Int,
-                      val whiteBishop: Int,
-                      val whiteRook: Int,
-                      val whiteQueen: Int,
-                      val whiteKing: Int,
-                      val blackPawn: Int,
-                      val blackKnight: Int,
-                      val blackBishop: Int,
-                      val blackRook: Int,
-                      val blackQueen: Int,
-                      val blackKing: Int
+enum class PieceStyle(private val whitePawn: Int,
+                      private val whiteKnight: Int,
+                      private val whiteBishop: Int,
+                      private val whiteRook: Int,
+                      private val whiteQueen: Int,
+                      private val whiteKing: Int,
+                      private val blackPawn: Int,
+                      private val blackKnight: Int,
+                      private val blackBishop: Int,
+                      private val blackRook: Int,
+                      private val blackQueen: Int,
+                      private val blackKing: Int
 ) {
     STANDARD(
         R.drawable.whitepawn,

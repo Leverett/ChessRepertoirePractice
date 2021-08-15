@@ -13,7 +13,14 @@ interface Piece {
     fun candidateMoves(position: Position): List<Move>
 
     /**
-     * Determines where pieces of the instance type threaten the initialized location, if any
+     * Determines where pieces of the instance type threaten the initialized location from, if any
+     * This doesn't determine check-wise legality, just whether the piece can move there mechanically
      */
-    fun threatensCoord(placements: Array<Array<PieceEnum>>, threateningColor: Boolean): List<Pair<Int,Int>>
+    fun threatensCoord(placements: Array<Array<PieceEnum>>, threateningColor: Boolean, enPassantTarget: Pair<Int,Int>? = null): List<Pair<Int,Int>>
+
+    /**
+     * Determines where pieces of the instance type can move to the initialized location from, if any
+     * This doesn't determine check-wise legality, just whether the piece can move there mechanically
+     */
+    fun canMoveToCoordFrom(placements: Array<Array<PieceEnum>>, color: Boolean, enPassantTarget: Pair<Int,Int>? = null): List<Pair<Int,Int>>
 }

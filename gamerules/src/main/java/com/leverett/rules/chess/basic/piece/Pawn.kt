@@ -32,7 +32,7 @@ class Pawn(i: Int, j: Int) : PieceBase(i, j) {
                 candidateMoves.add(Move(startCoord, Pair(i,moveRank), EMPTY))
             }
             // Double pushes
-            val homeRank = if (activeColor) 1 else 6
+            val homeRank = homeRank(activeColor)
             if (j == homeRank && position.placements[i][j + (2*direction)] == EMPTY) {
                 candidateMoves.add(Move(startCoord, Pair(i,j+(2*direction)), EMPTY))
             }
@@ -74,17 +74,20 @@ class Pawn(i: Int, j: Int) : PieceBase(i, j) {
             }
         }
         // En Passant
-        val enPassantTargetFile = position.enPassantTarget.first
-        if (enPassantTargetFile != -1 &&
-            (enPassantTargetFile + 1 == i) || (enPassantTargetFile - 1 == i) &&
+        val enPassantTargetFile = position.enPassantTarget?.first
+        if (enPassantTargetFile != null &&
+            ((enPassantTargetFile + 1 == i) || (enPassantTargetFile - 1 == i)) &&
             (position.enPassantTarget.second == moveRank)) {
             candidateMoves.add(Move(startCoord, Pair(enPassantTargetFile,moveRank), getPiece(!activeColor, PAWN), enPassant = true))
         }
         return candidateMoves
     }
 
-    override fun threatensCoord(placements: Array<Array<PieceEnum>>, threateningColor: Boolean): List<Pair<Int,Int>> {
+    override fun threatensCoord(placements: Array<Array<PieceEnum>>, threateningColor: Boolean, enPassantTarget: Pair<Int,Int>?): List<Pair<Int,Int>> {
         val threatens = mutableListOf<Pair<Int,Int>>()
+        if (Pair(i,j) != enPassantTarget && (placements[i][j] == EMPTY || placements[i][j].color == threateningColor)) {
+            return threatens
+        }
         val threateningPiece = threateningPiece(threateningColor)
         val direction = if (threateningColor) -1 else 1
         val attackerRank = j + direction
@@ -100,6 +103,27 @@ class Pawn(i: Int, j: Int) : PieceBase(i, j) {
             threatens.add(Pair(rightFile, attackerRank))
         }
         return threatens
+    }
 
+    override fun canMoveToCoordFrom(placements: Array<Array<PieceEnum>>, color: Boolean, enPassantTarget: Pair<Int,Int>?): List<Pair<Int, Int>> {
+        val moves = mutableListOf<Pair<Int,Int>>().also{it.addAll(threatensCoord(placements, color, enPassantTarget))}
+        val direction = if (color) -1 else 1
+        val pawnPiece = getPiece(color, PAWN)
+        val startRank = j + direction
+        if (startRank >= GRID_SIZE || startRank < 0) {
+            return moves
+        }
+        if (placements[i][startRank] == pawnPiece) {
+            moves.add(Pair(i,startRank))
+        }
+        val maybeHomeRank = startRank + direction
+        if (maybeHomeRank == homeRank(color) && placements[i][startRank] == EMPTY && placements[i][maybeHomeRank] == pawnPiece) {
+            moves.add(Pair(i, maybeHomeRank))
+        }
+        return moves
+    }
+
+    private fun homeRank(color: Boolean): Int {
+        return if (color) 1 else 6
     }
 }

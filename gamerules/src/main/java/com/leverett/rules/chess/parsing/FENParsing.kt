@@ -30,7 +30,7 @@ fun positionFromFen(fen: String): Position {
     val activeColor = (tokens[ACTIVE_COLOR_INDEX] == WHITE_CHAR)
     val castling = castlingFromFen(tokens[CASTLING_INDEX])
     val enPassantTarget =
-        if (tokens[ENPASSANT_TARGET_INDEX] == NO_ENPASSANT_TARGET.toString()) NO_ENPASSANT_TARGET_COORDINATE
+        if (tokens[ENPASSANT_TARGET_INDEX] == NO_ENPASSANT_TARGET.toString()) null
         else notationToLocation(tokens[ENPASSANT_TARGET_INDEX])
     val turn = tokens[TURN_INDEX].toInt()
     return Position(placements, activeColor, castling, enPassantTarget, turn)
@@ -78,7 +78,7 @@ fun statelessFenFromPosition(position: Position): String {
 
     val enPassantTarget = position.enPassantTarget
     val enPassantTargetToken =
-        if (enPassantTarget != NO_ENPASSANT_TARGET_COORDINATE)
+        if (enPassantTarget != null)
             locationToNotation(enPassantTarget.first, enPassantTarget.second)
         else
             NO_ENPASSANT_TARGET

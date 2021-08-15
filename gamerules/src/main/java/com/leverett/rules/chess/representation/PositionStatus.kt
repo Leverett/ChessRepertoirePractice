@@ -1,9 +1,6 @@
 package com.leverett.rules.chess.representation
 
-import java.util.logging.Level
-import java.util.logging.Logger
-
-class GameStatus(private val legalMoves: List<Move>, private val illegalMoves: List<Move>, val inCheck: Boolean) {
+class PositionStatus(private val legalMoves: List<Move>, private val illegalMoves: List<Move>, val inCheck: Boolean) {
 
     val inCheckmate: Boolean
         get() {
@@ -41,6 +38,10 @@ class GameStatus(private val legalMoves: List<Move>, private val illegalMoves: L
             }
         }
         return Pair(null, MoveStatus.INVALID)
+    }
+
+    fun copy(): PositionStatus {
+        return PositionStatus(legalMoves, illegalMoves, inCheck)
     }
 
 }

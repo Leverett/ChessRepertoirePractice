@@ -7,6 +7,8 @@ import com.leverett.rules.chess.representation.PieceEnum.PieceType.*
 import com.leverett.rules.RulesEngine
 import com.leverett.rules.chess.basic.piece.*
 import com.leverett.rules.chess.representation.*
+import java.util.logging.Level
+import java.util.logging.Logger
 import java.util.stream.Collectors
 
 object BasicRulesEngine: RulesEngine {
@@ -15,14 +17,15 @@ object BasicRulesEngine: RulesEngine {
         return gameStatus(position).moveStatus(move)
     }
 
-    override fun isMovePromotion(start: Pair<Int, Int>, end: Pair<Int, Int>) {
-        TODO("Not yet implemented")
+    override fun isMovePromotion(position: Position, startLoc: Pair<Int, Int>, endLoc: Pair<Int, Int>): Boolean {
+        return isPromotionRank(endLoc.second) &&
+            position.pieceAt(startLoc) == getPiece(position.activeColor, PAWN)
     }
 
-    override fun gameStatus(position: Position): GameStatus {
+    override fun gameStatus(position: Position): PositionStatus {
         val validMoves = validMoves(position)
         val inCheck = isInCheck(position)
-        return GameStatus(validMoves.first, validMoves.second, inCheck)
+        return PositionStatus(validMoves.first, validMoves.second, inCheck)
     }
 
     override fun isInCheck(position: Position): Boolean {
@@ -76,27 +79,27 @@ object BasicRulesEngine: RulesEngine {
         val rank = coordinate.second
 
         val pawn = Pawn(file, rank)
-        if (pawn.threatensCoord(placements, attackingColor)) {
+        if (pawn.threatensCoord(placements, attackingColor).isNotEmpty()) {
             return true
         }
         val knight = Knight(file, rank)
-        if (knight.threatensCoord(placements, attackingColor)) {
+        if (knight.threatensCoord(placements, attackingColor).isNotEmpty()) {
             return true
         }
         val bishop = Bishop(file, rank)
-        if (bishop.threatensCoord(placements, attackingColor)) {
+        if (bishop.threatensCoord(placements, attackingColor).isNotEmpty()) {
             return true
         }
         val rook = Rook(file, rank)
-        if (rook.threatensCoord(placements, attackingColor)) {
+        if (rook.threatensCoord(placements, attackingColor).isNotEmpty()) {
             return true
         }
         val queen = Queen(file, rank)
-        if (queen.threatensCoord(placements, attackingColor)) {
+        if (queen.threatensCoord(placements, attackingColor).isNotEmpty()) {
             return true
         }
         val king = King(file, rank)
-        if (king.threatensCoord(placements, attackingColor)) {
+        if (king.threatensCoord(placements, attackingColor).isNotEmpty()) {
             return true
         }
         return false
@@ -139,6 +142,7 @@ object BasicRulesEngine: RulesEngine {
             return doCastle(position, move)
         }
         val placements = position.placements
+        Logger.getLogger("getNextPosition").log(Level.SEVERE, "move: $move")
         val piece = placements[move.startLoc.first][move.startLoc.second]
         if (piece.type == PAWN) {
             return doPawnMove(position, move, piece)
@@ -150,7 +154,7 @@ object BasicRulesEngine: RulesEngine {
         val newCastling = calculateNewCastling(move, position.castling, position.activeColor, piece)
         val nextTurn = nextTurn(position)
 
-        return Position(newPlacements, !position.activeColor, newCastling, NO_ENPASSANT_TARGET_COORDINATE, nextTurn)
+        return Position(newPlacements, !position.activeColor, newCastling, null, nextTurn)
     }
 
     private fun doCastle(position: Position, move: Move): Position {
@@ -187,7 +191,7 @@ object BasicRulesEngine: RulesEngine {
         }
         newPlacements[KING_HOME_FILE][castleRank] = EMPTY
         val nextTurn = nextTurn(position)
-        return Position(newPlacements, !position.activeColor, newCastling, NO_ENPASSANT_TARGET_COORDINATE, nextTurn)
+        return Position(newPlacements, !position.activeColor, newCastling, null, nextTurn)
     }
 
     private fun doPawnMove(position: Position, move: Move, pawnPiece: PieceEnum): Position {
@@ -203,7 +207,7 @@ object BasicRulesEngine: RulesEngine {
             newPlacements[targetFile][targetPawnRank] = EMPTY
         }
 
-        var enPassantTarget = NO_ENPASSANT_TARGET_COORDINATE
+        var enPassantTarget: Pair<Int,Int>? = null
         if (direction * (move.endLoc.second - move.startLoc.second) == 2) {
             val targetFile = move.endLoc.first
             val targetRank = move.endLoc.second - direction

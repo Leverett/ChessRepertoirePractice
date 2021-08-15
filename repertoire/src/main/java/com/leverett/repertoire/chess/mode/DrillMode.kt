@@ -4,41 +4,43 @@ import com.leverett.repertoire.chess.lines.LineTree
 import com.leverett.repertoire.chess.lines.LineMove
 import com.leverett.repertoire.chess.lines.Repertoire
 import com.leverett.rules.chess.representation.PieceEnum
+import com.leverett.rules.chess.representation.Position
+import com.leverett.rules.chess.representation.startingPosition
 
 class DrillMode(var repertoire: Repertoire,
                 var currentLineTree: LineTree,
-                var currentState: State = State.STARTING_STATE,
+                var currentPosition: Position = startingPosition(),
                 var moveRecord: MutableList<LineMove> = mutableListOf(),
                 var playingAsWhite: Boolean,
                 val moveSettings: MoveSettings
 ) {
 
     fun makeOpponentMove(): LineMove {
-        val moves = currentLineTree.getMoves(currentState.position)
+        val moves = currentLineTree.getMoves(currentPosition)
         var candidateMoves: List<LineMove> = moves
 
         // Will pick Best Moves and return if there are any
-        candidateMoves = if (moveSettings.bestMoves && candidateMoves.any { it.nextPosition.details.isBestMove }) {
-            candidateMoves.filter { it.nextPosition.details.isBestMove }.also { return doMove(candidateMoves) }
+        candidateMoves = if (moveSettings.bestMoves && candidateMoves.any { it.moveDetails?.isBestMove!! }) {
+            candidateMoves.filter { it.moveDetails?.isBestMove!! }.also { return doMove(candidateMoves) }
         } else candidateMoves
 
         // Filters out any non-theory moves if Theory Only is set
-        candidateMoves = if (moveSettings.theoryOnly && candidateMoves.any { !it.nextPosition.details.isTheory }) {
-            candidateMoves.filter { it.nextPosition.details.isTheory }
+        candidateMoves = if (moveSettings.theoryOnly && candidateMoves.any { !it.moveDetails?.isTheory!! }) {
+            candidateMoves.filter { it.moveDetails?.isTheory!! }
         } else candidateMoves.also {//TODO indicate that there are no "theory" moves
         }
 
         // Select for Gambits or to avoid Gambits if the opportunity appears
-        candidateMoves = if (moveSettings.playGambits && candidateMoves.any { it.nextPosition.details.isGambitLine }) {
-            candidateMoves.filter { it.nextPosition.details.isGambitLine }
+        candidateMoves = if (moveSettings.playGambits && candidateMoves.any { it.moveDetails?.isGambitLine!! }) {
+            candidateMoves.filter { it.moveDetails?.isGambitLine!! }
         } else candidateMoves
-        candidateMoves = if (moveSettings.avoidGambits && candidateMoves.any { it.nextPosition.details.isGambitLine }) {
-            candidateMoves.filter { !it.nextPosition.details.isGambitLine }
+        candidateMoves = if (moveSettings.avoidGambits && candidateMoves.any { it.moveDetails?.isGambitLine!! }) {
+            candidateMoves.filter { !it.moveDetails?.isGambitLine!! }
         } else candidateMoves
 
         // Filter out any mistakes
-        candidateMoves = if (moveSettings.noMistakes && candidateMoves.any { it.nextPosition.details.isMistake }) {
-            candidateMoves.filter { !it.nextPosition.details.isMistake }
+        candidateMoves = if (moveSettings.noMistakes && candidateMoves.any { it.moveDetails?.isMistake!! }) {
+            candidateMoves.filter { !it.moveDetails?.isMistake!! }
         } else candidateMoves
 
         return doMove(candidateMoves)
@@ -46,8 +48,8 @@ class DrillMode(var repertoire: Repertoire,
 
     // returns false if the move is a mistake so the interface knows to process that
     fun handlePlayerMove(pgnMove: String): MoveResult {
-        val moves: List<LineMove> = currentLineTree.getMoves(currentState.position).filter {
-            it.algMove == pgnMove && it.previousPosition.position == currentState.position
+        val moves: List<LineMove> = currentLineTree.getMoves(currentPosition).filter {
+            it.algMove == pgnMove && it.previousPosition == currentPosition
         }
         if (moves.isNullOrEmpty()) {
             // Handle unknown move
@@ -59,12 +61,12 @@ class DrillMode(var repertoire: Repertoire,
             return MoveResult.ERROR
         }
         val move = doMove(moves) //There is only one mvoe in the list, so it will do that one
-        return if (move.nextPosition.details.isMistake) MoveResult.MISTAKE else MoveResult.UNKNOWN
+        return if (move.moveDetails?.isMistake!!) MoveResult.MISTAKE else MoveResult.UNKNOWN
     }
 
     fun undoMove(move: LineMove) {
         // TODO validate undo
-        currentState = move.previousPosition
+        currentPosition = move.previousPosition
         moveRecord.remove(move)
     }
 
@@ -73,7 +75,7 @@ class DrillMode(var repertoire: Repertoire,
             //TODO handle no qualified moves
         }
         val move = candidateMoves.random()
-        currentState = move.nextPosition
+        currentPosition = move.nextPosition
         moveRecord.add(move)
         return move
     }
@@ -83,7 +85,7 @@ class DrillMode(var repertoire: Repertoire,
     }
 
     fun getPlacements(): Array<Array<PieceEnum>> {
-        return currentState.position.placements
+        return currentPosition.placements
     }
 
 

@@ -43,5 +43,3 @@ fun fileToNotation(i: Int): Char {
         else -> ' '
     }
 }
-
-}

@@ -1,4 +1,4 @@
 package com.leverett.repertoire.chess.lines
 
-class Repertoire(private val books: List<Book>, description: String) : LineTreeSet(books, description) {
+class Repertoire(name: String, val books: List<Book>, description: String? = null) : LineTreeSet(name, books, description) {
 }

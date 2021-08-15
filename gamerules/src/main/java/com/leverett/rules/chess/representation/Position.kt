@@ -6,7 +6,6 @@ import com.leverett.rules.chess.parsing.positionFromFen
 import com.leverett.rules.chess.parsing.statelessFenFromPosition
 
 const val GRID_SIZE = 8
-val NO_ENPASSANT_TARGET_COORDINATE = Pair(-1,-1)
 private const val testingFen: String = STARTING_FEN //TODO remember to remove this
 fun startingPosition(): Position {
     return positionFromFen(testingFen)
@@ -22,10 +21,10 @@ fun isPromotionRank(rank: Int): Boolean {
 class Position(val placements:Array<Array<PieceEnum>>,
                val activeColor: Boolean,
                val castling: Castling,
-               val enPassantTarget: Pair<Int,Int>,
+               val enPassantTarget: Pair<Int,Int>?,
                val turn: Int) {
 
-    constructor(position: Position): this(position.copyPlacements(), position.activeColor, position.castling.copy(), position.enPassantTarget.copy(), position.turn)
+    constructor(position: Position): this(position.copyPlacements(), position.activeColor, position.castling.copy(), position.enPassantTarget?.copy(), position.turn)
 
     val fen: String
         get() {

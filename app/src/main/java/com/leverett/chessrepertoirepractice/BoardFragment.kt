@@ -20,16 +20,17 @@ class BoardFragment : Fragment() {
 
     private lateinit var boardLayout: ConstraintLayout
     private lateinit var squares: Array<Array<SquareLayout>>
-    private val viewModel: BoardViewModel = BoardViewModel()
+    private lateinit var viewModel: BoardViewModel
 
     private val rulesEngine = BasicRulesEngine
     private val position: Position
         get() {
             return viewModel.position
         }
-    private var gameStatus: GameStatus = rulesEngine.gameStatus(position)
+    private var positionStatus: PositionStatus = rulesEngine.gameStatus(position)
 
     private val squareDimensions = "1:1"
+    private val boardViewModelKey = "boardViewModel"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,6 +39,9 @@ class BoardFragment : Fragment() {
         val view: View = inflater.inflate(R.layout.board_fragment, container, false)
         boardLayout = view.findViewById(R.id.board_layout)
         val context = requireContext()
+
+//        viewModel = if (savedInstanceState != null) savedInstanceState.get(boardViewModelKey) as BoardViewModel else BoardViewModel()
+        viewModel = BoardViewModel()
 
         squares = Array(GRID_SIZE) {x -> Array(GRID_SIZE) {y -> SquareLayout(context, viewModel, x, y).also{boardLayout.addView(it)}} }
 
@@ -100,7 +104,7 @@ class BoardFragment : Fragment() {
         viewModel.position = rulesEngine.getNextPosition(position, move)
         viewModel.activeSquareCoords = null
         updateSquaresToPosition()
-        gameStatus = rulesEngine.gameStatus(position)
+        positionStatus = rulesEngine.gameStatus(position)
     }
 
     private fun updateSquaresToPosition() {
@@ -112,15 +116,13 @@ class BoardFragment : Fragment() {
     }
 
     private fun findMoveAndStatus(startCoords: Pair<Int,Int>, endCoords: Pair<Int,Int>, promotionPiece: PieceEnum? = null) : Pair<Move?, MoveStatus> {
-        //TODO castling
         val startLoc = viewModel.coordsToLoc(startCoords)
         val endLoc = viewModel.coordsToLoc(endCoords)
-        return gameStatus.findMoveAndStatus(startLoc, endLoc, promotionPiece)
+        return positionStatus.findMoveAndStatus(startLoc, endLoc, promotionPiece)
     }
 
     fun isValidPromotionMove(startCoords: Pair<Int,Int>, endCoords: Pair<Int,Int>): Boolean {
-        if (isPromotionRank(endCoords.second) &&
-            viewModel.pieceAtCoords(startCoords).type == PieceEnum.PieceType.PAWN) {
+        if (rulesEngine.isMovePromotion(viewModel.position, viewModel.coordsToLoc(startCoords), viewModel.coordsToLoc(endCoords))) {
             // This call will find any legal promotion move before any legal one
             val result = findMoveAndStatus(startCoords, endCoords)
             if (result.second == MoveStatus.LEGAL) {
@@ -147,7 +149,7 @@ class BoardFragment : Fragment() {
         popupWindow.showAtLocation(boardLayout, Gravity.CENTER, 0, -200)
     }
 
-    fun configurePromotionSelectionView(view: ImageView, pieceType: PieceEnum.PieceType, endCoords: Pair<Int, Int>, popupWindow: PopupWindow) {
+    private fun configurePromotionSelectionView(view: ImageView, pieceType: PieceEnum.PieceType, endCoords: Pair<Int, Int>, popupWindow: PopupWindow) {
         val piece = getPiece(viewModel.activeColor, pieceType)
         view.setImageResource(viewModel.pieceStyle.getPieceImageResource(piece)!!)
         view.setOnClickListener {

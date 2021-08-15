@@ -36,7 +36,7 @@ abstract class SquareMover(i: Int, j: Int):
         return candidateMoves
     }
 
-    override fun threatensCoord(placements: Array<Array<PieceEnum>>, threateningColor: Boolean): List<Pair<Int,Int>> {
+    override fun threatensCoord(placements: Array<Array<PieceEnum>>, threateningColor: Boolean, enPassantTarget: Pair<Int,Int>?): List<Pair<Int,Int>> {
         val threatens = mutableListOf<Pair<Int,Int>>()
         val threateningPiece = threateningPiece(threateningColor)
         for (direction in directions) {

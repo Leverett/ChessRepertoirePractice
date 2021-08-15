@@ -5,15 +5,13 @@ import com.leverett.repertoire.chess.lines.LineMove
 import com.leverett.repertoire.chess.lines.Repertoire
 
 class BuildMode(val repertoire: Repertoire,
-                var chapter: Chapter,
-                var currentState: State
+                var chapter: Chapter
 ) {
 
     fun handleMove(movePgn: String) {
-        val existingMoves: List<LineMove> = chapter.getMoves(currentState.position)
-        if (!existingMoves.any{it.algMove == movePgn}) {
-
-        }
+//        val existingMoves: List<LineMove> = chapter.getMoves(currentState.position)
+//        if (!existingMoves.any{it.algMove == movePgn}) {
+//        }
     }
 
 

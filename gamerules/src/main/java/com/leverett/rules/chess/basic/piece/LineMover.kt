@@ -43,16 +43,22 @@ abstract class LineMover(i: Int, j: Int):
         return candidateMoves
     }
 
-    override fun threatensCoord(placements: Array<Array<PieceEnum>>, threateningColor: Boolean): List<Pair<Int,Int>> {
+    override fun threatensCoord(placements: Array<Array<PieceEnum>>, threateningColor: Boolean, enPassantTarget: Pair<Int,Int>?): List<Pair<Int,Int>> {
         val threatens = mutableListOf<Pair<Int,Int>>()
         val threateningPiece = threateningPiece(threateningColor)
         for (direction in directions) {
+            if (direction == Pair(-1,0)) {
+            }
             var clear = true
             var attackerFile = i
             var attackerRank = j
             while (clear) {
+                if (direction == Pair(-1,0)) {
+                }
                 attackerFile += direction.first
                 attackerRank += direction.second
+                if (attackerFile == 1 && attackerRank == 3) {
+                }
                 if (attackerFile in 0 until GRID_SIZE && attackerRank in 0 until GRID_SIZE) {
                     val locationPiece = placements[attackerFile][attackerRank]
                     if (locationPiece == threateningPiece) {
