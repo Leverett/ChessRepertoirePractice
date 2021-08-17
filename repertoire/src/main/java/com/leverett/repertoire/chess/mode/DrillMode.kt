@@ -3,7 +3,7 @@ package com.leverett.repertoire.chess.mode
 import com.leverett.repertoire.chess.lines.LineTree
 import com.leverett.repertoire.chess.lines.LineMove
 import com.leverett.repertoire.chess.lines.Repertoire
-import com.leverett.rules.chess.representation.PieceEnum
+import com.leverett.rules.chess.representation.Piece
 import com.leverett.rules.chess.representation.Position
 import com.leverett.rules.chess.representation.startingPosition
 
@@ -84,7 +84,7 @@ class DrillMode(var repertoire: Repertoire,
         return moveRecord.map { it.algMove }
     }
 
-    fun getPlacements(): Array<Array<PieceEnum>> {
+    fun getPlacements(): Array<Array<Piece>> {
         return currentPosition.placements
     }
 

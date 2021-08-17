@@ -89,6 +89,7 @@ object PGNParser {
         var currentPosition = position
         var latestMove: Move? = null
         var latestMoveDetails = MoveDetails()
+        var latestMoveToken = ""
         var charIndex = 0
         while (charIndex < chapterMoves.length) {
             val currentChar = chapterMoves[charIndex]
@@ -104,7 +105,8 @@ object PGNParser {
                             currentPosition.copy(),
                             nextPosition.copy(),
                             latestMove,
-                            latestMoveDetails.copy()
+                            latestMoveDetails.copy(),
+                            latestMoveToken
                         )
                         chapter.addMove(lineMove)
                         // we now get set to the position before the current move gets calculated, and get rid of the comments
@@ -113,11 +115,11 @@ object PGNParser {
                     }
 
                     // now we calculate the move that the current token indicates
-                    val moveToken = extractMove(chapterMoves, charIndex)
-                    latestMove = makeMove(currentPosition, moveToken)
+                    latestMoveToken = extractMove(chapterMoves, charIndex)
+                    latestMove = makeMove(currentPosition, latestMoveToken)
 
                     // update index
-                    charIndex += moveToken.length + 1
+                    charIndex += latestMoveToken.length + 1
                 }
                 // We found a comment, so we calculate the move details for the currently stored move.
                 // But nothing else until the next move is encountered
@@ -162,7 +164,7 @@ object PGNParser {
             token = token.dropLast(1)
         }
 
-        var promotionPiece: PieceEnum? = null
+        var promotionPiece: Piece? = null
         if (token.contains(PROMOTION_CHAR)) {
             val promotionPieceType = getPieceType(token[token.length-1])
             promotionPiece = getPiece(activeColor, promotionPieceType)
@@ -172,18 +174,17 @@ object PGNParser {
         val endLoc = notationToLocation(token.substring(token.length - 2, token.length))
         token = token.dropLast(2)
 
-        val pieceType = if (token.isEmpty() || token.first().isLowerCase()) PieceEnum.PieceType.PAWN else {
+        val pieceType = if (token.isEmpty() || token.first().isLowerCase()) Piece.PieceType.PAWN else {
             getPieceType(token.first()).also { token = token.drop(1) }
         }
         if (token.isNotEmpty() && token.last() == CAPTURE_CHAR) {
             token = token.dropLast(1)
         }
-        val piece = getPieceRules(pieceType, endLoc) as Piece
+        val piece = getPieceRules(pieceType, endLoc) as PieceRules
         val accessibleLocations = piece.canMoveToCoordFrom(position.placements, activeColor, position.enPassantTarget)
         val startLoc = findStartLoc(accessibleLocations, token)
-        val enPassant = (endLoc == position.enPassantTarget && pieceType == PieceEnum.PieceType.PAWN)
-        val capture = if (enPassant) getPiece(!activeColor, PieceEnum.PieceType.PAWN) else position.pieceAt(endLoc)
-        val move = Move(startLoc, endLoc, capture, promotionPiece, enPassant)
+        val enPassant = (endLoc == position.enPassantTarget && pieceType == Piece.PieceType.PAWN)
+        val capture = if (enPassant) getPiece(!activeColor, Piece.PieceType.PAWN) else position.pieceAt(endLoc)
         return Move(startLoc, endLoc, capture, promotionPiece, enPassant)
     }
 
@@ -198,18 +199,6 @@ object PGNParser {
 
         }
         return Pair(-1, -1) //failure case
-    }
-
-    private fun getPieceRules(pieceType: PieceEnum.PieceType, endLoc: Pair<Int,Int>): Piece? {
-        return when (pieceType) {
-            PieceEnum.PieceType.PAWN -> Pawn(endLoc.first, endLoc.second)
-            PieceEnum.PieceType.KNIGHT -> Knight(endLoc.first, endLoc.second)
-            PieceEnum.PieceType.BISHOP -> Bishop(endLoc.first, endLoc.second)
-            PieceEnum.PieceType.ROOK -> Rook(endLoc.first, endLoc.second)
-            PieceEnum.PieceType.QUEEN -> Queen(endLoc.first, endLoc.second)
-            PieceEnum.PieceType.KING -> King(endLoc.first, endLoc.second)
-            else -> null
-        }
     }
 
     internal fun parseCommentBlock(commentBlock: String, moveDetails: MoveDetails) {

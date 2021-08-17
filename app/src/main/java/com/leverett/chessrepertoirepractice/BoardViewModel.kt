@@ -9,11 +9,11 @@ class BoardViewModel(var position : Position = startingPosition()) : ViewModel()
     // "coord" refers to the coordinates on-screen, based on perspective. Uses x&y vars
     // "loc" refers to the absolute position in the game. Uses i&j vars
 
-    private val placements: Array<Array<PieceEnum>>
+    private val placements: Array<Array<Piece>>
         get() {
             return position.placements
         }
-    fun pieceAtCoords(coords: Pair<Int, Int>): PieceEnum {
+    fun pieceAtCoords(coords: Pair<Int, Int>): Piece {
         val i = coordToLoc(coords.first)
         val j = coordToLoc(coords.second)
         return placements[i][j]

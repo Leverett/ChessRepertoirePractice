@@ -8,7 +8,7 @@ import com.leverett.chessrepertoirepractice.BoardFragment
 import com.leverett.chessrepertoirepractice.BoardViewModel
 import com.leverett.chessrepertoirepractice.utils.*
 import com.leverett.rules.chess.representation.GRID_SIZE
-import com.leverett.rules.chess.representation.PieceEnum
+import com.leverett.rules.chess.representation.Piece
 
 class SquareLayout(context: Context,
                    private val viewModel: BoardViewModel,
@@ -30,7 +30,7 @@ class SquareLayout(context: Context,
     fun updateSquare() {
         this.removeAllViews()
         val piece = viewModel.pieceAtCoords(coords)
-        if (piece != PieceEnum.EMPTY) {
+        if (piece != Piece.EMPTY) {
             pieceView = ImageView(context)
             pieceView!!.setImageResource(viewModel.pieceStyle.getPieceImageResource(piece)!!)
             pieceView!!.isClickable = false
@@ -56,7 +56,7 @@ class SquareLayout(context: Context,
                 val piece = viewModel.pieceAtCoords(viewCoords)
                 // No square actively selected already
                 if (activeSquareCoords == null) {
-                    if (piece != PieceEnum.EMPTY && piece.color == viewModel.activeColor) {
+                    if (piece != Piece.EMPTY && piece.color == viewModel.activeColor) {
                         viewModel.activeSquareCoords = viewCoords
                         updateSquareColor()
                     }
@@ -71,7 +71,7 @@ class SquareLayout(context: Context,
                             updateSquareColor()
                         }
                         // The clicked square is another piece that can be moved -> switch active square to it
-                        piece != PieceEnum.EMPTY && piece.color == viewModel.activeColor -> {
+                        piece != Piece.EMPTY && piece.color == viewModel.activeColor -> {
                             viewModel.activeSquareCoords = viewCoords
                             boardFragment.squareAt(activeSquareCoords).updateSquareColor()
                             updateSquareColor()

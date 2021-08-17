@@ -1,6 +1,6 @@
 package com.leverett.rules.chess.representation
 
-class PositionStatus(private val legalMoves: List<Move>, private val illegalMoves: List<Move>, val inCheck: Boolean) {
+class PositionStatus(val legalMoves: List<Move>, val illegalMoves: List<Move>, val inCheck: Boolean) {
 
     val inCheckmate: Boolean
         get() {
@@ -22,17 +22,17 @@ class PositionStatus(private val legalMoves: List<Move>, private val illegalMove
         return MoveStatus.INVALID
     }
 
-    fun findMoveAndStatus(startLoc: Pair<Int,Int>, endLoc: Pair<Int,Int>, promotionPieceEnum: PieceEnum? = null): Pair<Move?, MoveStatus> {
+    fun findMoveAndStatus(startLoc: Pair<Int,Int>, endLoc: Pair<Int,Int>, promotionPiece: Piece? = null): Pair<Move?, MoveStatus> {
         for (move in legalMoves) {
             if (move.startLoc == startLoc && move.endLoc == endLoc) {
-                if (promotionPieceEnum == null || promotionPieceEnum == move.promotion) {
+                if (promotionPiece == null || promotionPiece == move.promotion) {
                     return Pair(move, MoveStatus.LEGAL)
                 }
             }
         }
         for (move in illegalMoves) {
             if (move.startLoc == startLoc && move.endLoc == endLoc) {
-                if (promotionPieceEnum == null || promotionPieceEnum == move.promotion) {
+                if (promotionPiece == null || promotionPiece == move.promotion) {
                     return Pair(move, MoveStatus.ILLEGAL)
                 }
             }

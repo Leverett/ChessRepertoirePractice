@@ -36,12 +36,12 @@ fun positionFromFen(fen: String): Position {
     return Position(placements, activeColor, castling, enPassantTarget, turn)
 }
 
-private fun placementsFromFen(fenToken: String): Array<Array<PieceEnum>> {
+private fun placementsFromFen(fenToken: String): Array<Array<Piece>> {
     // TODO this should probably use split on the '/' char
     if (false) {
         //TODO simple validation
     }
-    val placements: Array<Array<PieceEnum>> = newPlacements()
+    val placements: Array<Array<Piece>> = newPlacements()
     var i = 0
     var j = 0
     var fenIndex = 0
@@ -79,7 +79,7 @@ fun statelessFenFromPosition(position: Position): String {
     val enPassantTarget = position.enPassantTarget
     val enPassantTargetToken =
         if (enPassantTarget != null)
-            locationToNotation(enPassantTarget.first, enPassantTarget.second)
+            locationToNotation(enPassantTarget)
         else
             NO_ENPASSANT_TARGET
 
@@ -93,7 +93,7 @@ private fun fenPlacementsFromPosition(position: Position): String {
     for (i in 0 until GRID_SIZE) {
         for (j in 0 until GRID_SIZE) {
             val piece = placements[i][GRID_SIZE - j - 1]
-            if (piece == PieceEnum.EMPTY) {
+            if (piece == Piece.EMPTY) {
                 emptyCount++
             } else {
                 if (emptyCount > 0) {

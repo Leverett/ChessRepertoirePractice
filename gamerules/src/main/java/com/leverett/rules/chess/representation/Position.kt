@@ -11,14 +11,25 @@ fun startingPosition(): Position {
     return positionFromFen(testingFen)
 }
 
-fun newPlacements(): Array<Array<PieceEnum>> {
-    return Array(GRID_SIZE) { Array(GRID_SIZE) { PieceEnum.EMPTY } }
+fun newPlacements(): Array<Array<Piece>> {
+    return Array(GRID_SIZE) { Array(GRID_SIZE) { Piece.EMPTY } }
 }
 fun isPromotionRank(rank: Int): Boolean {
     return (rank == 0 || rank == GRID_SIZE - 1)
 }
 
-class Position(val placements:Array<Array<PieceEnum>>,
+fun quickDisplay(placements:Array<Array<Piece>>): String {
+    var result = "Board\n"
+    for (j in 0 until GRID_SIZE) {
+        for (i in 0 until GRID_SIZE) {
+            result += placements[GRID_SIZE - 1 - i][GRID_SIZE - 1 - j]
+        }
+        result += "\n"
+    }
+    return result
+}
+
+class Position(val placements:Array<Array<Piece>>,
                val activeColor: Boolean,
                val castling: Castling,
                val enPassantTarget: Pair<Int,Int>?,
@@ -40,11 +51,11 @@ class Position(val placements:Array<Array<PieceEnum>>,
         return castling.castleAvailable(activeColor, side)
     }
 
-    fun pieceAt(location: Pair<Int,Int>): PieceEnum {
+    fun pieceAt(location: Pair<Int,Int>): Piece {
         return placements[location.first][location.second]
     }
 
-    fun copyPlacements(): Array<Array<PieceEnum>> {
+    fun copyPlacements(): Array<Array<Piece>> {
         val newPlacements = newPlacements()
         for (i in 0 until GRID_SIZE) {
             for (j in 0 until GRID_SIZE) {
@@ -59,13 +70,6 @@ class Position(val placements:Array<Array<PieceEnum>>,
     }
 
     fun quickDisplay(): String {
-        var result = "Board\n"
-        for (j in 0 until GRID_SIZE) {
-            for (i in 0 until GRID_SIZE) {
-                result += placements[GRID_SIZE - 1 - i][GRID_SIZE - 1 - j]
-            }
-            result += "\n"
-        }
-        return result
+        return quickDisplay(placements)
     }
 }

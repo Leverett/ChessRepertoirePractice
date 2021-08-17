@@ -2,7 +2,7 @@ package com.leverett.rules.chess.basic.piece
 
 import com.leverett.rules.chess.basic.BasicRulesEngine.underAttack
 import com.leverett.rules.chess.representation.*
-import com.leverett.rules.chess.representation.PieceEnum.*
+import com.leverett.rules.chess.representation.Piece.*
 
 class King(i: Int, j: Int) : SquareMover(i, j) {
 
@@ -50,7 +50,7 @@ class King(i: Int, j: Int) : SquareMover(i, j) {
         return candidateMoves
     }
 
-    private fun squaresEmpty(placements: Array<Array<PieceEnum>>, rank: Int, files: IntArray): Boolean {
+    private fun squaresEmpty(placements: Array<Array<Piece>>, rank: Int, files: IntArray): Boolean {
         for (file in files) {
             if (placements[file][rank] != EMPTY) {
                 return false
@@ -58,7 +58,7 @@ class King(i: Int, j: Int) : SquareMover(i, j) {
         }
         return true
     }
-    private fun squaresNotUnderThreat(placements: Array<Array<PieceEnum>>, rank: Int, files: IntArray, threateningColor: Boolean): Boolean {
+    private fun squaresNotUnderThreat(placements: Array<Array<Piece>>, rank: Int, files: IntArray, threateningColor: Boolean): Boolean {
         for (file in files) {
             if (underAttack(placements, Pair(file, rank), threateningColor)) {
                 return false

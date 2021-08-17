@@ -7,7 +7,7 @@ import com.leverett.rules.chess.representation.Position
 
 interface RulesEngine {
 
-    fun gameStatus(position: Position): PositionStatus
+    fun positionStatus(position: Position): PositionStatus
 
     /**
      * First entry is legal moves, second is illegal moves

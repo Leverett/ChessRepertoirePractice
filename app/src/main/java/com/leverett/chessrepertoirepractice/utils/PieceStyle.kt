@@ -1,7 +1,7 @@
 package com.leverett.chessrepertoirepractice.utils
 
 import com.leverett.chessrepertoirepractice.R
-import com.leverett.rules.chess.representation.PieceEnum
+import com.leverett.rules.chess.representation.Piece
 
 enum class PieceStyle(private val whitePawn: Int,
                       private val whiteKnight: Int,
@@ -31,20 +31,20 @@ enum class PieceStyle(private val whitePawn: Int,
         R.drawable.blackking);
 
 
-    fun getPieceImageResource(piece: PieceEnum) : Int? {
+    fun getPieceImageResource(piece: Piece) : Int? {
         return when (piece) {
-            PieceEnum.WHITE_PAWN -> whitePawn
-            PieceEnum.WHITE_KNIGHT -> whiteKnight
-            PieceEnum.WHITE_BISHOP -> whiteBishop
-            PieceEnum.WHITE_ROOK -> whiteRook
-            PieceEnum.WHITE_QUEEN -> whiteQueen
-            PieceEnum.WHITE_KING -> whiteKing
-            PieceEnum.BLACK_PAWN -> blackPawn
-            PieceEnum.BLACK_KNIGHT -> blackKnight
-            PieceEnum.BLACK_BISHOP -> blackBishop
-            PieceEnum.BLACK_ROOK -> blackRook
-            PieceEnum.BLACK_QUEEN -> blackQueen
-            PieceEnum.BLACK_KING -> blackKing
+            Piece.WHITE_PAWN -> whitePawn
+            Piece.WHITE_KNIGHT -> whiteKnight
+            Piece.WHITE_BISHOP -> whiteBishop
+            Piece.WHITE_ROOK -> whiteRook
+            Piece.WHITE_QUEEN -> whiteQueen
+            Piece.WHITE_KING -> whiteKing
+            Piece.BLACK_PAWN -> blackPawn
+            Piece.BLACK_KNIGHT -> blackKnight
+            Piece.BLACK_BISHOP -> blackBishop
+            Piece.BLACK_ROOK -> blackRook
+            Piece.BLACK_QUEEN -> blackQueen
+            Piece.BLACK_KING -> blackKing
             else -> null
         }
     }

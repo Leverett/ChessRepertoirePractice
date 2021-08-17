@@ -21,7 +21,11 @@ fun notationToFile(notation: Char): Int {
     }
 }
 
-fun locationToNotation(i: Int, j: Int): String {
+fun locationToNotation(loc: Pair<Int,Int>): String {
+    return locationToNotation(loc.first, loc.second)
+}
+
+private fun locationToNotation(i: Int, j: Int): String {
     if (i < 0 || i > 7 || j < 0 || j > 7) {
         //TODO ERROR
     }

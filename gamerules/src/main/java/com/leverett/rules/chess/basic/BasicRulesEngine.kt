@@ -1,20 +1,20 @@
 package com.leverett.rules.chess.basic
 
-import com.leverett.rules.chess.representation.PieceEnum
-import com.leverett.rules.chess.representation.PieceEnum.EMPTY
-import com.leverett.rules.chess.representation.PieceEnum.*
-import com.leverett.rules.chess.representation.PieceEnum.PieceType.*
+import com.leverett.rules.chess.representation.Piece
+import com.leverett.rules.chess.representation.Piece.EMPTY
+import com.leverett.rules.chess.representation.Piece.*
+import com.leverett.rules.chess.representation.Piece.PieceType.*
 import com.leverett.rules.RulesEngine
 import com.leverett.rules.chess.basic.piece.*
 import com.leverett.rules.chess.representation.*
-import java.util.logging.Level
-import java.util.logging.Logger
 import java.util.stream.Collectors
 
 object BasicRulesEngine: RulesEngine {
 
+    private val MISSING_KING = Pair(-1,-1)
+
     override fun validateMove(position: Position, move: Move): MoveStatus {
-        return gameStatus(position).moveStatus(move)
+        return positionStatus(position).moveStatus(move)
     }
 
     override fun isMovePromotion(position: Position, startLoc: Pair<Int, Int>, endLoc: Pair<Int, Int>): Boolean {
@@ -22,7 +22,7 @@ object BasicRulesEngine: RulesEngine {
             position.pieceAt(startLoc) == getPiece(position.activeColor, PAWN)
     }
 
-    override fun gameStatus(position: Position): PositionStatus {
+    override fun positionStatus(position: Position): PositionStatus {
         val validMoves = validMoves(position)
         val inCheck = isInCheck(position)
         return PositionStatus(validMoves.first, validMoves.second, inCheck)
@@ -33,32 +33,32 @@ object BasicRulesEngine: RulesEngine {
     }
 
     override fun isInCheckMate(position: Position): Boolean {
-        return gameStatus(position).inCheckmate
+        return positionStatus(position).inCheckmate
     }
 
     override fun isInStaleMate(position: Position): Boolean {
-        return gameStatus(position).inStalemate
+        return positionStatus(position).inStalemate
     }
 
     override fun validMoves(position: Position): Pair<List<Move>, List<Move>> {
         val activeColor = position.activeColor
-        val pieces: MutableList<Piece> = mutableListOf()
+        val pieceRules: MutableList<PieceRules> = mutableListOf()
         for (i in 0 until GRID_SIZE) {
             for (j in 0 until GRID_SIZE) {
                 val piece = position.placements[i][j]
-                if ((piece.color && activeColor) || (!piece.color && !activeColor)) {
+                if (piece.color == activeColor) {
                     when (piece.type) {
-                        PAWN -> pieces.add(Pawn(i, j))
-                        KNIGHT -> pieces.add(Knight(i, j))
-                        BISHOP -> pieces.add(Bishop(i, j))
-                        ROOK -> pieces.add(Rook(i, j))
-                        QUEEN -> pieces.add(Queen(i, j))
-                        KING -> pieces.add(King(i, j))
+                        PAWN -> pieceRules.add(Pawn(i, j))
+                        KNIGHT -> pieceRules.add(Knight(i, j))
+                        BISHOP -> pieceRules.add(Bishop(i, j))
+                        ROOK -> pieceRules.add(Rook(i, j))
+                        QUEEN -> pieceRules.add(Queen(i, j))
+                        KING -> pieceRules.add(King(i, j))
                     }
                 }
             }
         }
-        val candidateMovesLists: List<List<Move>> = pieces.parallelStream().map { it.candidateMoves(position) }.collect(Collectors.toList())
+        val candidateMovesLists: List<List<Move>> = pieceRules.parallelStream().map { it.candidateMoves(position) }.collect(Collectors.toList())
         val candidateMoves = candidateMovesLists.flatten()
         val legalityList = candidateMoves.parallelStream().map { isMoveLegal(it, position) }.collect(Collectors.toList())
         val legalMovesBuilder: MutableList<Move> = mutableListOf()
@@ -74,7 +74,7 @@ object BasicRulesEngine: RulesEngine {
         return Pair(legalMovesBuilder, illegalMovesBuilder)
     }
 
-    fun underAttack(placements: Array<Array<PieceEnum>>, coordinate: Pair<Int,Int>, attackingColor: Boolean) : Boolean {
+    fun underAttack(placements: Array<Array<Piece>>, coordinate: Pair<Int,Int>, attackingColor: Boolean) : Boolean {
         val file = coordinate.first
         val rank = coordinate.second
 
@@ -106,11 +106,15 @@ object BasicRulesEngine: RulesEngine {
     }
 
     private fun inLegalCheck(position: Position) : Boolean {
-        return underAttack(position.placements, findKing(position.placements, position.activeColor), !position.activeColor)
+        val kingLoc = findKing(position.placements, position.activeColor)
+        if (kingLoc == MISSING_KING) return false.also {}
+        return underAttack(position.placements, kingLoc, !position.activeColor)
     }
 
     private fun inIllegalCheck(position: Position) : Boolean {
-        return underAttack(position.placements, findKing(position.placements, !position.activeColor), position.activeColor)
+        val kingLoc = findKing(position.placements, !position.activeColor)
+        if (kingLoc == MISSING_KING) return true
+        return underAttack(position.placements, kingLoc, position.activeColor)
     }
 
     private fun isMoveLegal(move: Move, position: Position): Boolean {
@@ -118,8 +122,8 @@ object BasicRulesEngine: RulesEngine {
         return !inIllegalCheck(newPosition)
     }
 
-    private fun findKing(placements: Array<Array<PieceEnum>>, kingColor: Boolean) : Pair<Int,Int> {
-        val king: PieceEnum = if (kingColor) WHITE_KING else BLACK_KING
+    private fun findKing(placements: Array<Array<Piece>>, kingColor: Boolean) : Pair<Int,Int> {
+        val king: Piece = if (kingColor) WHITE_KING else BLACK_KING
         for (i in 0 until GRID_SIZE) {
             for (j in 0 until GRID_SIZE) {
                 if (king == placements[i][j]) {
@@ -142,7 +146,6 @@ object BasicRulesEngine: RulesEngine {
             return doCastle(position, move)
         }
         val placements = position.placements
-        Logger.getLogger("getNextPosition").log(Level.SEVERE, "move: $move")
         val piece = placements[move.startLoc.first][move.startLoc.second]
         if (piece.type == PAWN) {
             return doPawnMove(position, move, piece)
@@ -194,7 +197,7 @@ object BasicRulesEngine: RulesEngine {
         return Position(newPlacements, !position.activeColor, newCastling, null, nextTurn)
     }
 
-    private fun doPawnMove(position: Position, move: Move, pawnPiece: PieceEnum): Position {
+    private fun doPawnMove(position: Position, move: Move, pawnPiece: Piece): Position {
         val newPlacements = position.copyPlacements()
         newPlacements[move.startLoc.first][move.startLoc.second] = EMPTY
         val resultPiece = move.promotion ?: pawnPiece
@@ -219,7 +222,7 @@ object BasicRulesEngine: RulesEngine {
         return Position(newPlacements, !position.activeColor, newCastling, enPassantTarget, nextTurn)
     }
 
-    private fun calculateNewCastling(move: Move, castling: Castling, activeColor: Boolean, piece: PieceEnum): Castling {
+    private fun calculateNewCastling(move: Move, castling: Castling, activeColor: Boolean, piece: Piece): Castling {
         val newCastling = castling.copy()
         if (piece.type == KING) {
             if (activeColor) {

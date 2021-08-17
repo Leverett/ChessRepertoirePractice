@@ -1,0 +1,6 @@
+<resources>
+    <declare-styleable name="PlaySettingButton">
+        <attr name="baseColor" format="color" />
+        <attr name="activeColor" format="color" />
+    </declare-styleable>
+</resources>

@@ -1,7 +1,7 @@
 package com.leverett.rules.chess.representation
 
-class Move(val startLoc: Pair<Int,Int>, val endLoc: Pair<Int,Int>, val capture: PieceEnum,
-           val promotion: PieceEnum? = null, val enPassant: Boolean = false) { // TODO is the enpassant val necessary? depends on how move reversal will work
+class Move(val startLoc: Pair<Int,Int>, val endLoc: Pair<Int,Int>, val capture: Piece,
+           val promotion: Piece? = null, val enPassant: Boolean = false) { // TODO is the enpassant val necessary? depends on how move reversal will work
 
     override fun toString(): String {
         return "$startLoc -> $endLoc"

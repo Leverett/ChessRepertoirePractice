@@ -1,6 +1,7 @@
 package com.leverett.chessrepertoirepractice
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -16,21 +17,20 @@ import com.leverett.rules.chess.basic.BasicRulesEngine
 import com.leverett.rules.chess.representation.*
 
 
-class BoardFragment : Fragment() {
+class BoardFragment(var viewModel: BoardViewModel = BoardViewModel()) : Fragment() {
 
     private lateinit var boardLayout: ConstraintLayout
     private lateinit var squares: Array<Array<SquareLayout>>
-    private lateinit var viewModel: BoardViewModel
 
     private val rulesEngine = BasicRulesEngine
     private val position: Position
         get() {
             return viewModel.position
         }
-    private var positionStatus: PositionStatus = rulesEngine.gameStatus(position)
+    var positionStatus: PositionStatus = rulesEngine.positionStatus(position)
 
     private val squareDimensions = "1:1"
-    private val boardViewModelKey = "boardViewModel"
+//    private val boardViewModelKey = "boardViewModel"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,9 +39,6 @@ class BoardFragment : Fragment() {
         val view: View = inflater.inflate(R.layout.board_fragment, container, false)
         boardLayout = view.findViewById(R.id.board_layout)
         val context = requireContext()
-
-//        viewModel = if (savedInstanceState != null) savedInstanceState.get(boardViewModelKey) as BoardViewModel else BoardViewModel()
-        viewModel = BoardViewModel()
 
         squares = Array(GRID_SIZE) {x -> Array(GRID_SIZE) {y -> SquareLayout(context, viewModel, x, y).also{boardLayout.addView(it)}} }
 
@@ -76,7 +73,7 @@ class BoardFragment : Fragment() {
         return view
     }
 
-    fun processMoveSelection(endCoords: Pair<Int, Int>, promotionPiece: PieceEnum? = null) {
+    fun processMoveSelection(endCoords: Pair<Int, Int>, promotionPiece: Piece? = null) {
         val startCoords = viewModel.activeSquareCoords as Pair<Int,Int>
         val result = findMoveAndStatus(startCoords, endCoords, promotionPiece)
 
@@ -87,7 +84,7 @@ class BoardFragment : Fragment() {
             }
             MoveStatus.LEGAL -> {
                 val move = result.first!!
-                if (move.capture != PieceEnum.EMPTY) {
+                if (move.capture != Piece.EMPTY) {
                     playSound(CAPTURE_MOVE_SOUND)
                 }
                 doMove(move)
@@ -104,7 +101,7 @@ class BoardFragment : Fragment() {
         viewModel.position = rulesEngine.getNextPosition(position, move)
         viewModel.activeSquareCoords = null
         updateSquaresToPosition()
-        positionStatus = rulesEngine.gameStatus(position)
+        positionStatus = rulesEngine.positionStatus(position)
     }
 
     private fun updateSquaresToPosition() {
@@ -115,7 +112,7 @@ class BoardFragment : Fragment() {
         }
     }
 
-    private fun findMoveAndStatus(startCoords: Pair<Int,Int>, endCoords: Pair<Int,Int>, promotionPiece: PieceEnum? = null) : Pair<Move?, MoveStatus> {
+    private fun findMoveAndStatus(startCoords: Pair<Int,Int>, endCoords: Pair<Int,Int>, promotionPiece: Piece? = null) : Pair<Move?, MoveStatus> {
         val startLoc = viewModel.coordsToLoc(startCoords)
         val endLoc = viewModel.coordsToLoc(endCoords)
         return positionStatus.findMoveAndStatus(startLoc, endLoc, promotionPiece)
@@ -141,15 +138,15 @@ class BoardFragment : Fragment() {
         popupView.setBackgroundColor(viewModel.boardStyle.promotionBackground)
 
         val popupWindow = PopupWindow(popupView, ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT, true)
-        configurePromotionSelectionView(popupView.findViewById(R.id.queenPromotionView), PieceEnum.PieceType.QUEEN, endCoords, popupWindow)
-        configurePromotionSelectionView(popupView.findViewById(R.id.knightPromotionView), PieceEnum.PieceType.KNIGHT, endCoords, popupWindow)
-        configurePromotionSelectionView(popupView.findViewById(R.id.bishopPromotionView), PieceEnum.PieceType.BISHOP, endCoords, popupWindow)
-        configurePromotionSelectionView(popupView.findViewById(R.id.rookPromotionView), PieceEnum.PieceType.ROOK, endCoords, popupWindow)
+        configurePromotionSelectionView(popupView.findViewById(R.id.queenPromotionView), Piece.PieceType.QUEEN, endCoords, popupWindow)
+        configurePromotionSelectionView(popupView.findViewById(R.id.knightPromotionView), Piece.PieceType.KNIGHT, endCoords, popupWindow)
+        configurePromotionSelectionView(popupView.findViewById(R.id.bishopPromotionView), Piece.PieceType.BISHOP, endCoords, popupWindow)
+        configurePromotionSelectionView(popupView.findViewById(R.id.rookPromotionView), Piece.PieceType.ROOK, endCoords, popupWindow)
 
-        popupWindow.showAtLocation(boardLayout, Gravity.CENTER, 0, -200)
+        popupWindow.showAsDropDown(squareAt(Pair(GRID_SIZE/2, GRID_SIZE -1)), Gravity.CENTER, 0, -200)
     }
 
-    private fun configurePromotionSelectionView(view: ImageView, pieceType: PieceEnum.PieceType, endCoords: Pair<Int, Int>, popupWindow: PopupWindow) {
+    private fun configurePromotionSelectionView(view: ImageView, pieceType: Piece.PieceType, endCoords: Pair<Int, Int>, popupWindow: PopupWindow) {
         val piece = getPiece(viewModel.activeColor, pieceType)
         view.setImageResource(viewModel.pieceStyle.getPieceImageResource(piece)!!)
         view.setOnClickListener {

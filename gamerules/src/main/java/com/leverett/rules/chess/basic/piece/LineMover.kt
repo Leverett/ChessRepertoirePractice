@@ -1,13 +1,10 @@
 package com.leverett.rules.chess.basic.piece
 
-import com.leverett.rules.chess.representation.GRID_SIZE
-import com.leverett.rules.chess.representation.Move
-import com.leverett.rules.chess.representation.PieceEnum
-import com.leverett.rules.chess.representation.PieceEnum.*
-import com.leverett.rules.chess.representation.Position
+import com.leverett.rules.chess.representation.*
+import com.leverett.rules.chess.representation.Piece.*
 
 abstract class LineMover(i: Int, j: Int):
-    PieceBase(i, j) {
+    PieceRulesBase(i, j) {
 
     abstract val directions: Array<Pair<Int,Int>>
 
@@ -24,16 +21,13 @@ abstract class LineMover(i: Int, j: Int):
                 moveRank += direction.second
                 if (moveFile in 0 until GRID_SIZE && moveRank in 0 until GRID_SIZE) {
                     val locationPiece = position.placements[moveFile][moveRank]
-                    if (locationPiece == EMPTY) {
-                        candidateMoves.add(Move(startCoord, Pair(moveFile, moveRank), EMPTY))
-                    }
-                    else if ((activeColor && !locationPiece.color) ||
-                        (!activeColor && locationPiece.color)) {
-                        candidateMoves.add(Move(startCoord, Pair(moveFile, moveRank), locationPiece))
-                        moveable = false
-                    }
-                    else {
-                        moveable = false
+                    when {
+                        locationPiece == EMPTY -> candidateMoves.add(Move(startCoord, Pair(moveFile, moveRank), EMPTY))
+                        activeColor != locationPiece.color!! -> {
+                            candidateMoves.add(Move(startCoord, Pair(moveFile, moveRank), locationPiece))
+                            moveable = false
+                        }
+                        else ->  moveable = false
                     }
                 } else {
                     moveable = false
@@ -43,9 +37,9 @@ abstract class LineMover(i: Int, j: Int):
         return candidateMoves
     }
 
-    override fun threatensCoord(placements: Array<Array<PieceEnum>>, threateningColor: Boolean, enPassantTarget: Pair<Int,Int>?): List<Pair<Int,Int>> {
+    override fun threatensCoord(placements: Array<Array<Piece>>, threateningColor: Boolean, enPassantTarget: Pair<Int,Int>?): List<Pair<Int,Int>> {
         val threatens = mutableListOf<Pair<Int,Int>>()
-        val threateningPiece = threateningPiece(threateningColor)
+        val threateningPiece = getPiece(threateningColor, pieceType)
         for (direction in directions) {
             if (direction == Pair(-1,0)) {
             }

@@ -1,13 +1,10 @@
 package com.leverett.rules.chess.basic.piece;
 
-import com.leverett.rules.chess.representation.GRID_SIZE
-import com.leverett.rules.chess.representation.Move
-import com.leverett.rules.chess.representation.PieceEnum
-import com.leverett.rules.chess.representation.PieceEnum.EMPTY
-import com.leverett.rules.chess.representation.Position
+import com.leverett.rules.chess.representation.*
+import com.leverett.rules.chess.representation.Piece.EMPTY
 
 abstract class SquareMover(i: Int, j: Int):
-    PieceBase(i, j) {
+    PieceRulesBase(i, j) {
 
     abstract val directions: Array<Pair<Int,Int>>
 
@@ -21,9 +18,7 @@ abstract class SquareMover(i: Int, j: Int):
                 val moveRank = j + direction.second
                 if (moveRank in 0 until GRID_SIZE) {
                     val locationPiece = position.placements[moveFile][moveRank]
-                    if (locationPiece == EMPTY ||
-                        (activeColor && !locationPiece.color) ||
-                        (!activeColor && locationPiece.color)) {
+                    if (locationPiece == EMPTY || activeColor != locationPiece.color!!) {
                         candidateMoves.add(
                             Move(startCoords,
                                 Pair(moveFile,moveRank),
@@ -36,9 +31,9 @@ abstract class SquareMover(i: Int, j: Int):
         return candidateMoves
     }
 
-    override fun threatensCoord(placements: Array<Array<PieceEnum>>, threateningColor: Boolean, enPassantTarget: Pair<Int,Int>?): List<Pair<Int,Int>> {
+    override fun threatensCoord(placements: Array<Array<Piece>>, threateningColor: Boolean, enPassantTarget: Pair<Int,Int>?): List<Pair<Int,Int>> {
         val threatens = mutableListOf<Pair<Int,Int>>()
-        val threateningPiece = threateningPiece(threateningColor)
+        val threateningPiece = getPiece(threateningColor, pieceType)
         for (direction in directions) {
             val attackerFile = i + direction.first
             if (attackerFile in 0 until GRID_SIZE) {
