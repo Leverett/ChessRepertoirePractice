@@ -1,20 +1,18 @@
 package com.leverett.repertoire.chess
 
-import java.lang.IllegalArgumentException
-
 class MoveDetails(var description: String? = null) {
 
-    private val tags: MutableList<Tag> = mutableListOf()
-    val isTheory: Boolean
-        get() = tags.contains(Tag.THEORY)
-    val isMistake: Boolean
-        get() = tags.contains(Tag.MISTAKE)
-    val isPreferred: Boolean
-        get() = tags.contains(Tag.PREFERRED)
-    val isGambitLine: Boolean
-        get() = tags.contains(Tag.GAMBIT)
-    val isBestMove: Boolean
+    val tags: MutableList<Tag> = mutableListOf()
+    val best: Boolean
         get() = tags.contains(Tag.BEST)
+    val theory: Boolean
+        get() = tags.contains(Tag.THEORY)
+    val gambit: Boolean
+        get() = tags.contains(Tag.GAMBIT)
+    val preferred: Boolean
+        get() = tags.contains(Tag.PREFERRED)
+    val mistake: Boolean
+        get() = tags.contains(Tag.MISTAKE)
 
     fun addTag(tag: Tag?) {
         if (tag != null) tags.add(tag)
@@ -36,16 +34,3 @@ class MoveDetails(var description: String? = null) {
         BEST
     }
 }
-
-// TODO This is probably unnecessary
-//fun getTag(tagToken: String): MoveDetails.Tag? {
-//    try {
-//        return MoveDetails.Tag.valueOf(tagToken)
-//    } catch (exception: IllegalArgumentException) {
-//        if (tagToken.first().isDigit()) {
-//            return null
-//        }
-//        //if it's not a digit, it's a bad tag that I added, not lichess, and should throw the error
-//        throw exception
-//    }
-//}

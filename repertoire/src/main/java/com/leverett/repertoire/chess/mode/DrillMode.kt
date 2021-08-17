@@ -20,27 +20,27 @@ class DrillMode(var repertoire: Repertoire,
         var candidateMoves: List<LineMove> = moves
 
         // Will pick Best Moves and return if there are any
-        candidateMoves = if (moveSettings.bestMoves && candidateMoves.any { it.moveDetails?.isBestMove!! }) {
-            candidateMoves.filter { it.moveDetails?.isBestMove!! }.also { return doMove(candidateMoves) }
+        candidateMoves = if (moveSettings.bestMoves && candidateMoves.any { it.moveDetails?.best!! }) {
+            candidateMoves.filter { it.moveDetails?.best!! }.also { return doMove(candidateMoves) }
         } else candidateMoves
 
         // Filters out any non-theory moves if Theory Only is set
-        candidateMoves = if (moveSettings.theoryOnly && candidateMoves.any { !it.moveDetails?.isTheory!! }) {
-            candidateMoves.filter { it.moveDetails?.isTheory!! }
+        candidateMoves = if (moveSettings.theoryOnly && candidateMoves.any { !it.moveDetails?.theory!! }) {
+            candidateMoves.filter { it.moveDetails?.theory!! }
         } else candidateMoves.also {//TODO indicate that there are no "theory" moves
         }
 
         // Select for Gambits or to avoid Gambits if the opportunity appears
-        candidateMoves = if (moveSettings.playGambits && candidateMoves.any { it.moveDetails?.isGambitLine!! }) {
-            candidateMoves.filter { it.moveDetails?.isGambitLine!! }
+        candidateMoves = if (moveSettings.playGambits && candidateMoves.any { it.moveDetails?.gambit!! }) {
+            candidateMoves.filter { it.moveDetails?.gambit!! }
         } else candidateMoves
-        candidateMoves = if (moveSettings.avoidGambits && candidateMoves.any { it.moveDetails?.isGambitLine!! }) {
-            candidateMoves.filter { !it.moveDetails?.isGambitLine!! }
+        candidateMoves = if (moveSettings.avoidGambits && candidateMoves.any { it.moveDetails?.gambit!! }) {
+            candidateMoves.filter { !it.moveDetails?.gambit!! }
         } else candidateMoves
 
         // Filter out any mistakes
-        candidateMoves = if (moveSettings.noMistakes && candidateMoves.any { it.moveDetails?.isMistake!! }) {
-            candidateMoves.filter { !it.moveDetails?.isMistake!! }
+        candidateMoves = if (moveSettings.noMistakes && candidateMoves.any { it.moveDetails?.mistake!! }) {
+            candidateMoves.filter { !it.moveDetails?.mistake!! }
         } else candidateMoves
 
         return doMove(candidateMoves)
@@ -61,7 +61,7 @@ class DrillMode(var repertoire: Repertoire,
             return MoveResult.ERROR
         }
         val move = doMove(moves) //There is only one mvoe in the list, so it will do that one
-        return if (move.moveDetails?.isMistake!!) MoveResult.MISTAKE else MoveResult.UNKNOWN
+        return if (move.moveDetails?.mistake!!) MoveResult.MISTAKE else MoveResult.UNKNOWN
     }
 
     fun undoMove(move: LineMove) {

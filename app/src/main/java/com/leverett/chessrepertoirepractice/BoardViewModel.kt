@@ -5,18 +5,20 @@ import com.leverett.chessrepertoirepractice.utils.BoardStyle
 import com.leverett.chessrepertoirepractice.utils.PieceStyle
 import com.leverett.rules.chess.representation.*
 
-class BoardViewModel(var position : Position = startingPosition()) : ViewModel() {
+class BoardViewModel(val gameHistory: GameHistory = newGameHistory()) : ViewModel() {
     // "coord" refers to the coordinates on-screen, based on perspective. Uses x&y vars
     // "loc" refers to the absolute position in the game. Uses i&j vars
 
-    private val placements: Array<Array<Piece>>
-        get() {
-            return position.placements
-        }
+    val position: Position
+        get() = gameHistory.currentGameState.position
+    val positionStatus: PositionStatus
+        get() = gameHistory.currentGameState.positionStatus
+
+
     fun pieceAtCoords(coords: Pair<Int, Int>): Piece {
         val i = coordToLoc(coords.first)
         val j = coordToLoc(coords.second)
-        return placements[i][j]
+        return position.placements[i][j]
     }
     val activeColor: Boolean
         get() {
@@ -24,6 +26,7 @@ class BoardViewModel(var position : Position = startingPosition()) : ViewModel()
         }
     var activeSquareCoords: Pair<Int, Int>? = null
     var perspectiveColor = true
+    var canMove = true
 
     var pieceStyle = PieceStyle.STANDARD
     var boardStyle = BoardStyle.STANDARD

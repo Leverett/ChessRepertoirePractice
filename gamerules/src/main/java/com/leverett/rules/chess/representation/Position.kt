@@ -1,33 +1,7 @@
 package com.leverett.rules.chess.representation
 
-import com.leverett.rules.chess.parsing.STARTING_FEN
 import com.leverett.rules.chess.parsing.fenFromPosition
-import com.leverett.rules.chess.parsing.positionFromFen
 import com.leverett.rules.chess.parsing.statelessFenFromPosition
-
-const val GRID_SIZE = 8
-private const val testingFen: String = STARTING_FEN //TODO remember to remove this
-fun startingPosition(): Position {
-    return positionFromFen(testingFen)
-}
-
-fun newPlacements(): Array<Array<Piece>> {
-    return Array(GRID_SIZE) { Array(GRID_SIZE) { Piece.EMPTY } }
-}
-fun isPromotionRank(rank: Int): Boolean {
-    return (rank == 0 || rank == GRID_SIZE - 1)
-}
-
-fun quickDisplay(placements:Array<Array<Piece>>): String {
-    var result = "Board\n"
-    for (j in 0 until GRID_SIZE) {
-        for (i in 0 until GRID_SIZE) {
-            result += placements[GRID_SIZE - 1 - i][GRID_SIZE - 1 - j]
-        }
-        result += "\n"
-    }
-    return result
-}
 
 class Position(val placements:Array<Array<Piece>>,
                val activeColor: Boolean,
@@ -71,5 +45,12 @@ class Position(val placements:Array<Array<Piece>>,
 
     fun quickDisplay(): String {
         return quickDisplay(placements)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other == null || other !is Position) {
+            return false
+        }
+        return fen == other.fen
     }
 }

@@ -4,5 +4,7 @@ enum class MoveResult {
     UNKNOWN,
     MISTAKE,
     VALID,
+    CORRECT,
+    INCORRECT,
     ERROR
 }

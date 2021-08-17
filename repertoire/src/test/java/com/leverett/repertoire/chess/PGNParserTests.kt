@@ -106,8 +106,8 @@ class PGNParserTests {
         parser.parseCommentBlock(text, actualValue)
 
         assertEquals(actualValue.description, expectedDescription)
-        assertEquals(actualValue.isBestMove, expectedBestMove)
-        assertEquals(actualValue.isTheory, expectedTheory)
+        assertEquals(actualValue.best, expectedBestMove)
+        assertEquals(actualValue.theory, expectedTheory)
     }
 
     @DataProvider(name = "findStartLocData")

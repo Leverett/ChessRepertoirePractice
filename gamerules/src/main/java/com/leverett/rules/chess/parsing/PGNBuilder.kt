@@ -47,7 +47,7 @@ object PGNBuilder {
             }
         }
 
-        return annotateLegality(position, legalitylessMove)
+        return annotateLegality(legalitylessMove, rulesEngine.getNextPosition(position, move))
     }
 
     private fun disambiguatePieceToken(position: Position, startLoc: Pair<Int,Int>, pieceRules: PieceRules): String {
@@ -67,7 +67,7 @@ object PGNBuilder {
     }
 
 
-    private fun annotateLegality(position: Position, moveToken: String): String {
+    private fun annotateLegality(moveToken: String, position: Position): String {
         val positionStatus = rulesEngine.positionStatus(position)
         return when {
             positionStatus.inCheck -> moveToken + CHECK_CHAR

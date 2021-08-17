@@ -7,6 +7,17 @@ import com.leverett.rules.chess.representation.Position
 
 class LineMove(val previousPosition: Position, val nextPosition: Position, val move: Move, val moveDetails: MoveDetails, algMove: String? = null) {
 
+    val best: Boolean
+        get() = moveDetails.best
+    val theory: Boolean
+        get() = moveDetails.theory
+    val gambit: Boolean
+        get() = moveDetails.gambit
+    val preferred: Boolean
+        get() = moveDetails.preferred
+    val mistake: Boolean
+        get() = moveDetails.mistake
+
     // Better to make this on construction and store in than do it on demand, saves work overall I think
     val algMove: String = algMove ?: makeAlgMove()
 

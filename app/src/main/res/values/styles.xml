@@ -3,4 +3,9 @@
     <style name="Widget.Theme.ChessRepertoirePractice.MyView" parent="">
         <item name="android:background">@color/gray_400</item>
     </style>
+
+    <style name="PerspectiveSwitchStyle">
+        <item name="colorControlActivated">@color/black</item>
+    </style>
+
 </resources>

@@ -1,13 +1,23 @@
 package com.leverett.chessrepertoirepractice
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.leverett.chessrepertoirepractice.ui.views.PlaySettingButton
+import com.leverett.repertoire.chess.lines.LineMove
+import com.leverett.repertoire.chess.lines.LineTree
+import com.leverett.repertoire.chess.lines.LineTreeSet
+import com.leverett.repertoire.chess.mode.MoveResult
 import com.leverett.repertoire.chess.mode.PlaySettings
+import com.leverett.rules.chess.representation.Move
 
-class PracticeActivity : AppCompatActivity() {
+class PracticeActivity : ChessActivity() {
+
+    override val boardId = R.id.practice_board
+    private val boardViewModel: BoardViewModel
+        get() = boardFragment.viewModel
 
     private val playSettings = PlaySettings()
+    private var lines: LineTree = LineTreeSet("", setOf())
+    private var playerMove = true
 
     private lateinit var playerBestOptionView: PlaySettingButton
     private lateinit var playerTheoryOptionView: PlaySettingButton
@@ -82,6 +92,70 @@ class PracticeActivity : AppCompatActivity() {
         }
             view.updateColor()
         }
+    }
+
+    // TODO - divide up the moves when the previous move was made
+    override fun handleMove(move: Move) {
+        val moves = lines.getMoves(boardViewModel.position)
+        if (playerMove) {
+            val moveResult = determinePlayerMoveResult(moves, move)
+            when (moveResult) {
+                MoveResult.UNKNOWN -> handleUnknownMove()
+                MoveResult.MISTAKE -> handleMistake()
+                MoveResult.INCORRECT -> handleIncorrect()
+                MoveResult.CORRECT -> handleIncorrect()
+                MoveResult.VALID -> handleValid()
+            }
+        }
+
+    }
+
+    private fun determinePlayerMoveResult(lines: List<LineMove>, move: Move): MoveResult {
+        var lineMove: LineMove? = null
+        for (line in lines) {
+            if (line.move == move) {
+                lineMove = line
+            }
+        }
+        if (lineMove == null) return MoveResult.UNKNOWN
+        if (lineMove.mistake) return MoveResult.MISTAKE
+
+        if (playSettings.playerBest) {
+            if (lineMove.best) return MoveResult.CORRECT
+            if (lines.any { it.best }) return MoveResult.INCORRECT
+        }
+        if (playSettings.playerPreferred) {
+            if (lineMove.preferred) return MoveResult.CORRECT
+            if (lines.any { it.preferred }) return MoveResult.INCORRECT
+        }
+        if (playSettings.playerTheory) {
+            if (lineMove.preferred) return MoveResult.CORRECT
+            if (lines.any { it.preferred }) return MoveResult.INCORRECT
+        }
+        return MoveResult.VALID
+    }
+
+    private fun handleUnknownMove() {
+        //TODO
+        // Search other books/chapters
+        // Offer to add it to a book/chapter
+        // Takeback offer
+    }
+
+    private fun handleMistake() {
+        // TODO show an explanation if available and a takeback
+    }
+
+    private fun handleIncorrect() {
+        // TODO indicate that there is a specific move or moves to look for based on the settings
+    }
+
+    private fun handleCorrect() {
+        // TODO indicate if there were other correct moves
+    }
+
+    private fun handleValid() {
+        // TODO note if there is a best or preferred option
     }
 
 }

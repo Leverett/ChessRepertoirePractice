@@ -1,43 +1,53 @@
 package com.leverett.chessrepertoirepractice
 
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.PopupWindow
+import android.widget.TextView
+import androidx.appcompat.widget.SwitchCompat
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import com.leverett.chessrepertoirepractice.ui.views.SquareLayout
 import com.leverett.chessrepertoirepractice.utils.CAPTURE_MOVE_SOUND
 import com.leverett.chessrepertoirepractice.utils.playSound
 import com.leverett.rules.chess.basic.BasicRulesEngine
+import com.leverett.rules.chess.parsing.PGNBuilder
 import com.leverett.rules.chess.representation.*
 
 
 class BoardFragment(var viewModel: BoardViewModel = BoardViewModel()) : Fragment() {
 
+    private val squareDimensions = "1:1"
+
     private lateinit var boardLayout: ConstraintLayout
     private lateinit var squares: Array<Array<SquareLayout>>
+    private lateinit var historyView: TextView
 
     private val rulesEngine = BasicRulesEngine
-    private val position: Position
-        get() {
-            return viewModel.position
-        }
-    var positionStatus: PositionStatus = rulesEngine.positionStatus(position)
 
-    private val squareDimensions = "1:1"
-//    private val boardViewModelKey = "boardViewModel"
+    private val position: Position
+        get() = viewModel.position
+    private val positionStatus: PositionStatus
+        get() = viewModel.positionStatus
+
+    private val gameHistory: GameHistory
+        get() = viewModel.gameHistory
+
+    private val activity: ChessActivity
+        get() = getActivity() as ChessActivity
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view: View = inflater.inflate(R.layout.board_fragment, container, false)
-        boardLayout = view.findViewById(R.id.board_layout)
+        boardLayout = view.findViewById(R.id.grid_layout)
+        historyView = view.findViewById(R.id.move_history)
         val context = requireContext()
 
         squares = Array(GRID_SIZE) {x -> Array(GRID_SIZE) {y -> SquareLayout(context, viewModel, x, y).also{boardLayout.addView(it)}} }
@@ -78,6 +88,11 @@ class BoardFragment(var viewModel: BoardViewModel = BoardViewModel()) : Fragment
         val result = findMoveAndStatus(startCoords, endCoords, promotionPiece)
 
         when (result.second) {
+            // If it is invalid, we deactivate the active square
+            MoveStatus.INVALID ->  {
+                viewModel.activeSquareCoords = null
+                squareAt(startCoords).updateSquareColor()
+            }
             // If it is illegal we just alert but don't change anything
             MoveStatus.ILLEGAL -> {
                 squareAt(endCoords).doIllegalMoveReaction()
@@ -89,27 +104,52 @@ class BoardFragment(var viewModel: BoardViewModel = BoardViewModel()) : Fragment
                 }
                 doMove(move)
             }
-            // If it is invalid, we deactivate the active square
-            else -> {
-                viewModel.activeSquareCoords = null
-                squareAt(startCoords).updateSquareColor()
-            }
         }
     }
 
     private fun doMove(move: Move) {
-        viewModel.position = rulesEngine.getNextPosition(position, move)
+        val nextGameState = gameHistory.nextGameState()
+        val pgnBuilder = PGNBuilder
+        val algMove = pgnBuilder.makeMoveNotation(position, move)
+        if (nextGameState == null || nextGameState.algMove != algMove) {
+            // TODO maybe store the actual move and calc the alg move on construction rather than this janky string comparison
+            val nextPosition = rulesEngine.getNextPosition(position, move)
+            val nextPositionStatus = rulesEngine.positionStatus(nextPosition)
+            gameHistory.addGameState(GameState(nextPosition, nextPositionStatus, algMove))
+        }
+        else {
+            gameHistory.currentGameState = nextGameState
+        }
         viewModel.activeSquareCoords = null
-        updateSquaresToPosition()
-        positionStatus = rulesEngine.positionStatus(position)
+        updateBoardView()
+        activity.handleMove(move)
     }
 
-    private fun updateSquaresToPosition() {
+    fun redoNextMove() {
+        val nextGameState = gameHistory.nextGameState()
+        if (nextGameState != null) {
+            gameHistory.currentGameState = nextGameState
+            viewModel.activeSquareCoords = null
+            updateBoardView()
+        }
+    }
+
+    fun undoMove() {
+        val previousGameState = gameHistory.previousGameState()
+        if (previousGameState != null) {
+            gameHistory.currentGameState = previousGameState
+            viewModel.activeSquareCoords = null
+            updateBoardView()
+        }
+    }
+
+    private fun updateBoardView() {
         for (x in 0 until GRID_SIZE) {
             for (y in 0 until GRID_SIZE) {
                 squares[x][y].updateSquare()
             }
         }
+        historyView.text = viewModel.gameHistory.stringToNow()
     }
 
     private fun findMoveAndStatus(startCoords: Pair<Int,Int>, endCoords: Pair<Int,Int>, promotionPiece: Piece? = null) : Pair<Move?, MoveStatus> {
@@ -158,6 +198,13 @@ class BoardFragment(var viewModel: BoardViewModel = BoardViewModel()) : Fragment
 
     fun squareAt(coords: Pair<Int, Int>): SquareLayout {
         return squares[coords.first][coords.second]
+    }
+
+    fun switchPerspective(view: View) {
+        val perspectiveSwitch = view as SwitchCompat
+        perspectiveSwitch.isChecked = perspectiveSwitch.isChecked
+        viewModel.perspectiveColor = !perspectiveSwitch.isChecked
+        updateBoardView()
     }
 
 //    override fun onActivityCreated(savedInstanceState: Bundle?) {

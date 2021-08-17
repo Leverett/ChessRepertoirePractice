@@ -17,7 +17,8 @@
         android:layout_marginTop="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout="@layout/board_fragment" />
 
     <TextView
         android:id="@+id/player_moves"
@@ -73,7 +74,8 @@
         app:layout_constraintRight_toLeftOf="@id/player_gambits"
         app:layout_constraintTop_toBottomOf="@+id/player_moves"
         custom:activeColor="@color/teal_700"
-        custom:baseColor="@color/teal_200" />
+        custom:baseColor="@color/teal_200"
+        tools:ignore="DuplicateSpeakableTextCheck" />
 
     <com.leverett.chessrepertoirepractice.ui.views.PlaySettingButton
         android:id="@+id/player_gambits"
@@ -158,5 +160,26 @@
         app:layout_constraintTop_toBottomOf="@+id/player_moves"
         custom:activeColor="@color/gray_600"
         custom:baseColor="@color/gray_400" />
+
+    <ImageButton
+        android:id="@+id/redoMoveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="redoNextMove"
+        android:rotationY="180"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="?attr/actionModeCloseDrawable"
+        tools:ignore="SpeakableTextPresentCheck" />
+
+    <ImageButton
+        android:id="@+id/undoMoveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="undoMove"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/redoMoveButton"
+        app:srcCompat="?attr/actionModeCloseDrawable"
+        tools:ignore="SpeakableTextPresentCheck" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
