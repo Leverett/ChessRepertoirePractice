@@ -8,18 +8,21 @@ import com.leverett.rules.chess.representation.Move
 abstract class ChessActivity : AppCompatActivity() {
 
     abstract val boardId: Int
-    val boardFragment: BoardFragment
+    private val boardFragment: BoardFragment
         get() = supportFragmentManager.findFragmentById(boardId) as BoardFragment
+    open val boardViewModel: BoardViewModel
+        get() = boardFragment.viewModel
 
-    abstract fun handleMove(move: Move)
+    abstract fun handleMove(move: Move?)
 
     fun undoMove(view: View) {
+        boardViewModel.canMove = true
         boardFragment.undoMove()
     }
     fun redoNextMove(view: View) {
         boardFragment.redoNextMove()
     }
-    fun switchPerspective(view: View) {
+    open fun switchPerspective(view: View) {
         boardFragment.switchPerspective(view)
     }
 

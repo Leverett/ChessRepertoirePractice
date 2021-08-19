@@ -5,7 +5,7 @@ import com.leverett.rules.chess.parsing.PGNBuilder
 import com.leverett.rules.chess.representation.Move
 import com.leverett.rules.chess.representation.Position
 
-class LineMove(val previousPosition: Position, val nextPosition: Position, val move: Move, val moveDetails: MoveDetails, algMove: String? = null) {
+class LineMove(val lineTree: LineTree, val previousPosition: Position, val nextPosition: Position, val move: Move, val moveDetails: MoveDetails, algMove: String? = null) {
 
     val best: Boolean
         get() = moveDetails.best

@@ -21,7 +21,6 @@ class GameHistory(private val startingGameState: GameState) {
     fun addGameState(gameState: GameState) {
         gameStatesForward[currentGameState.fen] = gameState.copy()
         gameStatesBackwards[gameState.fen] = currentGameState.copy()
-        currentGameState = gameState
     }
 
     fun nextGameState(): GameState? {

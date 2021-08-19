@@ -4,11 +4,8 @@ import com.leverett.repertoire.chess.lines.Chapter
 import com.leverett.rules.chess.representation.*
 import com.leverett.rules.chess.representation.Piece.*
 import org.testng.Assert.assertEquals
-import org.testng.Assert.assertNotNull
 import org.testng.annotations.DataProvider
 import org.testng.annotations.Test
-import java.util.logging.Level
-import java.util.logging.Logger
 
 class PGNParserTests {
 
@@ -174,7 +171,6 @@ class PGNParserTests {
 
     @Test(dataProvider = "makeMoveData")
     fun makeMoveTest(token: String, activeColor: Boolean, expectedValue: Move) {
-
         val castling = Castling( whiteKingside = true,whiteQueenside = true,blackKingside = true,blackQueenside = true)
         val enPassantTarget = if (!activeColor) Pair(6, 2) else null
         val position = Position(testingPlacements, activeColor, castling, enPassantTarget, 0)
@@ -186,22 +182,74 @@ class PGNParserTests {
 
     @Test
     fun parseMovesTest() {
-
         val startingPosition = startingPosition()
         val chapter = Chapter("test")
-        parser.parseMoves(chapter, CHAPTER_MOVES_EXAMPLE, startingPosition)
+        parser.parseMoves(chapter, chapterMovesExample, startingPosition)
 
-        assertNotNull(chapter.getMoves(startingPosition))
-        var position = startingPosition
-        while (true) {
-            val moves = chapter.getMoves(position)
-            if (moves.isNotEmpty()) {
-                position = moves[0].nextPosition
-                Logger.getLogger("parseMovesTest").log(Level.SEVERE, position.quickDisplay())
-            } else {
-                break
-            }
-        }
+        var moves = chapter.getMoves(startingPosition)
+        assertEquals(moves.size, 1)
+        assertEquals(moves[0].gambit, true)
+        assertEquals(moves[0].best, false)
+        assertEquals(moves[0].moveDetails.description, "a comment with a tag")
+
+        moves = chapter.getMoves(moves[0].nextPosition)
+        assertEquals(moves.size, 1)
+        assertEquals(moves[0].gambit, false)
+        assertEquals(moves[0].best, false)
+
+        moves = chapter.getMoves(moves[0].nextPosition)
+        assertEquals(moves.size, 1)
+        assertEquals(moves[0].gambit, false)
+        assertEquals(moves[0].best, true)
+
+        moves = chapter.getMoves(moves[0].nextPosition)
+        moves = chapter.getMoves(moves[0].nextPosition)
+        assertEquals(moves.size, 2)
+    }
+
+    @Test
+    fun extractLineTreeMetadata() {
+        val bookMetadata = parser.extractLineTreeMetadata(metadataExample, true)
+        assertEquals(bookMetadata.first, "Test Study")
+        assertEquals(bookMetadata.second, "About the book")
+        val chapterMetadata = parser.extractLineTreeMetadata(metadataExample, false)
+        assertEquals(chapterMetadata.first, "Chapter 1")
+        assertEquals(chapterMetadata.second, "About the chapter")
+    }
+
+    @Test
+    fun parseAnnotatedPgnToChapterTest() {
+        val chapter = parser.parseAnnotatedPgnToChapter(chapterExample)
+        assertEquals(chapter.name, "Chapter 1")
+        assertEquals(chapter.description, "About the chapter")
+
+        val startingPosition = startingPosition()
+        var moves = chapter.getMoves(startingPosition)
+        assertEquals(moves.size, 1)
+        assertEquals(moves[0].gambit, true)
+        assertEquals(moves[0].best, false)
+        assertEquals(moves[0].moveDetails.description, "a comment with a tag")
+
+        moves = chapter.getMoves(moves[0].nextPosition)
+        assertEquals(moves.size, 1)
+        assertEquals(moves[0].gambit, false)
+        assertEquals(moves[0].best, false)
+
+        moves = chapter.getMoves(moves[0].nextPosition)
+        assertEquals(moves.size, 1)
+        assertEquals(moves[0].gambit, false)
+        assertEquals(moves[0].best, true)
+
+        moves = chapter.getMoves(moves[0].nextPosition)
+        moves = chapter.getMoves(moves[0].nextPosition)
+        assertEquals(moves.size, 2)
+    }
+
+    @Test
+    fun parseAnnotatedPgnToBook() {
+        val book = parser.parseAnnotatedPgnToBook(bookExample)
+        assertEquals(book.lineTrees.size, 2)
+        assertEquals(book.name, "Test Study")
     }
 
     private val testingPlacements: Array<Array<Piece>> = arrayOf(
@@ -214,9 +262,65 @@ class PGNParserTests {
         arrayOf(EMPTY     , EMPTY      , EMPTY, WHITE_PAWN , BLACK_KNIGHT, WHITE_PAWN, EMPTY       , BLACK_BISHOP),
         arrayOf(WHITE_ROOK, EMPTY      , EMPTY, BLACK_PAWN , BLACK_KING  , EMPTY     , WHITE_PAWN  , EMPTY),
     )
+//    private val chapterMovesExample = "1. d4 d5 2. c4 dxc4 { hacking tags <GAMBIT,BEST,THEORY> maybe there can be multiple <OTHER> } 3. e4 { Comment on third move } (3. e3 b5 (3... e5 4. dxe5 \$22)  (3... f5) 4. Qf3 \$140 (4. Nc3 e6)) 3... c5 4. e5 f6 { This is a random comment\n" +
+//            "With new lines\n" +
+//            "a lot of them } (4... g6) 5. f3 g6 (5... h5) 6. a4 *"
 
+    private val chapterMovesExample = "1. d4 { a comment with a tag \$GAMBIT } d5 2. c4 \$BEST dxc4 3. e4 (3. e3 b5 (3... e5 4. dxe5 \$22)  (3... f5) 4. Qf3 \$140 (4. Nc3 e6)) 3... c5 4. e5 f6 { This is a random comment\n" +
+            "With new lines\n" +
+            "a lot of them } (4... g6) 5. f3 g6 (5... h5) 6. a4 *"
+
+    private val metadataExample = "[Event \"Test Study: Chapter 1\"]\n" +
+            "[Site \"https://lichess.org/study/DGjt4lwU/32qGstHX\"]\n" +
+            "[Result \"*\"]\n" +
+            "[UTCDate \"2021.07.25\"]\n" +
+            "[UTCTime \"03:15:10\"]\n" +
+            "[Variant \"Standard\"]\n" +
+            "[BookDescription \"About the book\"]\n" +
+            "[ChapterDescription \"About the chapter\"]\n" +
+            "[ECO \"D20\"]\n" +
+            "[Opening \"Queen's Gambit Accepted: Old Variation\"]\n" +
+            "[Annotator \"https://lichess.org/@/CircleBreaker\"]"
+
+    private val chapterExample = "[Event \"Test Study: Chapter 1\"]\n" +
+            "[Site \"https://lichess.org/study/DGjt4lwU/32qGstHX\"]\n" +
+            "[Result \"*\"]\n" +
+            "[UTCDate \"2021.07.25\"]\n" +
+            "[UTCTime \"03:15:10\"]\n" +
+            "[Variant \"Standard\"]\n" +
+            "[BookDescription \"About the book\"]\n" +
+            "[ChapterDescription \"About the chapter\"]\n" +
+            "[ECO \"D20\"]\n" +
+            "[Opening \"Queen's Gambit Accepted: Old Variation\"]\n" +
+            "[Annotator \"https://lichess.org/@/CircleBreaker\"]\n" +
+            "\n" +
+            "1. d4 { a comment with a tag \$GAMBIT } d5 2. c4 \$BEST dxc4 3. e4 (3. e3 b5 (3... e5 4. dxe5 \$22)  (3... f5) 4. Qf3 \$140 (4. Nc3 e6)) 3... c5 4. e5 f6 { This is a random comment\n" +
+            "With new lines\n" +
+            "a lot of them } (4... g6) 5. f3 g6 (5... h5) 6. a4 *"
+
+    private val bookExample = "[Event \"Test Study: Chapter 1\"]\n" +
+            "[Site \"https://lichess.org/study/DGjt4lwU/32qGstHX\"]\n" +
+            "[Result \"*\"]\n" +
+            "[UTCDate \"2021.07.25\"]\n" +
+            "[UTCTime \"03:15:10\"]\n" +
+            "[Variant \"Standard\"]\n" +
+            "[ECO \"D20\"]\n" +
+            "[Opening \"Queen's Gambit Accepted: Old Variation\"]\n" +
+            "[Annotator \"https://lichess.org/@/CircleBreaker\"]\n" +
+            "\n" +
+            "1. d4 d5 2. c4 dxc4 3. e3 (3. e4) 3... b5 4. Qf3 *\n" +
+            "\n" +
+            "\n" +
+            "[Event \"Test Study: Chapter 2\"]\n" +
+            "[Site \"https://lichess.org/study/DGjt4lwU/C8nP4WlO\"]\n" +
+            "[Result \"*\"]\n" +
+            "[UTCDate \"2021.07.25\"]\n" +
+            "[UTCTime \"03:33:53\"]\n" +
+            "[Variant \"Standard\"]\n" +
+            "[ECO \"D30\"]\n" +
+            "[Opening \"Queen's Gambit Declined\"]\n" +
+            "[Annotator \"https://lichess.org/@/CircleBreaker\"]\n" +
+            "\n" +
+            "1. d4 d5 2. c4 e6 *"
 
 }
-private const val CHAPTER_MOVES_EXAMPLE = "1. d4 d5 2. c4 dxc4 { hacking tags <GAMBIT,BEST,THEORY> maybe there can be multiple <OTHER> } 3. e4 { Comment on third move } (3. e3 b5 (3... e5 4. dxe5 \$22)  (3... f5) 4. Qf3 \$140 (4. Nc3 e6)) 3... c5 4. e5 f6 { This is a random comment\n" +
-        "With new lines\n" +
-        "a lot of them } (4... g6) 5. f3 g6 (5... h5) 6. a4 *"

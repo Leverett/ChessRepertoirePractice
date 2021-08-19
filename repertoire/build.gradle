@@ -10,6 +10,7 @@ java {
 
 dependencies {
     implementation project(path: ':gamerules')
+    implementation 'org.apache.commons:commons-lang3:3.5'
     testImplementation 'org.testng:testng:6.9.6'
 }
 test {

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/practice_activity_layout"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:custom="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -14,7 +15,6 @@
         android:name="com.leverett.chessrepertoirepractice.BoardFragment"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -23,9 +23,10 @@
     <TextView
         android:id="@+id/player_moves"
         android:layout_width="0dp"
-        android:layout_height="20dp"
+        android:layout_height="10dp"
         android:gravity="center"
         android:text="@string/player_move_options"
+        android:textSize="8sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/move_options_divider"
         app:layout_constraintTop_toBottomOf="@+id/practice_board" />
@@ -33,9 +34,10 @@
     <TextView
         android:id="@+id/opponent_moves"
         android:layout_width="0dp"
-        android:layout_height="20dp"
+        android:layout_height="10dp"
         android:gravity="center"
         android:text="@string/opponent_move_options"
+        android:textSize="8sp"
         app:layout_constraintLeft_toRightOf="@id/move_options_divider"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/practice_board" />
@@ -43,7 +45,7 @@
     <View
         android:id="@+id/move_options_divider"
         android:layout_width="10dp"
-        android:layout_height="50dp"
+        android:layout_height="40dp"
         app:layout_constraintLeft_toRightOf="@id/player_moves"
         app:layout_constraintRight_toLeftOf="@id/opponent_moves"
         app:layout_constraintTop_toBottomOf="@+id/practice_board" />
@@ -161,25 +163,70 @@
         custom:activeColor="@color/gray_600"
         custom:baseColor="@color/gray_400" />
 
-    <ImageButton
-        android:id="@+id/redoMoveButton"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/practice_activity_buttons"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/practice_button_height"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/move_options_divider">
+        <include
+            android:id="@+id/player_move_buttons"
+            layout="@layout/player_move_buttons_layout"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/display_view"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:onClick="redoNextMove"
-        android:rotationY="180"
+        android:text="@string/start_display_text"
+        app:layout_constraintTop_toBottomOf="@+id/practice_activity_buttons"
+        custom:layout_constraintEnd_toEndOf="parent"
+        custom:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/bottom_option_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="?attr/actionModeCloseDrawable"
-        tools:ignore="SpeakableTextPresentCheck" />
+        app:layout_constraintStart_toStartOf="parent">
 
-    <ImageButton
-        android:id="@+id/undoMoveButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="undoMove"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/redoMoveButton"
-        app:srcCompat="?attr/actionModeCloseDrawable"
-        tools:ignore="SpeakableTextPresentCheck" />
+        <Button
+            android:id="@+id/board_settings_button"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/practice_button_height"
+            android:text="@string/board_settings"
+            android:textSize="10sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/undoMoveButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="undoMove"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/redoMoveButton"
+            app:srcCompat="?attr/actionModeCloseDrawable" />
+
+        <ImageButton
+            android:id="@+id/redoMoveButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="redoNextMove"
+            android:rotationY="180"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="?attr/actionModeCloseDrawable" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

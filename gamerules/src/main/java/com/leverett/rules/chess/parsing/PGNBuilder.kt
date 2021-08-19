@@ -15,8 +15,11 @@ object PGNBuilder {
     private const val CAPTURE_CHAR = 'x'
     private const val PROMOTION_CHAR = '='
 
-    fun makeMoveNotation(position: Position, move: Move): String {
+    fun makeMoveNotation(position: Position?, move: Move?): String {
         var legalitylessMove = ""
+        if (move == null || position == null) {
+            return legalitylessMove
+        }
         if (move == WHITE_KINGSIDE_CASTLE || move == BLACK_KINGSIDE_CASTLE) {
             legalitylessMove = KINGSIDE_CASTLE
         } else if (move == WHITE_QUEENSIDE_CASTLE || move == BLACK_QUEENSIDE_CASTLE) {

@@ -8,4 +8,48 @@
         <item name="colorControlActivated">@color/black</item>
     </style>
 
+    <style name="PracticeButtonStyle">
+        <item name="android:layout_width">@dimen/practice_button_width</item>
+        <item name="android:layout_height">0dp</item>
+        <!--item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginEnd">16dp</item-->
+        <item name="android:textSize">@dimen/practice_button_text</item>
+    </style>
+
+    <style name="DescriptionButtonStyle" parent="PracticeButtonStyle">
+        <item name="android:onClick">showDescriptionButton</item>
+        <item name="android:text">@string/show_description</item>
+    </style>
+
+    <style name="ShowHintButtonStyle" parent="PracticeButtonStyle">
+        <item name="android:onClick">showHintButton</item>
+        <item name="android:text">@string/show_hint</item>
+    </style>
+
+    <style name="ShowOptionsButtonStyle" parent="PracticeButtonStyle">
+        <item name="android:onClick">showOptionsButton</item>
+        <item name="android:text">@string/show_options</item>
+    </style>
+
+    <style name="UndoMoveButtonStyle" parent="PracticeButtonStyle">
+        <item name="android:onClick">undoMove</item>
+        <item name="android:text">@string/undo_move</item>
+    </style>
+
+    <style name="AddToRepertoireButtonStyle" parent="PracticeButtonStyle">
+        <item name="android:onClick">addToRepertoireButton</item>
+        <item name="android:text">@string/add_move</item>
+    </style>
+
+    <style name="SearchRepertoireButtonStyle" parent="PracticeButtonStyle">
+        <item name="android:onClick">searchRepertoireButton</item>
+        <item name="android:text">@string/search_repertoire</item>
+    </style>
+
+    <style name="OpponentMoveButtonStyle" parent="PracticeButtonStyle">
+        <item name="android:onClick">opponentMoveButton</item>
+        <item name="android:text">@string/opponent_move</item>
+    </style>
+
 </resources>
+

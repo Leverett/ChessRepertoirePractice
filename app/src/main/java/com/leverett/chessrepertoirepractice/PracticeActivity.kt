@@ -1,23 +1,73 @@
 package com.leverett.chessrepertoirepractice
 
 import android.os.Bundle
+import android.util.Log
+import android.view.View
+import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.leverett.chessrepertoirepractice.ui.views.PlaySettingButton
+import com.leverett.repertoire.chess.PGNParser
+import com.leverett.repertoire.chess.lines.Book
 import com.leverett.repertoire.chess.lines.LineMove
 import com.leverett.repertoire.chess.lines.LineTree
 import com.leverett.repertoire.chess.lines.LineTreeSet
-import com.leverett.repertoire.chess.mode.MoveResult
+import com.leverett.repertoire.chess.mode.MoveResult.*
+import com.leverett.repertoire.chess.mode.MoveResults
 import com.leverett.repertoire.chess.mode.PlaySettings
+import com.leverett.rules.chess.parsing.PGNBuilder
 import com.leverett.rules.chess.representation.Move
 
 class PracticeActivity : ChessActivity() {
 
+    private val bookExample = "[Event \"Test Study: Chapter 1\"]\n" +
+            "[Site \"https://lichess.org/study/DGjt4lwU/32qGstHX\"]\n" +
+            "[Result \"*\"]\n" +
+            "[UTCDate \"2021.07.25\"]\n" +
+            "[UTCTime \"03:15:10\"]\n" +
+            "[Variant \"Standard\"]\n" +
+            "[ECO \"D20\"]\n" +
+            "[Opening \"Queen's Gambit Accepted: Old Variation\"]\n" +
+            "[Annotator \"https://lichess.org/@/CircleBreaker\"]\n" +
+            "\n" +
+            "1. d4 \$THEORY {just a comment} d5 2. c4 dxc4 3. e3 (3. e4) 3... b5 4. Qf3 *\n" +
+            "\n" +
+            "\n" +
+            "[Event \"Test Study: Chapter 2\"]\n" +
+            "[Site \"https://lichess.org/study/DGjt4lwU/C8nP4WlO\"]\n" +
+            "[Result \"*\"]\n" +
+            "[UTCDate \"2021.07.25\"]\n" +
+            "[UTCTime \"03:33:53\"]\n" +
+            "[Variant \"Standard\"]\n" +
+            "[ECO \"D30\"]\n" +
+            "[Opening \"Queen's Gambit Declined\"]\n" +
+            "[Annotator \"https://lichess.org/@/CircleBreaker\"]\n" +
+            "\n" +
+            "1. d4 d5 2. c4 e6 *\n" +
+            "\n" +
+            "\n" +
+            "[Event \"Test Study: Chapter 2\"]\n" +
+            "[Site \"https://lichess.org/study/DGjt4lwU/C8nP4WlO\"]\n" +
+            "[Result \"*\"]\n" +
+            "[UTCDate \"2021.07.25\"]\n" +
+            "[UTCTime \"03:33:53\"]\n" +
+            "[Variant \"Standard\"]\n" +
+            "[ECO \"D30\"]\n" +
+            "[Opening \"Queen's Gambit Declined\"]\n" +
+            "[Annotator \"https://lichess.org/@/CircleBreaker\"]\n" +
+            "\n" +
+            "1. e4 \$THEORY d5 2. c4 e6 *"
+
     override val boardId = R.id.practice_board
-    private val boardViewModel: BoardViewModel
-        get() = boardFragment.viewModel
 
     private val playSettings = PlaySettings()
-    private var lines: LineTree = LineTreeSet("", setOf())
-    private var playerMove = true
+    private val pgnParser = PGNParser
+    private val pgnBuilder = PGNBuilder
+    private var lines: Book = pgnParser.parseAnnotatedPgnToBook(bookExample) //LineTree = LineTreeSet("", setOf())
+    private val playerMove: Boolean
+        get() = boardViewModel.perspectiveColor == boardViewModel.activeColor
+
+    private val lineMoves: Collection<LineMove>
+        get() = lines.getMoves(boardViewModel.position)
 
     private lateinit var playerBestOptionView: PlaySettingButton
     private lateinit var playerTheoryOptionView: PlaySettingButton
@@ -27,6 +77,11 @@ class PracticeActivity : ChessActivity() {
     private lateinit var opponentTheoryOptionView: PlaySettingButton
     private lateinit var opponentGambitsOptionView: PlaySettingButton
     private lateinit var opponentMistakesOptionView: PlaySettingButton
+    private lateinit var practiceButtons: ConstraintLayout
+    private lateinit var displayView: TextView
+
+//    private var nextMoveResultsO: MutableMap<Move, MoveResult> = mutableMapOf()
+    private lateinit var moveResults: MoveResults
 
     private val playOptionViews: List<PlaySettingButton>
         get() {
@@ -55,12 +110,14 @@ class PracticeActivity : ChessActivity() {
         opponentTheoryOptionView = findViewById(R.id.opponent_theory)
         opponentGambitsOptionView = findViewById(R.id.opponent_gambit)
         opponentMistakesOptionView = findViewById(R.id.opponent_mistakes)
+        practiceButtons = findViewById(R.id.practice_activity_buttons)
+        displayView = findViewById(R.id.display_view)
 
         for (view in playOptionViews) {
             view.setOnClickListener { view -> togglePlayOption(view as PlaySettingButton) }
         }
-        refreshButtonColors()
-
+        refreshPlayOptionButtonColors()
+        calculateMoveResults()
 
     }
 
@@ -75,10 +132,11 @@ class PracticeActivity : ChessActivity() {
             opponentGambitsOptionView -> playSettings.opponentGambits = !playSettings.opponentGambits
             opponentMistakesOptionView -> playSettings.opponentMistakes = !playSettings.opponentMistakes
         }
-        refreshButtonColors()
+        refreshPlayOptionButtonColors()
+        calculateMoveResults()
     }
 
-    private fun refreshButtonColors() {
+    private fun refreshPlayOptionButtonColors() {
         for (view in playOptionViews) {
             when (view) {
                 playerBestOptionView -> playerBestOptionView.active = playSettings.playerBest
@@ -89,73 +147,107 @@ class PracticeActivity : ChessActivity() {
                 opponentTheoryOptionView -> opponentTheoryOptionView.active = playSettings.opponentTheory
                 opponentGambitsOptionView -> opponentGambitsOptionView.active = playSettings.opponentGambits
                 opponentMistakesOptionView -> opponentMistakesOptionView.active = playSettings.opponentMistakes
-        }
+            }
             view.updateColor()
         }
     }
 
-    // TODO - divide up the moves when the previous move was made
-    override fun handleMove(move: Move) {
-        val moves = lines.getMoves(boardViewModel.position)
-        if (playerMove) {
-            val moveResult = determinePlayerMoveResult(moves, move)
-            when (moveResult) {
-                MoveResult.UNKNOWN -> handleUnknownMove()
-                MoveResult.MISTAKE -> handleMistake()
-                MoveResult.INCORRECT -> handleIncorrect()
-                MoveResult.CORRECT -> handleIncorrect()
-                MoveResult.VALID -> handleValid()
-            }
-        }
-
+    private fun clearText() {
+        displayView.text = ""
     }
 
-    private fun determinePlayerMoveResult(lines: List<LineMove>, move: Move): MoveResult {
-        var lineMove: LineMove? = null
-        for (line in lines) {
-            if (line.move == move) {
-                lineMove = line
-            }
-        }
-        if (lineMove == null) return MoveResult.UNKNOWN
-        if (lineMove.mistake) return MoveResult.MISTAKE
+    private fun setButtonsLayout(id: Int) {
+        practiceButtons.removeAllViews()
+        layoutInflater.inflate(id, practiceButtons)
+    }
 
-        if (playSettings.playerBest) {
-            if (lineMove.best) return MoveResult.CORRECT
-            if (lines.any { it.best }) return MoveResult.INCORRECT
+    private fun calculateMoveResults() {
+        moveResults = MoveResults(lineMoves, playSettings, playerMove)
+    }
+
+    override fun handleMove(move: Move?) {
+        clearText()
+        if (move != null) {
+            val moveResult = moveResults.getMoveResult(move)
+            //TODO get rid of this
+//            Log.e("handleMove","moveResult: $moveResult")
+//            Log.e("handleMove","lines: " + lines.quickDisplay())
+//            Log.e("handleMove",
+//                "moves: " + lineMoves.joinToString(",") {it.algMove})
+//            Log.e("handleMove","nextMoveResults: " + moveResults.quickDisplay())
+            if (moveResult == null) {
+                handleUnknownMove()
+            } else if (!playerMove) { //The underlying board has already been updated
+                when (moveResult) {
+                    MISTAKE -> handleMistake(move)
+                    INCORRECT -> handleIncorrect(move)
+                    CORRECT -> handleCorrect(move)
+                    VALID -> handleValid(move)
+                }
+            }
+//        if (playerMove) {
+//            val moveResult = determinePlayerMoveResult(lineMoves, move)
+//            when (nextMoveResults[moveResult]) {
+//                UNKNOWN -> handleUnknownMove()
+//                MISTAKE -> handleMistake()
+//                INCORRECT -> handleIncorrect()
+//                CORRECT -> handleCorrect()
+//                VALID -> handleValid()
+//            }
+//        }
         }
-        if (playSettings.playerPreferred) {
-            if (lineMove.preferred) return MoveResult.CORRECT
-            if (lines.any { it.preferred }) return MoveResult.INCORRECT
+        else {
+            practiceButtons.removeAllViews()
+            layoutInflater.inflate(R.layout.player_move_buttons_layout, practiceButtons)
         }
-        if (playSettings.playerTheory) {
-            if (lineMove.preferred) return MoveResult.CORRECT
-            if (lines.any { it.preferred }) return MoveResult.INCORRECT
-        }
-        return MoveResult.VALID
+        moveResults = MoveResults(lineMoves, playSettings, playerMove)
     }
 
     private fun handleUnknownMove() {
-        //TODO
-        // Search other books/chapters
-        // Offer to add it to a book/chapter
-        // Takeback offer
+        boardViewModel.canMove = false
+        setButtonsLayout(R.layout.unknown_move_buttons_layout)
+        displayView.text = "Unknown move"
     }
 
-    private fun handleMistake() {
+    private fun handleCorrect(move: Move) {
+        displayView.text = moveResults.getCorrectMoveDescriptionText(move)
+        setButtonsLayout(R.layout.opponent_move_buttons_layout)
+        // TODO opponent move
+    }
+
+    private fun handleMistake(move: Move) {
         // TODO show an explanation if available and a takeback
     }
 
-    private fun handleIncorrect() {
+    private fun handleIncorrect(move: Move) {
         // TODO indicate that there is a specific move or moves to look for based on the settings
     }
 
-    private fun handleCorrect() {
-        // TODO indicate if there were other correct moves
+    private fun handleValid(move: Move) {
+        displayView.text = moveResults.getValidMoveDescriptionText(move)
+        setButtonsLayout(R.layout.opponent_move_buttons_layout)
+        // TODO note if there is a best or preferred option
     }
 
-    private fun handleValid() {
-        // TODO note if there is a best or preferred option
+    fun addToRepertoireButton(view: View){
+        // TODO this (some sort of popup)
+    }
+
+    fun searchRepertoireButton(view: View) {
+        // TODO some sort of popup/use the text view, and offer a way to add to the current repertoire
+    }
+
+    fun showDescriptionButton(view: View) {
+        // update the description box
+    }
+
+    fun showHintButton(view: View) {
+        // update the description box
+    }
+
+    fun showOptionsButton(view: View) {
+
+        // update the description box
     }
 
 }

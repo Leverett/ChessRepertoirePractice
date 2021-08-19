@@ -25,4 +25,12 @@ class Move(val startLoc: Pair<Int,Int>, val endLoc: Pair<Int,Int>, val capture: 
         }
         return true
     }
+
+    fun copy(): Move {
+        return Move(startLoc.copy(), endLoc.copy(), capture, promotion, enPassant)
+    }
+
+    override fun hashCode(): Int {
+        return startLoc.hashCode() + endLoc.hashCode() + capture.hashCode() + promotion.hashCode()
+    }
 }

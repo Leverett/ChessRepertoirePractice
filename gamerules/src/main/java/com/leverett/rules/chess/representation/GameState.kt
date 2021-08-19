@@ -1,6 +1,6 @@
 package com.leverett.rules.chess.representation
 
-class GameState(val position: Position, val positionStatus: PositionStatus, val algMove: String) {
+class GameState(val position: Position, val positionStatus: PositionStatus, val move: Move?, val algMove: String) {
 
     val fen: String
         get() {
@@ -15,7 +15,8 @@ class GameState(val position: Position, val positionStatus: PositionStatus, val 
     }
 
     fun copy(): GameState {
-        return GameState(position.copy(), positionStatus.copy(), algMove)
+        return if (move == null) GameState(position.copy(), positionStatus.copy(), null, algMove)
+            else GameState(position.copy(), positionStatus.copy(), move.copy(), algMove)
     }
 
 

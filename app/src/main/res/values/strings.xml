@@ -9,4 +9,13 @@
     <string name="preferred_moves">Preferred</string>
     <string name="gambit_moves">Gambits</string>
     <string name="mistake_moves">Mistakes</string>
+    <string name="undo_move">Undo Move</string>
+    <string name="add_move">Add To Repertoire</string>
+    <string name="search_repertoire">Search Repertoire</string>
+    <string name="show_description">Show Description</string>
+    <string name="show_hint">Show Hint</string>
+    <string name="show_options">Show Options</string>
+    <string name="start_display_text">White to move</string>
+    <string name="opponent_move">Opponent Move</string>
+    <string name="board_settings">Board Settings</string>
 </resources>

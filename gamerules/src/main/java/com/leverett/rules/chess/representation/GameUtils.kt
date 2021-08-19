@@ -3,6 +3,8 @@ package com.leverett.rules.chess.representation
 import com.leverett.rules.chess.basic.BasicRulesEngine
 import com.leverett.rules.chess.parsing.STARTING_FEN
 import com.leverett.rules.chess.parsing.positionFromFen
+import java.util.logging.Level
+import java.util.logging.Logger
 
 
 const val GRID_SIZE = 8
@@ -15,7 +17,7 @@ fun newGameHistory(): GameHistory {
     val position = startingPosition()
     val rulesEngine = BasicRulesEngine
     val positionStatus = rulesEngine.positionStatus(position)
-    return GameHistory(GameState(position, positionStatus, ""))
+    return GameHistory(GameState(position, positionStatus, null, ""))
 }
 
 fun newPlacements(): Array<Array<Piece>> {
@@ -34,4 +36,8 @@ fun quickDisplay(placements:Array<Array<Piece>>): String {
         result += "\n"
     }
     return result
+}
+
+fun log(tag: String, message: String) {
+    Logger.getLogger(tag).log(Level.SEVERE, message)
 }

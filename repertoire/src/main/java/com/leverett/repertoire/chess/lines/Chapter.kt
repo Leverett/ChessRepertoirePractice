@@ -1,18 +1,19 @@
 package com.leverett.repertoire.chess.lines
 
 import com.leverett.rules.chess.representation.Position
+import com.leverett.rules.chess.representation.log
 
 class Chapter(name: String, description: String? = null) : LineTreeBase(name, description), LineTree {
 
     private val statelessHashToPosition: MutableMap<String, MutableList<Position>> = mutableMapOf() // unlikely to ever have more than one state but who knows
-    private val positionToMoves: MutableMap<Position, MutableList<LineMove>> = mutableMapOf()
+    private val positionHashToMoves: MutableMap<String, MutableList<LineMove>> = mutableMapOf()
 
     override fun getMoves(position: Position): List<LineMove> {
         val moves = mutableListOf<LineMove>()
         val positions = statelessHashToPosition[position.statelessPositionHash]
         if (positions != null) {
             for (position in positions) {
-                val lineMoves = positionToMoves[position]
+                val lineMoves = positionHashToMoves[position.fen]
                 if (lineMoves != null) {
                     moves.addAll(lineMoves)
                 }
@@ -24,21 +25,21 @@ class Chapter(name: String, description: String? = null) : LineTreeBase(name, de
     fun addMove(move: LineMove) {
         val previousPosition = move.previousPosition
         val positionHash = previousPosition.statelessPositionHash
-        val previousPositions = statelessHashToPosition[positionHash]
-        if (previousPositions != null && !previousPositions.contains(previousPosition)) {
-            previousPositions.add(previousPosition)
+        val knownEquivalentPositions = statelessHashToPosition[positionHash]
+        if (knownEquivalentPositions != null && !knownEquivalentPositions.contains(previousPosition)) {
+            knownEquivalentPositions.add(previousPosition)
         } else {
             statelessHashToPosition[positionHash] = mutableListOf(previousPosition)
         }
-        val moves = positionToMoves[previousPosition]
+        val moves = positionHashToMoves[previousPosition.fen]
         if (moves != null && !moves.contains(move)) {
             moves.add(move)
         } else {
-            positionToMoves[previousPosition] = mutableListOf(move)
+            positionHashToMoves[previousPosition.fen] = mutableListOf(move)
         }
 
         val nextPosition = move.nextPosition
-        val nextPositionHash = previousPosition.statelessPositionHash
+        val nextPositionHash = nextPosition.statelessPositionHash
         val nextPositions = statelessHashToPosition[nextPositionHash]
         if (nextPositions != null && !nextPositions.contains(nextPosition)) {
             nextPositions.add(nextPosition)
@@ -50,17 +51,17 @@ class Chapter(name: String, description: String? = null) : LineTreeBase(name, de
 
     fun removeMove(move: LineMove) {
         val previousPosition = move.previousPosition
-        val moves = positionToMoves[previousPosition]
+        val moves = positionHashToMoves[previousPosition.fen]
         if (moves != null && moves.contains(move)) {
             moves.remove(move)
             if (moves.isEmpty()) {
-                positionToMoves.remove(previousPosition)
+                positionHashToMoves.remove(previousPosition.fen)
             }
         }
 
         val nextPosition = move.nextPosition
         var otherWaysToPosition = false
-        for (entry in positionToMoves) {
+        for (entry in positionHashToMoves) {
             for (m in entry.value) {
                 if (m.nextPosition == nextPosition) {
                     otherWaysToPosition = true
@@ -75,9 +76,19 @@ class Chapter(name: String, description: String? = null) : LineTreeBase(name, de
             if (positions.isNullOrEmpty()) {
                 statelessHashToPosition.remove(positionHash)
             }
-
         }
+    }
 
+    fun quickDisplay(): String {
+        var result = ""
+        for (entry in positionHashToMoves) {
+            result += "("
+            for (move in entry.value) {
+                result += move.algMove + " "
+            }
+            result += ")"
+        }
+        return result
     }
 
 

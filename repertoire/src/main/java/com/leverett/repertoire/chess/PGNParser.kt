@@ -8,7 +8,7 @@ import com.leverett.rules.chess.basic.piece.*
 import com.leverett.rules.chess.parsing.notationToFile
 import com.leverett.rules.chess.parsing.notationToLocation
 import com.leverett.rules.chess.representation.*
-import java.util.regex.Pattern
+import org.apache.commons.lang3.StringUtils
 import java.util.stream.Collectors
 
 object PGNParser {
@@ -21,8 +21,9 @@ object PGNParser {
     private const val NAME_PREFIX = "Event"
     private const val CHAPTER_DESCRIPTION_PREFIX = "ChapterDescription"
     private const val BOOK_DESCRIPTION_PREFIX = "BookDescription"
-    private const val METADATA_REGEX_TOKENS = "[(.*?)]"
-    private const val METADATA_VALUE_REGEX = "\"(.*?)\""
+    private const val METADATA_TOKEN_START = "["
+    private const val METADATA_TOKEN_END = "]"
+    private const val METADATA_VALUE_TAG = "\""
     private const val MOVE_DELIMITER = ' '
     private const val COMMENT_START = '{'
     private const val COMMENT_END = '}'
@@ -63,26 +64,20 @@ object PGNParser {
     }
 
     internal fun extractLineTreeMetadata(chapterMetadataString: String, book: Boolean): Pair<String, String?> {
-        val chapterMetadataTokens = tokenizeMetadata(chapterMetadataString)
+        val chapterMetadataTokens = StringUtils.substringsBetween(chapterMetadataString, METADATA_TOKEN_START, METADATA_TOKEN_END).toList()
         val nameToken: String =
             chapterMetadataTokens.stream().filter { it.startsWith(NAME_PREFIX) }.findFirst().get()
-        val nameTokenValue =
-            Pattern.compile(METADATA_VALUE_REGEX).matcher(nameToken).toMatchResult().group()
+        val nameTokenValue = StringUtils.substringBetween(nameToken, METADATA_VALUE_TAG)
         val bookAndChapterNameStrings = nameTokenValue.split(BOOK_CHAPTER_NAME_DELIMITER)
         if (bookAndChapterNameStrings.size != 2) {
             // TODO parsing exception
         }
         val name = if (book) bookAndChapterNameStrings[0] else bookAndChapterNameStrings[1]
         val descriptionPrefix = if (book) BOOK_DESCRIPTION_PREFIX else CHAPTER_DESCRIPTION_PREFIX
-        val description: String? =
+        val descriptionToken =
             chapterMetadataTokens.stream().filter { it.startsWith(descriptionPrefix) }.findFirst()
-                .get()
+        val description = if(descriptionToken.isPresent) StringUtils.substringBetween(descriptionToken.get(), METADATA_VALUE_TAG) else null
         return Pair(name, description)
-    }
-
-    internal fun tokenizeMetadata(pgnMetadata: String): List<String> {
-        return Pattern.compile(METADATA_REGEX_TOKENS).matcher(pgnMetadata).results()
-            .map { it.group() }.collect(Collectors.toList())
     }
 
     internal fun parseMoves(chapter: Chapter, chapterMoves: String, position: Position) {
@@ -93,8 +88,8 @@ object PGNParser {
         var charIndex = 0
         while (charIndex < chapterMoves.length) {
             val currentChar = chapterMoves[charIndex]
-            // Encountered a move
             when {
+                // Encountered a move
                 currentChar.isLetter() -> {
                     // the trailing move processing doesn't apply in the base case of this function
                     if (latestMove != null) {
@@ -102,9 +97,10 @@ object PGNParser {
                         // so we can calculate the position that move transitions to and add the transition to the tree
                         val nextPosition = rulesEngine.getNextPosition(currentPosition, latestMove)
                         val lineMove = LineMove(
+                            chapter,
                             currentPosition.copy(),
                             nextPosition.copy(),
-                            latestMove,
+                            latestMove.copy(),
                             latestMoveDetails.copy(),
                             latestMoveToken
                         )
@@ -150,6 +146,16 @@ object PGNParser {
                 else -> charIndex++
             }
         }
+        val nextPosition = rulesEngine.getNextPosition(currentPosition, latestMove!!)
+        val lineMove = LineMove(
+            chapter,
+            currentPosition.copy(),
+            nextPosition.copy(),
+            latestMove,
+            latestMoveDetails.copy(),
+            latestMoveToken
+        )
+        chapter.addMove(lineMove)
     }
 
     internal fun makeMove(position: Position, moveToken: String): Move {

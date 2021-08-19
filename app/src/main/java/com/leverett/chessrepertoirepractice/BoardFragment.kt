@@ -108,39 +108,36 @@ class BoardFragment(var viewModel: BoardViewModel = BoardViewModel()) : Fragment
     }
 
     private fun doMove(move: Move) {
-        val nextGameState = gameHistory.nextGameState()
-        val pgnBuilder = PGNBuilder
-        val algMove = pgnBuilder.makeMoveNotation(position, move)
-        if (nextGameState == null || nextGameState.algMove != algMove) {
-            // TODO maybe store the actual move and calc the alg move on construction rather than this janky string comparison
+        var nextGameState = gameHistory.nextGameState()
+        if (nextGameState == null || nextGameState.move != move) {
+            val pgnBuilder = PGNBuilder
             val nextPosition = rulesEngine.getNextPosition(position, move)
             val nextPositionStatus = rulesEngine.positionStatus(nextPosition)
-            gameHistory.addGameState(GameState(nextPosition, nextPositionStatus, algMove))
+            nextGameState = GameState(nextPosition, nextPositionStatus, move, pgnBuilder.makeMoveNotation(position, move))
+            gameHistory.addGameState(nextGameState)
         }
-        else {
-            gameHistory.currentGameState = nextGameState
-        }
-        viewModel.activeSquareCoords = null
-        updateBoardView()
-        activity.handleMove(move)
+        setGameState(nextGameState)
     }
 
     fun redoNextMove() {
         val nextGameState = gameHistory.nextGameState()
         if (nextGameState != null) {
-            gameHistory.currentGameState = nextGameState
-            viewModel.activeSquareCoords = null
-            updateBoardView()
+            setGameState(nextGameState)
         }
     }
 
     fun undoMove() {
         val previousGameState = gameHistory.previousGameState()
         if (previousGameState != null) {
-            gameHistory.currentGameState = previousGameState
-            viewModel.activeSquareCoords = null
-            updateBoardView()
+            setGameState(previousGameState)
         }
+    }
+
+    private fun setGameState(gameState: GameState) {
+        gameHistory.currentGameState = gameState
+        viewModel.activeSquareCoords = null
+        updateBoardView()
+        activity.handleMove(gameState.move)
     }
 
     private fun updateBoardView() {
