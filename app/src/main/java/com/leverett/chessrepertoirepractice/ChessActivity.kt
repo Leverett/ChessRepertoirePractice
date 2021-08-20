@@ -8,12 +8,12 @@ import com.leverett.rules.chess.representation.Move
 abstract class ChessActivity : AppCompatActivity() {
 
     abstract val boardId: Int
-    private val boardFragment: BoardFragment
+    open val boardFragment: BoardFragment
         get() = supportFragmentManager.findFragmentById(boardId) as BoardFragment
     open val boardViewModel: BoardViewModel
         get() = boardFragment.viewModel
 
-    abstract fun handleMove(move: Move?)
+    abstract fun handleMove(move: Move?, undo:Boolean = false)
 
     fun undoMove(view: View) {
         boardViewModel.canMove = true

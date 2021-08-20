@@ -12,7 +12,7 @@ class SandboxActivity : ChessActivity() {
         setContentView(R.layout.activity_sandbox)
     }
 
-    override fun handleMove(move: Move?) {
+    override fun handleMove(move: Move?, undo: Boolean) {
         // Nothing, this is a sandbox
     }
 }

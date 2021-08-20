@@ -109,4 +109,17 @@ class PlaySettings(playerBest: Boolean = false,
             return MoveResult.VALID
         }
     }
+
+    fun copy(): PlaySettings {
+        return PlaySettings(playerBest, playerTheory, playerPreferred, playerGambits, opponentBest, opponentTheory, opponentMistakes, opponentGambits)
+    }
+
+    override fun toString(): String {
+        return "PlaySettings\n" +
+                "playerBest: $playerBest - opponentBest: $opponentBest\n" +
+                "playerTheory: $playerTheory - opponentTheory: $opponentTheory\n" +
+                "playerGambits: $playerGambits - opponentGambits: $opponentGambits\n" +
+                "playerPreferred: $playerPreferred - opponentMistakes: $opponentMistakes"
+
+    }
 }

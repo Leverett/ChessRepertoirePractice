@@ -16,6 +16,25 @@
         <item name="android:textSize">@dimen/practice_button_text</item>
     </style>
 
+    <style name="RepertoireButtonStyle" parent="PracticeButtonStyle">
+        <item name="android:layout_width">@dimen/practice_repertoire_button_width</item>
+    </style>
+
+    <style name="BoardSettingsButtonStyle" parent="RepertoireButtonStyle">
+        <item name="android:onClick">boardSettingsButton</item>
+        <item name="android:text">@string/board_settings</item>
+    </style>
+
+    <style name="MoveSettingsButtonStyle" parent="RepertoireButtonStyle">
+        <item name="android:onClick">moveSettingsButton</item>
+        <item name="android:text">@string/move_settings</item>
+    </style>
+
+    <style name="EditDescriptionButton" parent="RepertoireButtonStyle">
+        <item name="android:onClick">editDescriptionButton</item>
+        <item name="android:text">@string/edit_description</item>
+    </style>
+
     <style name="DescriptionButtonStyle" parent="PracticeButtonStyle">
         <item name="android:onClick">showDescriptionButton</item>
         <item name="android:text">@string/show_description</item>
@@ -36,6 +55,11 @@
         <item name="android:text">@string/undo_move</item>
     </style>
 
+    <style name="UndoMistakeMoveButtonStyle" parent="PracticeButtonStyle">
+        <item name="android:onClick">undoMove</item>
+        <item name="android:text">@string/undo_mistake</item>
+    </style>
+
     <style name="AddToRepertoireButtonStyle" parent="PracticeButtonStyle">
         <item name="android:onClick">addToRepertoireButton</item>
         <item name="android:text">@string/add_move</item>
@@ -49,6 +73,28 @@
     <style name="OpponentMoveButtonStyle" parent="PracticeButtonStyle">
         <item name="android:onClick">opponentMoveButton</item>
         <item name="android:text">@string/opponent_move</item>
+    </style>
+
+    <style name="OkButton">
+        <item name="android:layout_width">@dimen/popup_button_width</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:text">Ok</item>
+    </style>
+
+    <style name="CancelButton">
+        <item name="android:layout_width">@dimen/popup_button_width</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:text">Cancel</item>
+    </style>
+
+    <style name="MistakeAssertionButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:onClick">mistakeAssertionButton</item>
+        <item name="android:background">@android:color/holo_green_dark</item>
+        <item name="android:text">M</item>
     </style>
 
 </resources>

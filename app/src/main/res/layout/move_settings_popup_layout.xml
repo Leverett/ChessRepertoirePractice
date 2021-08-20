@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/move_settings_popup"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="360dp"
+    android:layout_height="wrap_content"
+    android:background="@color/white">
+
+
+    <TextView
+        android:id="@+id/player_move_options"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@android:color/holo_blue_light"
+        android:text="@string/player_move_options"
+        android:textAlignment="center"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/opponent_move_options"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/opponent_move_options"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@android:color/holo_red_light"
+        android:text="@string/opponent_move_options"
+        android:textAlignment="center"
+        app:layout_constraintLeft_toRightOf="@id/player_move_options"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Switch
+        android:id="@+id/player_best_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/best_moves"
+        app:layout_constraintEnd_toEndOf="@+id/player_theory_switch"
+        app:layout_constraintTop_toBottomOf="@id/player_move_options" />
+
+    <Switch
+        android:id="@+id/opponent_best_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/best_moves"
+        app:layout_constraintEnd_toEndOf="@+id/opponent_theory_switch"
+        app:layout_constraintTop_toBottomOf="@id/player_move_options" />
+
+    <Switch
+        android:id="@+id/player_theory_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/theory_moves"
+        app:layout_constraintEnd_toEndOf="@+id/player_gambits_switch"
+        app:layout_constraintTop_toBottomOf="@id/player_best_switch" />
+
+    <Switch
+        android:id="@+id/opponent_theory_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/theory_moves"
+        app:layout_constraintEnd_toEndOf="@+id/opponent_gambits_switch"
+        app:layout_constraintTop_toBottomOf="@id/opponent_best_switch" />
+
+    <Switch
+        android:id="@+id/player_gambits_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/gambit_moves"
+        app:layout_constraintEnd_toEndOf="@+id/player_preferred_switch"
+        app:layout_constraintTop_toBottomOf="@id/player_theory_switch" />
+
+    <Switch
+        android:id="@+id/opponent_gambits_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/gambit_moves"
+        app:layout_constraintEnd_toEndOf="@+id/opponent_mistakes_switch"
+        app:layout_constraintTop_toBottomOf="@id/opponent_theory_switch" />
+
+    <Switch
+        android:id="@+id/player_preferred_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/preferred_moves"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/opponent_mistakes_switch"
+        app:layout_constraintTop_toBottomOf="@id/player_gambits_switch" />
+
+    <Switch
+        android:id="@+id/opponent_mistakes_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/mistake_moves"
+        app:layout_constraintLeft_toRightOf="@id/player_preferred_switch"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/opponent_gambits_switch" />
+
+    <Button
+        android:id="@+id/ok_button"
+        style="@style/OkButton"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/cancel_button"
+        app:layout_constraintTop_toBottomOf="@id/player_preferred_switch" />
+
+    <Button
+        android:id="@+id/cancel_button"
+        style="@style/CancelButton"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/ok_button"
+        app:layout_constraintTop_toBottomOf="@id/opponent_mistakes_switch" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

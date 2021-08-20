@@ -10,6 +10,7 @@
     <string name="gambit_moves">Gambits</string>
     <string name="mistake_moves">Mistakes</string>
     <string name="undo_move">Undo Move</string>
+    <string name="undo_mistake">Undo Mistake</string>
     <string name="add_move">Add To Repertoire</string>
     <string name="search_repertoire">Search Repertoire</string>
     <string name="show_description">Show Description</string>
@@ -17,5 +18,12 @@
     <string name="show_options">Show Options</string>
     <string name="start_display_text">White to move</string>
     <string name="opponent_move">Opponent Move</string>
+    <string name="move_settings">Move Settings</string>
     <string name="board_settings">Board Settings</string>
+    <string name="edit_description">Edit Description</string>
+    <string name="player_mistake_description_header">Mistake!\n</string>
+    <string name="incorrect_move_description_header">Incorrect Move\n</string>
+    <string name="opponent_mistake_description_header">Correct, this was a mistake\n</string>
+    <string name="nope">Nope!</string>
+    <string name="missed_mistake">Nope! Missed a mistake</string>
 </resources>

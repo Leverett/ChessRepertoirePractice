@@ -107,7 +107,7 @@ class BoardFragment(var viewModel: BoardViewModel = BoardViewModel()) : Fragment
         }
     }
 
-    private fun doMove(move: Move) {
+    fun doMove(move: Move) {
         var nextGameState = gameHistory.nextGameState()
         if (nextGameState == null || nextGameState.move != move) {
             val pgnBuilder = PGNBuilder
@@ -129,15 +129,15 @@ class BoardFragment(var viewModel: BoardViewModel = BoardViewModel()) : Fragment
     fun undoMove() {
         val previousGameState = gameHistory.previousGameState()
         if (previousGameState != null) {
-            setGameState(previousGameState)
+            setGameState(previousGameState, true)
         }
     }
 
-    private fun setGameState(gameState: GameState) {
+    private fun setGameState(gameState: GameState, undo: Boolean = false) {
         gameHistory.currentGameState = gameState
         viewModel.activeSquareCoords = null
         updateBoardView()
-        activity.handleMove(gameState.move)
+        activity.handleMove(gameState.move, undo)
     }
 
     private fun updateBoardView() {
