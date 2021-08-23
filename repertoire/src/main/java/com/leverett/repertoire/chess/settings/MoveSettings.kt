@@ -1,4 +1,4 @@
-package com.leverett.repertoire.chess.mode
+package com.leverett.repertoire.chess.settings
 
 class MoveSettings(var bestMoves: Boolean,
                    var theoryOnly: Boolean,

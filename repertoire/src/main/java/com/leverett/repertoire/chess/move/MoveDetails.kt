@@ -1,4 +1,4 @@
-package com.leverett.repertoire.chess
+package com.leverett.repertoire.chess.move
 
 class MoveDetails(var description: String? = null) {
 

@@ -2,14 +2,14 @@ package com.leverett.repertoire.chess
 
 import com.leverett.repertoire.chess.lines.Book
 import com.leverett.repertoire.chess.lines.Chapter
-import com.leverett.repertoire.chess.lines.LineMove
+import com.leverett.repertoire.chess.move.LineMove
+import com.leverett.repertoire.chess.move.MoveDetails
 import com.leverett.rules.chess.basic.BasicRulesEngine
 import com.leverett.rules.chess.basic.piece.*
 import com.leverett.rules.chess.parsing.notationToFile
 import com.leverett.rules.chess.parsing.notationToLocation
 import com.leverett.rules.chess.representation.*
 import org.apache.commons.lang3.StringUtils
-import java.util.stream.Collectors
 
 object PGNParser {
 
@@ -43,22 +43,21 @@ object PGNParser {
 
     fun parseAnnotatedPgnToBook(bookPgn: String): Book {
         val chapterStrings = bookPgn.split(CHAPTER_DELIMITER)
-        val chapters = chapterStrings.parallelStream().map { parseAnnotatedPgnToChapter(it) }
-            .collect(Collectors.toList())
         val bookMetadata = extractLineTreeMetadata(chapterStrings[0], true)
-        return Book(bookMetadata.first, chapters, bookMetadata.second)
+        val book = Book(mutableListOf(), bookMetadata.first, bookMetadata.second)
+        chapterStrings.parallelStream().forEach{ book.lineTrees.add(0, parseAnnotatedPgnToChapter(it, book)) }
+        return book
     }
 
-    fun parseAnnotatedPgnToChapter(chapterPgn: String): Chapter {
+    fun parseAnnotatedPgnToChapter(chapterPgn: String, book: Book): Chapter {
         val chapterTokens = chapterPgn.split(STUDY_HEADER_DELIMITER)
         if (chapterTokens.size != 2) {
             // TODO parsing exception
         }
         val chapterMetadata = extractLineTreeMetadata(chapterTokens[0], false)
-        val chapter = Chapter(chapterMetadata.first, chapterMetadata.second)
+        val chapter = Chapter(chapterMetadata.first, chapterMetadata.second, book)
 
         parseMoves(chapter, chapterTokens[1], startingPosition())
-
 
         return chapter
     }

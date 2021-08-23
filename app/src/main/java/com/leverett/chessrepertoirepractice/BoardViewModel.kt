@@ -28,7 +28,7 @@ class BoardViewModel(val gameHistory: GameHistory = newGameHistory()) : ViewMode
     var perspectiveColor = true
     var canMove = true
 
-    var pieceStyle = PieceStyle.STANDARD
+    var pieceStyle = PieceStyle.Standard
     var boardStyle = BoardStyle.Standard
 
     fun coordsToLoc(coords: Pair<Int,Int>): Pair<Int,Int> {

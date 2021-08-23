@@ -1,6 +1,6 @@
-package com.leverett.repertoire.chess.lines
+package com.leverett.repertoire.chess.move
 
-import com.leverett.repertoire.chess.MoveDetails
+import com.leverett.repertoire.chess.lines.LineTree
 import com.leverett.rules.chess.parsing.PGNBuilder
 import com.leverett.rules.chess.representation.Move
 import com.leverett.rules.chess.representation.Position

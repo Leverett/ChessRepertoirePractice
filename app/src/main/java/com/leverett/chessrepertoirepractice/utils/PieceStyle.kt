@@ -16,7 +16,7 @@ enum class PieceStyle(private val whitePawn: Int,
                       private val blackQueen: Int,
                       private val blackKing: Int
 ) {
-    STANDARD(
+    Standard(
         R.drawable.whitepawn,
         R.drawable.whiteknight,
         R.drawable.whitebishop,

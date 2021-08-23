@@ -1,4 +1,4 @@
-package com.leverett.repertoire.chess.mode
+package com.leverett.repertoire.chess.move
 
 enum class MoveResult(val priority: Int) {
     MISTAKE(0),

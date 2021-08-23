@@ -16,11 +16,6 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    fun testModeButton(view: View) {
-        val intent = Intent(this, TestActivity::class.java)
-        startActivity(intent)
-    }
-
     fun practiceModeButton(view: View) {
         val intent = Intent(this, PracticeActivity::class.java)
         startActivity(intent)

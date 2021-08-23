@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">ChessRepertoirePractice</string>
     <string name="title_activity_sandbox">SandboxActivity</string>
-    <!-- Strings used for fragments for navigation -->
+
     <string name="player_move_options">Player Move Options</string>
     <string name="opponent_move_options">Opponent Move Options</string>
     <string name="best_moves">Best</string>
@@ -20,10 +20,20 @@
     <string name="opponent_move">Opponent Move</string>
     <string name="move_settings">Move Settings</string>
     <string name="board_settings">Board Settings</string>
+    <string name="configure_repertoire">Configure Repertoire</string>
     <string name="edit_description">Edit Description</string>
+    <string name="load_pgn">Load PGN</string>
+    <string name="export_pgn">Export PGN</string>
+    <string name="load_configuration">Load Configuration</string>
+    <string name="save_configuration">Save Configuration</string>
     <string name="player_mistake_description_header">Mistake!\n</string>
     <string name="incorrect_move_description_header">Incorrect Move\n</string>
     <string name="opponent_mistake_description_header">Correct, this was a mistake\n</string>
     <string name="nope">Nope!</string>
     <string name="missed_mistake">Nope! Missed a mistake</string>
+
+    <string name="preference_file_key">com.leverett.chessrepertoirepractice.Prefs</string>
+    <string name="board_style_pref_key">boardStylePref</string>
+    <string name="piece_style_pref_key">pieceStylePref</string>
+
 </resources>

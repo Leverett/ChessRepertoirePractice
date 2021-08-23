@@ -10,14 +10,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ChessRepertoirePractice">
         <activity
+            android:name=".RepertoireActivity"
+            android:exported="true" />
+        <activity
             android:name=".PracticeActivity"
             android:exported="true" />
-        <activity android:name=".TestActivity" />
-        <activity android:name=".SandboxActivity" />
         <activity
-            android:name=".ui.activities.SandboxActivity"
-            android:label="@string/title_activity_sandbox"
-            android:theme="@style/Theme.ChessRepertoirePractice.NoActionBar" />
+            android:name=".SandboxActivity"
+            android:exported="true" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -34,7 +34,7 @@ class GameHistory(private val startingGameState: GameState) {
     fun stringToNow(): String {
         var result = ""
         var gameState: GameState? = gameStatesForward[startingGameState.fen]
-        if (gameState != null) {
+        if (currentGameState.fen != startingGameState.fen && gameState?.move != null) {
             do {
                 if (!gameState!!.position.activeColor) {
                     result += gameState.position.turn.toString() + ". "

@@ -8,14 +8,14 @@ import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.children
 import com.leverett.chessrepertoirepractice.ui.views.PlaySettingButton
-import com.leverett.chessrepertoirepractice.utils.BoardStyle
-import com.leverett.chessrepertoirepractice.utils.PieceStyle
+import com.leverett.chessrepertoirepractice.ui.views.RepertoireListAdapter
 import com.leverett.repertoire.chess.PGNParser
-import com.leverett.repertoire.chess.lines.Book
-import com.leverett.repertoire.chess.lines.LineMove
-import com.leverett.repertoire.chess.mode.MoveResult.*
-import com.leverett.repertoire.chess.mode.MoveResults
-import com.leverett.repertoire.chess.mode.PlaySettings
+import com.leverett.repertoire.chess.move.LineMove
+import com.leverett.repertoire.chess.lines.LineTreeSet
+import com.leverett.repertoire.chess.lines.Repertoire
+import com.leverett.repertoire.chess.move.MoveResult.*
+import com.leverett.repertoire.chess.move.MoveResults
+import com.leverett.repertoire.chess.settings.PlaySettings
 import com.leverett.rules.chess.parsing.PGNBuilder
 import com.leverett.rules.chess.representation.Move
 
@@ -47,7 +47,7 @@ class PracticeActivity : ChessActivity() {
             "1. d4 d5 2. c4 e6 *\n" +
             "\n" +
             "\n" +
-            "[Event \"Test Study: Chapter 2\"]\n" +
+            "[Event \"Test Study: Chapter 3\"]\n" +
             "[Site \"https://lichess.org/study/DGjt4lwU/C8nP4WlO\"]\n" +
             "[Result \"*\"]\n" +
             "[UTCDate \"2021.07.25\"]\n" +
@@ -63,8 +63,9 @@ class PracticeActivity : ChessActivity() {
 
     private var playSettings = PlaySettings()
     private val pgnParser = PGNParser
-    private val pgnBuilder = PGNBuilder
-    private var lines: Book = pgnParser.parseAnnotatedPgnToBook(bookExample) //LineTree = LineTreeSet("", setOf())
+//    private val pgnBuilder = PGNBuilder
+    private val repertoire = Repertoire(mutableListOf(pgnParser.parseAnnotatedPgnToBook(bookExample)))
+    private var activeRepertoire: LineTreeSet = repertoire.makeActiveRepertoire()
     private val playerMove: Boolean
         get() = boardViewModel.perspectiveColor == boardViewModel.activeColor
     private val latestMove: Move
@@ -74,7 +75,7 @@ class PracticeActivity : ChessActivity() {
     private val mistakesCaught: MutableList<Move> = mutableListOf()
 
     private val lineMoves: Collection<LineMove>
-        get() = lines.getMoves(boardViewModel.position)
+        get() = activeRepertoire.getMoves(boardViewModel.position)
 
     private var playButtonsLayout: Int = R.layout.player_move_buttons_layout
         set(value) {
@@ -105,7 +106,7 @@ class PracticeActivity : ChessActivity() {
     private val previousMoveResults: MoveResults?
         get(){
             val previousGameState = boardViewModel.gameHistory.previousGameState()
-            return if (previousGameState == null) null else  MoveResults(lines.getMoves(previousGameState!!.position), playSettings, !playerMove)
+            return if (previousGameState == null) null else  MoveResults(activeRepertoire.getMoves(previousGameState!!.position), playSettings, !playerMove)
         }
     private val playOptionViews: List<PlaySettingButton>
         get() {
@@ -143,7 +144,6 @@ class PracticeActivity : ChessActivity() {
         refreshPlayOptionButtonColors()
         moveResults = MoveResults(lineMoves, playSettings, playerMove)
         playButtonsLayout = playerMovesButtonLayoutId()
-
     }
 
     private fun togglePlayOption(view: PlaySettingButton) {
@@ -297,6 +297,20 @@ class PracticeActivity : ChessActivity() {
         displayView.text = getString(R.string.missed_mistake)
     }
 
+    fun showDescriptionButton(view: View) {
+        if (previousMoveResults != null) {
+            displayView.text = previousMoveResults!!.getMoveDescriptionText(latestMove)
+        }
+    }
+
+    fun showOptionsButton(view: View) {
+        displayView.text = moveResults.getOptionsText()
+    }
+
+    fun editDescriptionButton(view: View) {
+        // TODO update the description box
+    }
+
     fun addToRepertoireButton(view: View){
         // TODO this (some sort of popup)
     }
@@ -305,36 +319,24 @@ class PracticeActivity : ChessActivity() {
         // TODO some sort of popup/use the text view, and offer a way to add to the current repertoire
     }
 
-    fun showDescriptionButton(view: View) {
-        if (previousMoveResults != null) {
-            displayView.text = previousMoveResults!!.getMoveDescriptionText(latestMove)
-        }
-    }
-
-    fun showHintButton(view: View) {
-        // update the description box
-    }
-
-    fun showOptionsButton(view: View) {
-        displayView.text = moveResults.getOptionsText()
-    }
-
-    fun boardSettingsButton(view: View) {
-        val popupView = layoutInflater.inflate(R.layout.board_settings_popup_layout, null) as ConstraintLayout
+    fun repertoireSettingsButton(view: View) {
+        val popupView = layoutInflater.inflate(R.layout.repertoire_settings_popup_layout, null) as ConstraintLayout
+        val adapter = RepertoireListAdapter(repertoire, activeRepertoire)
+        val repertoireListView = popupView.findViewById<ExpandableListView>(R.id.repertoire_list_view)
+        repertoireListView.setAdapter(adapter)
         val popupWindow = PopupWindow(popupView, ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT, true)
-        val boardStyleSpinner = popupView.findViewById(R.id.board_style_spinner) as Spinner
-        val boardStyleSpinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, BoardStyle.values())
-        boardStyleSpinner.setSelection(boardStyleSpinnerAdapter.getPosition(boardViewModel.boardStyle))
-        val pieceStyleSpinner = popupView.findViewById(R.id.piece_style_spinner) as Spinner
-        val pieceStyleSpinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, PieceStyle.values())
-        pieceStyleSpinner.setSelection(pieceStyleSpinnerAdapter.getPosition(boardViewModel.pieceStyle))
         popupWindow.showAtLocation(displayView, Gravity.CENTER, 0, 0)
-
         popupView.findViewById<Button>(R.id.ok_button).setOnClickListener {
-            boardViewModel.boardStyle = boardStyleSpinner.selectedItem as BoardStyle
-            boardViewModel.pieceStyle = pieceStyleSpinner.selectedItem as PieceStyle
+            Log.e("repertoireSettingsButton", "activeRep: " + activeRepertoire.lineTrees.size + ", fullRep: " + repertoire.lineTrees.size)
+            for (lineTree in activeRepertoire.lineTrees) {
+                Log.e(
+                    "repertoireSettingsButton",
+                    "active tree: " + lineTree.name
+                )
+            }
             popupWindow.dismiss()
         }
+
     }
 
     fun moveSettingsButton(view: View) {
@@ -384,7 +386,7 @@ class PracticeActivity : ChessActivity() {
 
     }
 
-    fun moveSettingsOkButton(newPlaySettings: PlaySettings) {
+    private fun moveSettingsOkButton(newPlaySettings: PlaySettings) {
         playSettings = newPlaySettings
         calculateMoveResults()
         refreshPlayOptionButtonColors()

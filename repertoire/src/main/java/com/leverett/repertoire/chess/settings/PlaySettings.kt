@@ -1,8 +1,7 @@
-package com.leverett.repertoire.chess.mode
+package com.leverett.repertoire.chess.settings
 
-import com.leverett.repertoire.chess.MoveDetails.Tag
-import com.leverett.repertoire.chess.MoveDetails.Tag.*
-import com.leverett.repertoire.chess.lines.LineMove
+import com.leverett.repertoire.chess.move.LineMove
+import com.leverett.repertoire.chess.move.MoveResult
 
 class PlaySettings(playerBest: Boolean = false,
                    var playerTheory: Boolean = false,

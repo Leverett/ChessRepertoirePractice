@@ -1,9 +1,8 @@
-package com.leverett.repertoire.chess.mode
+package com.leverett.repertoire.chess.move
 
-import com.leverett.repertoire.chess.lines.LineMove
 import com.leverett.rules.chess.representation.Move
-import com.leverett.repertoire.chess.mode.MoveResult.*
-import com.leverett.rules.chess.representation.log
+import com.leverett.repertoire.chess.move.MoveResult.*
+import com.leverett.repertoire.chess.settings.PlaySettings
 
 class MoveResults() {
 

@@ -1,6 +1,8 @@
 package com.leverett.repertoire.chess
 
+import com.leverett.repertoire.chess.lines.Book
 import com.leverett.repertoire.chess.lines.Chapter
+import com.leverett.repertoire.chess.move.MoveDetails
 import com.leverett.rules.chess.representation.*
 import com.leverett.rules.chess.representation.Piece.*
 import org.testng.Assert.assertEquals
@@ -219,7 +221,7 @@ class PGNParserTests {
 
     @Test
     fun parseAnnotatedPgnToChapterTest() {
-        val chapter = parser.parseAnnotatedPgnToChapter(chapterExample)
+        val chapter = parser.parseAnnotatedPgnToChapter(chapterExample, Book(mutableListOf(), "Test Study"))
         assertEquals(chapter.name, "Chapter 1")
         assertEquals(chapter.description, "About the chapter")
 

@@ -17,7 +17,7 @@
 
     <Button
         android:id="@+id/second_button"
-        style="@style/ShowHintButtonStyle"
+        style="@style/EditDescriptionButton"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/third_button"
         app:layout_constraintHorizontal_bias="0.5"

@@ -7,5 +7,6 @@ enum class BoardStyle(val lightSquareColor: Int,
                       val activeSquareColor: Int,
                       val promotionBackground: Int) {
 
-    Standard(Color.WHITE, Color.DKGRAY, Color.BLUE, Color.WHITE);
+    Standard(Color.WHITE, Color.DKGRAY, Color.BLUE, Color.WHITE),
+    Red(Color.WHITE, Color.RED, Color.BLUE, Color.WHITE);
 }

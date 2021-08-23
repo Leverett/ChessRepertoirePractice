@@ -30,19 +30,39 @@
         <item name="android:text">@string/move_settings</item>
     </style>
 
+    <style name="ConfigureRepertoireButtonStyle" parent="RepertoireButtonStyle">
+        <item name="android:onClick">repertoireSettingsButton</item>
+        <item name="android:text">@string/configure_repertoire</item>
+    </style>
+
     <style name="EditDescriptionButton" parent="RepertoireButtonStyle">
         <item name="android:onClick">editDescriptionButton</item>
         <item name="android:text">@string/edit_description</item>
     </style>
 
+    <style name="LoadPGNButtonStyle" parent="RepertoireButtonStyle">
+        <item name="android:onClick">loadPgnButton</item>
+        <item name="android:text">@string/load_pgn</item>
+    </style>
+
+    <style name="ExportPGNButtonStyle" parent="RepertoireButtonStyle">
+        <item name="android:onClick">savePgnButton</item>
+        <item name="android:text">@string/export_pgn</item>
+    </style>
+
+    <style name="LoadConfigurationButtonStyle" parent="RepertoireButtonStyle">
+        <item name="android:onClick">loadConfigurationButton</item>
+        <item name="android:text">@string/load_configuration</item>
+    </style>
+
+    <style name="SaveConfigurationButtonStyle" parent="RepertoireButtonStyle">
+        <item name="android:onClick">saveConfigurationButton</item>
+        <item name="android:text">@string/save_configuration</item>
+    </style>
+
     <style name="DescriptionButtonStyle" parent="PracticeButtonStyle">
         <item name="android:onClick">showDescriptionButton</item>
         <item name="android:text">@string/show_description</item>
-    </style>
-
-    <style name="ShowHintButtonStyle" parent="PracticeButtonStyle">
-        <item name="android:onClick">showHintButton</item>
-        <item name="android:text">@string/show_hint</item>
     </style>
 
     <style name="ShowOptionsButtonStyle" parent="PracticeButtonStyle">

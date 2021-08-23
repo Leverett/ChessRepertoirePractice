@@ -1,5 +1,6 @@
 package com.leverett.chessrepertoirepractice
 
+import android.content.Context
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -12,7 +13,9 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import com.leverett.chessrepertoirepractice.ui.views.SquareLayout
+import com.leverett.chessrepertoirepractice.utils.BoardStyle
 import com.leverett.chessrepertoirepractice.utils.CAPTURE_MOVE_SOUND
+import com.leverett.chessrepertoirepractice.utils.PieceStyle
 import com.leverett.chessrepertoirepractice.utils.playSound
 import com.leverett.rules.chess.basic.BasicRulesEngine
 import com.leverett.rules.chess.parsing.PGNBuilder
@@ -48,6 +51,7 @@ class BoardFragment(var viewModel: BoardViewModel = BoardViewModel()) : Fragment
         val view: View = inflater.inflate(R.layout.board_fragment, container, false)
         boardLayout = view.findViewById(R.id.grid_layout)
         historyView = view.findViewById(R.id.move_history)
+        getUISettings()
         val context = requireContext()
 
         squares = Array(GRID_SIZE) {x -> Array(GRID_SIZE) {y -> SquareLayout(context, viewModel, x, y).also{boardLayout.addView(it)}} }
@@ -81,6 +85,23 @@ class BoardFragment(var viewModel: BoardViewModel = BoardViewModel()) : Fragment
             }
         }
         return view
+    }
+
+    private fun getUISettings() {
+        val sharedPref = activity?.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE) ?: return
+
+        val defaultBoardStyle = viewModel.boardStyle.name
+        val boardStylePrefKey = getString(R.string.board_style_pref_key)
+        val boardStyleVal = sharedPref.getString(boardStylePrefKey, defaultBoardStyle)
+        if (boardStyleVal != null) {
+            viewModel.boardStyle = BoardStyle.valueOf(boardStyleVal)
+        }
+        val defaultPieceStyle = viewModel.pieceStyle.name
+        val pieceStylePrefKey = getString(R.string.piece_style_pref_key)
+        val pieceStyleVal = sharedPref.getString(pieceStylePrefKey, defaultPieceStyle)
+        if (pieceStyleVal != null) {
+            viewModel.pieceStyle = PieceStyle.valueOf(pieceStyleVal)
+        }
     }
 
     fun processMoveSelection(endCoords: Pair<Int, Int>, promotionPiece: Piece? = null) {
@@ -140,7 +161,7 @@ class BoardFragment(var viewModel: BoardViewModel = BoardViewModel()) : Fragment
         activity.handleMove(gameState.move, undo)
     }
 
-    private fun updateBoardView() {
+    fun updateBoardView() {
         for (x in 0 until GRID_SIZE) {
             for (y in 0 until GRID_SIZE) {
                 squares[x][y].updateSquare()

@@ -1,9 +1,9 @@
 package com.leverett.repertoire.chess.lines
 
+import com.leverett.repertoire.chess.move.LineMove
 import com.leverett.rules.chess.representation.Position
-import com.leverett.rules.chess.representation.log
 
-class Chapter(name: String, description: String? = null) : LineTreeBase(name, description), LineTree {
+class Chapter(name: String, description: String? = null, var book: Book? = null) : LineTreeBase(name, description), LineTree {
 
     private val statelessHashToPosition: MutableMap<String, MutableList<Position>> = mutableMapOf() // unlikely to ever have more than one state but who knows
     private val positionHashToMoves: MutableMap<String, MutableList<LineMove>> = mutableMapOf()
@@ -33,7 +33,7 @@ class Chapter(name: String, description: String? = null) : LineTreeBase(name, de
         }
         val moves = positionHashToMoves[previousPosition.fen]
         if (moves != null && !moves.contains(move)) {
-            moves.add(move)
+            moves.add(0, move)
         } else {
             positionHashToMoves[previousPosition.fen] = mutableListOf(move)
         }
@@ -89,6 +89,10 @@ class Chapter(name: String, description: String? = null) : LineTreeBase(name, de
             result += ")"
         }
         return result
+    }
+
+    override fun copy(): LineTree {
+        return Chapter(name, description)
     }
 
 
