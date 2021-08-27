@@ -1,7 +1,6 @@
 package com.leverett.chessrepertoirepractice
 
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.widget.*
@@ -9,63 +8,21 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.children
 import com.leverett.chessrepertoirepractice.ui.views.PlaySettingButton
 import com.leverett.chessrepertoirepractice.ui.views.RepertoireListAdapter
-import com.leverett.repertoire.chess.PGNParser
+import com.leverett.repertoire.chess.RepertoireManager
 import com.leverett.repertoire.chess.move.LineMove
-import com.leverett.repertoire.chess.lines.LineTreeSet
-import com.leverett.repertoire.chess.lines.Repertoire
 import com.leverett.repertoire.chess.move.MoveResult.*
 import com.leverett.repertoire.chess.move.MoveResults
 import com.leverett.repertoire.chess.settings.PlaySettings
-import com.leverett.rules.chess.parsing.PGNBuilder
 import com.leverett.rules.chess.representation.Move
 
 class PracticeActivity : ChessActivity() {
 
-    private val bookExample = "[Event \"Test Study: Chapter 1\"]\n" +
-            "[Site \"https://lichess.org/study/DGjt4lwU/32qGstHX\"]\n" +
-            "[Result \"*\"]\n" +
-            "[UTCDate \"2021.07.25\"]\n" +
-            "[UTCTime \"03:15:10\"]\n" +
-            "[Variant \"Standard\"]\n" +
-            "[ECO \"D20\"]\n" +
-            "[Opening \"Queen's Gambit Accepted: Old Variation\"]\n" +
-            "[Annotator \"https://lichess.org/@/CircleBreaker\"]\n" +
-            "\n" +
-            "1. d4 \$THEORY {just a comment} d5 {comment for a hint} 2. c4 dxc4 \$MISTAKE 3. e3 (3. e4 \$MISTAKE) 3... b5 4. Qf3 *\n" +
-            "\n" +
-            "\n" +
-            "[Event \"Test Study: Chapter 2\"]\n" +
-            "[Site \"https://lichess.org/study/DGjt4lwU/C8nP4WlO\"]\n" +
-            "[Result \"*\"]\n" +
-            "[UTCDate \"2021.07.25\"]\n" +
-            "[UTCTime \"03:33:53\"]\n" +
-            "[Variant \"Standard\"]\n" +
-            "[ECO \"D30\"]\n" +
-            "[Opening \"Queen's Gambit Declined\"]\n" +
-            "[Annotator \"https://lichess.org/@/CircleBreaker\"]\n" +
-            "\n" +
-            "1. d4 d5 2. c4 e6 *\n" +
-            "\n" +
-            "\n" +
-            "[Event \"Test Study: Chapter 3\"]\n" +
-            "[Site \"https://lichess.org/study/DGjt4lwU/C8nP4WlO\"]\n" +
-            "[Result \"*\"]\n" +
-            "[UTCDate \"2021.07.25\"]\n" +
-            "[UTCTime \"03:33:53\"]\n" +
-            "[Variant \"Standard\"]\n" +
-            "[ECO \"D30\"]\n" +
-            "[Opening \"Queen's Gambit Declined\"]\n" +
-            "[Annotator \"https://lichess.org/@/CircleBreaker\"]\n" +
-            "\n" +
-            "1. e4 \$THEORY d5 2. c4 e6 *"
-
     override val boardId = R.id.practice_board
 
-    private var playSettings = PlaySettings()
-    private val pgnParser = PGNParser
-//    private val pgnBuilder = PGNBuilder
-    private val repertoire = Repertoire(mutableListOf(pgnParser.parseAnnotatedPgnToBook(bookExample)))
-    private var activeRepertoire: LineTreeSet = repertoire.makeActiveRepertoire()
+    private val repertoireManager = RepertoireManager
+    private val playSettings: PlaySettings
+        get() = repertoireManager.playSettings
+
     private val playerMove: Boolean
         get() = boardViewModel.perspectiveColor == boardViewModel.activeColor
     private val latestMove: Move
@@ -75,9 +32,9 @@ class PracticeActivity : ChessActivity() {
     private val mistakesCaught: MutableList<Move> = mutableListOf()
 
     private val lineMoves: Collection<LineMove>
-        get() = activeRepertoire.getMoves(boardViewModel.position)
+        get() = repertoireManager.getMoves(boardViewModel.position)
 
-    private var playButtonsLayout: Int = R.layout.player_move_buttons_layout
+    private var playButtonsLayout: Int = playerMovesButtonLayoutId()
         set(value) {
             field = value
             practiceButtons.removeAllViews()
@@ -89,92 +46,24 @@ class PracticeActivity : ChessActivity() {
                 }
             }
         }
-
-    private lateinit var playerBestOptionView: PlaySettingButton
-    private lateinit var playerTheoryOptionView: PlaySettingButton
-    private lateinit var playerGambitsOptionView: PlaySettingButton
-    private lateinit var playerPreferredOptionView: PlaySettingButton
-    private lateinit var opponentBestOptionView: PlaySettingButton
-    private lateinit var opponentTheoryOptionView: PlaySettingButton
-    private lateinit var opponentGambitsOptionView: PlaySettingButton
-    private lateinit var opponentMistakesOptionView: PlaySettingButton
     private lateinit var practiceButtons: ConstraintLayout
     private lateinit var displayView: TextView
 
-//    private var nextMoveResultsO: MutableMap<Move, MoveResult> = mutableMapOf()
     private lateinit var moveResults: MoveResults
     private val previousMoveResults: MoveResults?
         get(){
             val previousGameState = boardViewModel.gameHistory.previousGameState()
-            return if (previousGameState == null) null else  MoveResults(activeRepertoire.getMoves(previousGameState!!.position), playSettings, !playerMove)
-        }
-    private val playOptionViews: List<PlaySettingButton>
-        get() {
-            return listOf(
-                playerBestOptionView,
-                playerTheoryOptionView,
-                playerGambitsOptionView,
-                playerPreferredOptionView,
-                opponentBestOptionView,
-                opponentTheoryOptionView,
-                opponentGambitsOptionView,
-                opponentMistakesOptionView
-            )
+            return if (previousGameState == null) null else  MoveResults(repertoireManager.getMoves(previousGameState!!.position), playSettings, !playerMove)
         }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_practice)
-        
-        playerBestOptionView = findViewById(R.id.player_best)
-        playerTheoryOptionView = findViewById(R.id.player_theory)
-        playerGambitsOptionView = findViewById(R.id.player_gambits)
-        playerPreferredOptionView = findViewById(R.id.player_preferred)
-        opponentBestOptionView = findViewById(R.id.opponent_best)
-        opponentTheoryOptionView = findViewById(R.id.opponent_theory)
-        opponentGambitsOptionView = findViewById(R.id.opponent_gambit)
-        opponentMistakesOptionView = findViewById(R.id.opponent_mistakes)
         practiceButtons = findViewById(R.id.practice_activity_move_buttons)
         displayView = findViewById(R.id.display_view)
-
-        for (view in playOptionViews) {
-            view.setOnClickListener { view -> togglePlayOption(view as PlaySettingButton) }
-        }
-        refreshPlayOptionButtonColors()
         moveResults = MoveResults(lineMoves, playSettings, playerMove)
         playButtonsLayout = playerMovesButtonLayoutId()
-    }
-
-    private fun togglePlayOption(view: PlaySettingButton) {
-        when (view) {
-            playerBestOptionView -> playSettings.playerBest = !playSettings.playerBest
-            playerTheoryOptionView -> playSettings.playerTheory = !playSettings.playerTheory
-            playerGambitsOptionView -> playSettings.playerGambits = !playSettings.playerGambits
-            playerPreferredOptionView -> playSettings.playerPreferred = !playSettings.playerPreferred
-            opponentBestOptionView -> playSettings.opponentBest = !playSettings.opponentBest
-            opponentTheoryOptionView -> playSettings.opponentTheory = !playSettings.opponentTheory
-            opponentGambitsOptionView -> playSettings.opponentGambits = !playSettings.opponentGambits
-            opponentMistakesOptionView -> playSettings.opponentMistakes = !playSettings.opponentMistakes
-        }
-        refreshPlayOptionButtonColors()
-        calculateMoveResults()
-    }
-
-    private fun refreshPlayOptionButtonColors() {
-        for (view in playOptionViews) {
-            when (view) {
-                playerBestOptionView -> playerBestOptionView.active = playSettings.playerBest
-                playerTheoryOptionView -> playerTheoryOptionView.active = playSettings.playerTheory
-                playerGambitsOptionView -> playerGambitsOptionView.active = playSettings.playerGambits
-                playerPreferredOptionView -> playerPreferredOptionView.active = playSettings.playerPreferred
-                opponentBestOptionView -> opponentBestOptionView.active = playSettings.opponentBest
-                opponentTheoryOptionView -> opponentTheoryOptionView.active = playSettings.opponentTheory
-                opponentGambitsOptionView -> opponentGambitsOptionView.active = playSettings.opponentGambits
-                opponentMistakesOptionView -> opponentMistakesOptionView.active = playSettings.opponentMistakes
-            }
-            view.updateColor()
-        }
     }
 
     private fun clearText() {
@@ -183,9 +72,9 @@ class PracticeActivity : ChessActivity() {
 
     private fun playerMovesButtonLayoutId(): Int {
         if (!playSettings.opponentMistakes || mistakesCaught.contains(latestMove)) {
-            return R.layout.player_move_buttons_layout
+            return R.layout.player_move_buttons
         }
-        return R.layout.player_move_buttons_mistake_layout
+        return R.layout.player_move_buttons_mistake
     }
 
     private fun calculateMoveResults() {
@@ -197,12 +86,6 @@ class PracticeActivity : ChessActivity() {
     }
 
     override fun handleMove(move: Move?, undo: Boolean) {
-//            Log.e("handleMove","moveResult: $moveResult")
-//            Log.e("handleMove","lines: " + lines.quickDisplay())
-//        Log.e("handleMove","move: $move")
-//        Log.e("handleMove",
-//            "moves: " + lineMoves.joinToString(",") {it.algMove})
-//            Log.e("handleMove","nextMoveResults: " + moveResults.quickDisplay())
         clearText()
         boardViewModel.canMove = true
         if (move != null) {
@@ -242,23 +125,23 @@ class PracticeActivity : ChessActivity() {
 
     private fun handleUnknownMove() {
         boardViewModel.canMove = false
-        playButtonsLayout = R.layout.unknown_move_buttons_layout
+        playButtonsLayout = R.layout.unknown_move_buttons
         displayView.text = "Unknown move"
     }
 
     private fun handleCorrect(move: Move) {
-        playButtonsLayout = R.layout.opponent_move_buttons_layout
+        playButtonsLayout = R.layout.opponent_move_buttons
         displayView.text = moveResults.getCorrectMoveDescriptionText(move)
     }
 
     private fun handlePlayerValid(move: Move) {
-        playButtonsLayout = R.layout.opponent_move_buttons_layout
+        playButtonsLayout = R.layout.opponent_move_buttons
         displayView.text = moveResults.getValidMoveDescriptionText(move, true)
     }
 
     private fun handlePlayerWrongMove(move: Move, descriptionHeader: String, disableMoves: Boolean) {
         boardViewModel.canMove = !disableMoves
-        playButtonsLayout = R.layout.wrong_move_button_layout
+        playButtonsLayout = R.layout.wrong_move_button
         displayView.text = descriptionHeader + moveResults.getMoveDescriptionText(move)
     }
 
@@ -293,7 +176,7 @@ class PracticeActivity : ChessActivity() {
 
     private fun handleMissedMistake() {
         boardViewModel.canMove = false
-        playButtonsLayout = R.layout.wrong_move_button_layout
+        playButtonsLayout = R.layout.wrong_move_button
         displayView.text = getString(R.string.missed_mistake)
     }
 
@@ -320,79 +203,59 @@ class PracticeActivity : ChessActivity() {
     }
 
     fun repertoireSettingsButton(view: View) {
-        val popupView = layoutInflater.inflate(R.layout.repertoire_settings_popup_layout, null) as ConstraintLayout
-        val adapter = RepertoireListAdapter(repertoire, activeRepertoire)
+        val popupView = layoutInflater.inflate(R.layout.repertoire_settings_popup, null) as ConstraintLayout
+        val adapter = RepertoireListAdapter()
         val repertoireListView = popupView.findViewById<ExpandableListView>(R.id.repertoire_list_view)
         repertoireListView.setAdapter(adapter)
         val popupWindow = PopupWindow(popupView, ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT, true)
         popupWindow.showAtLocation(displayView, Gravity.CENTER, 0, 0)
         popupView.findViewById<Button>(R.id.ok_button).setOnClickListener {
-            Log.e("repertoireSettingsButton", "activeRep: " + activeRepertoire.lineTrees.size + ", fullRep: " + repertoire.lineTrees.size)
-            for (lineTree in activeRepertoire.lineTrees) {
-                Log.e(
-                    "repertoireSettingsButton",
-                    "active tree: " + lineTree.name
-                )
-            }
             popupWindow.dismiss()
         }
-
     }
 
     fun moveSettingsButton(view: View) {
-        val popupView = layoutInflater.inflate(R.layout.move_settings_popup_layout, null) as ConstraintLayout
+        val popupView = layoutInflater.inflate(R.layout.move_settings_popup, null) as ConstraintLayout
         val popupWindow = PopupWindow(popupView, ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT, true)
-        val newPlaySettings = playSettings.copy()
-        refreshPlaySettingSwitches(popupView, newPlaySettings)
+        refreshPlaySettingSwitches(popupView)
         for (view in popupView.children) {
             if (view is Switch) {
-                setMoveOptionSwitchOnClick(popupView, view, newPlaySettings)
+                setMoveOptionSwitchOnClick(popupView, view)
             }
         }
         popupWindow.showAtLocation(displayView, Gravity.CENTER, 0, 0)
 
         popupView.findViewById<Button>(R.id.ok_button).setOnClickListener {
-            moveSettingsOkButton(newPlaySettings)
-            popupWindow.dismiss()
-        }
-
-        popupView.findViewById<Button>(R.id.cancel_button).setOnClickListener {
             popupWindow.dismiss()
         }
     }
 
-    private fun setMoveOptionSwitchOnClick(popupView: View, switch: Switch, newPlaySettings: PlaySettings) {
+    private fun setMoveOptionSwitchOnClick(popupView: View, switch: Switch) {
         switch.setOnClickListener {
             when (it) {
                 popupView.findViewById<Switch>(R.id.player_best_switch) ->
-                    newPlaySettings.playerBest = !newPlaySettings.playerBest
+                    playSettings.playerBest = !playSettings.playerBest
                 popupView.findViewById<Switch>(R.id.player_theory_switch) ->
-                    newPlaySettings.playerTheory = !newPlaySettings.playerTheory
+                    playSettings.playerTheory = !playSettings.playerTheory
                 popupView.findViewById<Switch>(R.id.player_gambits_switch) ->
-                    newPlaySettings.playerGambits = !newPlaySettings.playerGambits
+                    playSettings.playerGambits = !playSettings.playerGambits
                 popupView.findViewById<Switch>(R.id.player_preferred_switch) ->
-                    newPlaySettings.playerPreferred = !newPlaySettings.playerPreferred
+                    playSettings.playerPreferred = !playSettings.playerPreferred
                 popupView.findViewById<Switch>(R.id.opponent_best_switch) ->
-                    newPlaySettings.opponentBest = !newPlaySettings.opponentBest
+                    playSettings.opponentBest = !playSettings.opponentBest
                 popupView.findViewById<Switch>(R.id.opponent_theory_switch) ->
-                    newPlaySettings.opponentTheory = !newPlaySettings.opponentTheory
+                    playSettings.opponentTheory = !playSettings.opponentTheory
                 popupView.findViewById<Switch>(R.id.opponent_gambits_switch) ->
-                    newPlaySettings.opponentGambits = !newPlaySettings.opponentGambits
+                    playSettings.opponentGambits = !playSettings.opponentGambits
                 popupView.findViewById<Switch>(R.id.opponent_mistakes_switch) ->
-                    newPlaySettings.opponentMistakes = !newPlaySettings.opponentMistakes
+                    playSettings.opponentMistakes = !playSettings.opponentMistakes
             }
-            refreshPlaySettingSwitches(popupView, newPlaySettings)
+            calculateMoveResults()
+            refreshPlaySettingSwitches(popupView)
         }
-
     }
 
-    private fun moveSettingsOkButton(newPlaySettings: PlaySettings) {
-        playSettings = newPlaySettings
-        calculateMoveResults()
-        refreshPlayOptionButtonColors()
-    }
-
-    private fun refreshPlaySettingSwitches(popupView: View, playSettings: PlaySettings) {
+    private fun refreshPlaySettingSwitches(popupView: View) {
         popupView.findViewById<Switch>(R.id.player_best_switch).isChecked = playSettings.playerBest
         popupView.findViewById<Switch>(R.id.player_theory_switch).isChecked = playSettings.playerTheory
         popupView.findViewById<Switch>(R.id.player_gambits_switch).isChecked = playSettings.playerGambits
@@ -411,6 +274,12 @@ class PracticeActivity : ChessActivity() {
             return gambitMoves.joinToString(", ", "Available gambit$plural: ")
         }
         return ""
+    }
+
+    override fun resetActivity() {
+        moveResults = MoveResults(lineMoves, playSettings, playerMove)
+        playButtonsLayout = playerMovesButtonLayoutId()
+        clearText()
     }
 
 }

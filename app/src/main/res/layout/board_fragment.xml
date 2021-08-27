@@ -13,12 +13,34 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <ImageButton
+            android:id="@+id/reset_button"
+            android:layout_height="@dimen/board_bar_height"
+            android:layout_width="0dp"
+            android:onClick="resetBoardButton"
+            app:layout_constraintDimensionRatio="1:1"
+            android:src="@android:drawable/ic_menu_rotate"
+            app:layout_constraintBottom_toTopOf="@+id/grid_layout"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/move_history"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/move_history"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/board_bar_height"
+            android:maxLines="1"
+            android:ellipsize="start"
+            app:layout_constraintBottom_toTopOf="@+id/grid_layout"
+            app:layout_constraintLeft_toRightOf="@id/reset_button"
+            app:layout_constraintRight_toLeftOf="@id/perspective_switch"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/perspective_switch"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/board_bar_height"
             android:minWidth="48dp"
-            android:minHeight="32dp"
             android:onClick="switchPerspective"
             android:theme="@style/PerspectiveSwitchStyle"
             app:layout_constraintBottom_toTopOf="@id/grid_layout"
@@ -38,16 +60,6 @@
             tools:ignore="SpeakableTextPresentCheck">
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <TextView
-            android:id="@+id/move_history"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:maxLines="1"
-            android:ellipsize="start"
-            app:layout_constraintBottom_toTopOf="@+id/grid_layout"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@id/perspective_switch"
-            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>

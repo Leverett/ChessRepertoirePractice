@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".RepertoireActivity">
@@ -10,20 +11,148 @@
     <ExpandableListView
         android:id="@+id/repertoire_list_view"
         android:layout_width="match_parent"
-        android:layout_height="640dp"
+        android:layout_height="0dp"
         android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toTopOf="@id/bottom_option_layout"
+        app:layout_constraintBottom_toTopOf="@id/move_options_divider"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/player_moves"
+        android:layout_width="0dp"
+        android:layout_height="10dp"
+        android:gravity="center"
+        android:text="@string/player_move_options"
+        android:textSize="8sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/move_options_divider"
+        app:layout_constraintTop_toBottomOf="@+id/repertoire_list_view" />
+
+    <TextView
+        android:id="@+id/opponent_moves"
+        android:layout_width="0dp"
+        android:layout_height="10dp"
+        android:gravity="center"
+        android:text="@string/opponent_move_options"
+        android:textSize="8sp"
+        app:layout_constraintLeft_toRightOf="@id/move_options_divider"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/repertoire_list_view" />
+
+    <View
+        android:id="@+id/move_options_divider"
+        android:layout_width="10dp"
+        android:layout_height="40dp"
+        app:layout_constraintLeft_toRightOf="@id/player_moves"
+        app:layout_constraintRight_toLeftOf="@id/opponent_moves"
+        app:layout_constraintTop_toBottomOf="@+id/repertoire_list_view" />
+
+    <com.leverett.chessrepertoirepractice.ui.views.PlaySettingButton
+        android:id="@+id/player_best"
+        android:layout_width="0dp"
+        android:layout_height="30dp"
+        android:clickable="true"
+        android:gravity="center"
+        android:text="@string/best_moves"
+        android:textSize="10sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/player_theory"
+        app:layout_constraintTop_toBottomOf="@+id/player_moves"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_option_layout"
+        custom:activeColor="@color/purple_500"
+        custom:baseColor="@color/purple_200" />
+
+    <com.leverett.chessrepertoirepractice.ui.views.PlaySettingButton
+        android:id="@+id/player_theory"
+        android:layout_width="0dp"
+        android:layout_height="30dp"
+        android:clickable="true"
+        android:gravity="center"
+        android:text="@string/theory_moves"
+        android:textSize="10sp"
+        app:layout_constraintLeft_toRightOf="@id/player_best"
+        app:layout_constraintRight_toLeftOf="@id/player_gambits"
+        app:layout_constraintTop_toBottomOf="@+id/player_moves"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_option_layout"
+        custom:activeColor="@color/teal_700"
+        custom:baseColor="@color/teal_200"
+        tools:ignore="DuplicateSpeakableTextCheck" />
+
+    <com.leverett.chessrepertoirepractice.ui.views.PlaySettingButton
+        android:id="@+id/player_gambits"
+        style="@style/PlaySettingButtonStyle"
+        android:text="@string/gambit_moves"
+        app:layout_constraintLeft_toRightOf="@id/player_theory"
+        app:layout_constraintRight_toLeftOf="@id/player_preferred"
+        app:layout_constraintTop_toBottomOf="@+id/player_moves"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_option_layout"
+        custom:activeColor="@color/light_blue_600"
+        custom:baseColor="@color/light_blue_400" />
+
+    <com.leverett.chessrepertoirepractice.ui.views.PlaySettingButton
+        android:id="@+id/player_preferred"
+        style="@style/PlaySettingButtonStyle"
+        android:text="@string/preferred_moves"
+        app:layout_constraintLeft_toRightOf="@id/player_gambits"
+        app:layout_constraintRight_toLeftOf="@id/move_options_divider"
+        app:layout_constraintTop_toBottomOf="@+id/player_moves"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_option_layout"
+        custom:activeColor="@color/gray_600"
+        custom:baseColor="@color/gray_400" />
+
+    <com.leverett.chessrepertoirepractice.ui.views.PlaySettingButton
+        android:id="@+id/opponent_best"
+        style="@style/PlaySettingButtonStyle"
+        android:text="@string/best_moves"
+        app:layout_constraintLeft_toRightOf="@id/move_options_divider"
+        app:layout_constraintRight_toLeftOf="@id/opponent_theory"
+        app:layout_constraintTop_toBottomOf="@+id/player_moves"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_option_layout"
+        custom:activeColor="@color/purple_500"
+        custom:baseColor="@color/purple_200" />
+
+    <com.leverett.chessrepertoirepractice.ui.views.PlaySettingButton
+        android:id="@+id/opponent_theory"
+        style="@style/PlaySettingButtonStyle"
+        android:text="@string/theory_moves"
+        app:layout_constraintLeft_toRightOf="@id/opponent_best"
+        app:layout_constraintRight_toLeftOf="@id/opponent_gambit"
+        app:layout_constraintTop_toBottomOf="@+id/player_moves"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_option_layout"
+        custom:activeColor="@color/teal_700"
+        custom:baseColor="@color/teal_200" />
+
+    <com.leverett.chessrepertoirepractice.ui.views.PlaySettingButton
+        android:id="@+id/opponent_gambit"
+        style="@style/PlaySettingButtonStyle"
+        android:text="@string/gambit_moves"
+        app:layout_constraintLeft_toRightOf="@id/opponent_theory"
+        app:layout_constraintRight_toLeftOf="@id/opponent_mistakes"
+        app:layout_constraintTop_toBottomOf="@+id/player_moves"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_option_layout"
+        custom:activeColor="@color/light_blue_600"
+        custom:baseColor="@color/light_blue_400" />
+
+    <com.leverett.chessrepertoirepractice.ui.views.PlaySettingButton
+        android:id="@+id/opponent_mistakes"
+        style="@style/PlaySettingButtonStyle"
+        android:text="@string/mistake_moves"
+        app:layout_constraintLeft_toRightOf="@id/opponent_gambit"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/player_moves"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_option_layout"
+        custom:activeColor="@color/gray_600"
+        custom:baseColor="@color/gray_400" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bottom_option_layout"
         android:layout_width="0dp"
         android:layout_height="@dimen/button_height"
+        app:layout_constraintTop_toBottomOf="@id/move_options_divider"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
 
         <Button
             android:id="@+id/bottom_button_1"

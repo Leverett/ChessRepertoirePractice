@@ -11,7 +11,7 @@ import com.leverett.rules.chess.representation.GRID_SIZE
 import com.leverett.rules.chess.representation.Piece
 
 class SquareLayout(context: Context,
-                   private val viewModel: BoardViewModel,
+                   private val boardFragment: BoardFragment,
                    x: Int,
                    y: Int
                    ) : FrameLayout(context) {
@@ -19,6 +19,8 @@ class SquareLayout(context: Context,
     val coords = Pair(x, y)
     private val squareColor = (x + y) % 2 != 0
     private var pieceView: ImageView? = null
+    private val viewModel: BoardViewModel
+        get() = boardFragment.viewModel
 
     init {
         this.isClickable = true

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/move_settings_popup"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/move_settings_popup"
     android:layout_width="360dp"
     android:layout_height="wrap_content"
     android:background="@color/white">
@@ -99,16 +99,10 @@
     <Button
         android:id="@+id/ok_button"
         style="@style/OkButton"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/cancel_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/player_preferred_switch" />
-
-    <Button
-        android:id="@+id/cancel_button"
-        style="@style/CancelButton"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toRightOf="@id/ok_button"
-        app:layout_constraintTop_toBottomOf="@id/opponent_mistakes_switch" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

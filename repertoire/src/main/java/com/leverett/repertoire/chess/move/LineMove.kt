@@ -1,7 +1,7 @@
 package com.leverett.repertoire.chess.move
 
 import com.leverett.repertoire.chess.lines.LineTree
-import com.leverett.rules.chess.parsing.PGNBuilder
+import com.leverett.repertoire.chess.pgn.makeMoveNotation
 import com.leverett.rules.chess.representation.Move
 import com.leverett.rules.chess.representation.Position
 
@@ -22,7 +22,6 @@ class LineMove(val lineTree: LineTree, val previousPosition: Position, val nextP
     val algMove: String = algMove ?: makeAlgMove()
 
     private fun makeAlgMove(): String {
-        val builder = PGNBuilder
-        return builder.makeMoveNotation(previousPosition, move)
+        return makeMoveNotation(previousPosition, move)
     }
 }

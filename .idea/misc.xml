@@ -10,6 +10,9 @@
         <entry key="..\:/Users/lever/AndroidStudioProjects/ChessRepertoirePractice/app/src/main/res/layout/activity_sandbox.xml" value="0.334375" />
         <entry key="..\:/Users/lever/AndroidStudioProjects/ChessRepertoirePractice/app/src/main/res/layout/board_fragment.xml" value="0.2604166666666667" />
         <entry key="..\:/Users/lever/AndroidStudioProjects/ChessRepertoirePractice/app/src/main/res/layout/board_settings_popup_layout.xml" value="0.37273550724637683" />
+        <entry key="..\:/Users/lever/AndroidStudioProjects/ChessRepertoirePractice/app/src/main/res/layout/configuration_option.xml" value="0.36822916666666666" />
+        <entry key="..\:/Users/lever/AndroidStudioProjects/ChessRepertoirePractice/app/src/main/res/layout/load_configuration_popup.xml" value="0.36822916666666666" />
+        <entry key="..\:/Users/lever/AndroidStudioProjects/ChessRepertoirePractice/app/src/main/res/layout/load_pgn_popup.xml" value="0.254981884057971" />
         <entry key="..\:/Users/lever/AndroidStudioProjects/ChessRepertoirePractice/app/src/main/res/layout/move_settings_popup_layout.xml" value="0.3736413043478261" />
         <entry key="..\:/Users/lever/AndroidStudioProjects/ChessRepertoirePractice/app/src/main/res/layout/opponent_move_buttons_layout.xml" value="0.375" />
         <entry key="..\:/Users/lever/AndroidStudioProjects/ChessRepertoirePractice/app/src/main/res/layout/player_mistake_button_layout.xml" value="0.37083333333333335" />
@@ -20,11 +23,13 @@
         <entry key="..\:/Users/lever/AndroidStudioProjects/ChessRepertoirePractice/app/src/main/res/layout/player_repertoire_buttons_layout.xml" value="0.3736413043478261" />
         <entry key="..\:/Users/lever/AndroidStudioProjects/ChessRepertoirePractice/app/src/main/res/layout/promotion_popup_layout.xml" value="0.29936594202898553" />
         <entry key="..\:/Users/lever/AndroidStudioProjects/ChessRepertoirePractice/app/src/main/res/layout/repertoire_list_item.xml" value="0.37135416666666665" />
+        <entry key="..\:/Users/lever/AndroidStudioProjects/ChessRepertoirePractice/app/src/main/res/layout/repertoire_list_item_deletable.xml" value="0.254981884057971" />
         <entry key="..\:/Users/lever/AndroidStudioProjects/ChessRepertoirePractice/app/src/main/res/layout/repertoire_list_item_layout.xml" value="0.36822916666666666" />
         <entry key="..\:/Users/lever/AndroidStudioProjects/ChessRepertoirePractice/app/src/main/res/layout/repertoire_settings_popup_layout.xml" value="0.37135416666666665" />
         <entry key="..\:/Users/lever/AndroidStudioProjects/ChessRepertoirePractice/app/src/main/res/layout/sample_play_setting_button.xml" value="0.334375" />
         <entry key="..\:/Users/lever/AndroidStudioProjects/ChessRepertoirePractice/app/src/main/res/layout/sample_promotion_popup.xml" value="0.29936594202898553" />
         <entry key="..\:/Users/lever/AndroidStudioProjects/ChessRepertoirePractice/app/src/main/res/layout/sample_repertoire_list_item.xml" value="0.3572916666666667" />
+        <entry key="..\:/Users/lever/AndroidStudioProjects/ChessRepertoirePractice/app/src/main/res/layout/save_configuration_popup.xml" value="0.36822916666666666" />
         <entry key="..\:/Users/lever/AndroidStudioProjects/ChessRepertoirePractice/app/src/main/res/layout/square.xml" value="0.3197463768115942" />
         <entry key="..\:/Users/lever/AndroidStudioProjects/ChessRepertoirePractice/app/src/main/res/layout/undo_redo_button_layout.xml" value="0.3736413043478261" />
         <entry key="..\:/Users/lever/AndroidStudioProjects/ChessRepertoirePractice/app/src/main/res/layout/unknown_move_buttons.xml" value="0.3763586956521739" />

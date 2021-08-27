@@ -1,8 +1,6 @@
 package com.leverett.chessrepertoirepractice
 
 import android.content.Context
-import android.os.Bundle
-import android.os.PersistableBundle
 import android.view.Gravity
 import android.view.View
 import android.widget.ArrayAdapter
@@ -10,7 +8,6 @@ import android.widget.Button
 import android.widget.PopupWindow
 import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SwitchCompat
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.leverett.chessrepertoirepractice.utils.BoardStyle
 import com.leverett.chessrepertoirepractice.utils.PieceStyle
@@ -37,8 +34,15 @@ abstract class ChessActivity : AppCompatActivity() {
         boardFragment.switchPerspective(view)
     }
 
+    fun resetBoardButton(view: View) {
+        boardFragment.reset()
+        resetActivity()
+    }
+
+    open fun resetActivity() {}
+
     fun boardSettingsButton(view: View) {
-        val popupView = layoutInflater.inflate(R.layout.board_settings_popup_layout, null) as ConstraintLayout
+        val popupView = layoutInflater.inflate(R.layout.board_settings_popup, null) as ConstraintLayout
         val popupWindow = PopupWindow(popupView, ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT, true)
         val boardStyleSpinner = popupView.findViewById(R.id.board_style_spinner) as Spinner
         val boardStyleSpinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, BoardStyle.values())

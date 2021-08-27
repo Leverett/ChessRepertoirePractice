@@ -1,4 +1,4 @@
-package com.leverett.repertoire.chess
+package com.leverett.repertoire.chess.pgn
 
 import com.leverett.repertoire.chess.lines.Book
 import com.leverett.repertoire.chess.lines.Chapter
@@ -9,9 +9,7 @@ import org.testng.Assert.assertEquals
 import org.testng.annotations.DataProvider
 import org.testng.annotations.Test
 
-class PGNParserTests {
-
-    private val parser = PGNParser
+class PGNParsingTests {
 
     @DataProvider(name = "extractSingleLayerBlockData")
     fun extractSingleLayerBlockData(): Array<Array<Any>> {
@@ -28,7 +26,7 @@ class PGNParserTests {
     @Test(dataProvider = "extractSingleLayerBlockData")
     fun extractSingleLayerBlockTest(text: String, charIndex: Int, endChar: Char, expectedValue: String) {
 
-        val actualValue = parser.extractSingleLayerBlock(text, charIndex, endChar)
+        val actualValue = extractSingleLayerBlock(text, charIndex, endChar)
         assertEquals(actualValue, expectedValue)
     }
 
@@ -45,7 +43,7 @@ class PGNParserTests {
     @Test(dataProvider = "extractNestedBlockData")
     fun extractNestedBlockTest(text: String, charIndex: Int, expectedValue: String) {
 
-        val actualValue = parser.extractNestedBlock(text, charIndex, '(', ')')
+        val actualValue = extractNestedBlock(text, charIndex, '(', ')')
         assertEquals(actualValue, expectedValue)
     }
 
@@ -63,7 +61,7 @@ class PGNParserTests {
     @Test(dataProvider = "extractTagData")
     fun extractTagTest(text: String, charIndex: Int, expectedValue: MoveDetails.Tag?) {
 
-        val actualValue = parser.extractTag(text, charIndex)
+        val actualValue = extractTag(text, charIndex)
         assertEquals(actualValue, expectedValue)
     }
 
@@ -78,7 +76,7 @@ class PGNParserTests {
     @Test(dataProvider = "extractMoveData")
     fun extractMoveTest(text: String, charIndex: Int, expectedValue: String) {
 
-        val actualValue = parser.extractMove(text, charIndex)
+        val actualValue = extractMove(text, charIndex)
         assertEquals(actualValue, expectedValue)
     }
 
@@ -102,7 +100,7 @@ class PGNParserTests {
     fun parseCommentBlockTest(text: String, expectedDescription: String?, expectedBestMove: Boolean, expectedTheory: Boolean) {
 
         val actualValue = MoveDetails()
-        parser.parseCommentBlock(text, actualValue)
+        parseCommentBlock(text, actualValue)
 
         assertEquals(actualValue.description, expectedDescription)
         assertEquals(actualValue.best, expectedBestMove)
@@ -124,7 +122,7 @@ class PGNParserTests {
     @Test(dataProvider = "findStartLocData")
     fun findStartLocTest(threateningLocations: List<Pair<Int,Int>>, token: String, expectedValue: Pair<Int,Int>) {
 
-        val actualValue = parser.findStartLoc(threateningLocations, token)
+        val actualValue = findStartLoc(threateningLocations, token)
 
         assertEquals(actualValue, expectedValue)
     }
@@ -177,7 +175,7 @@ class PGNParserTests {
         val enPassantTarget = if (!activeColor) Pair(6, 2) else null
         val position = Position(testingPlacements, activeColor, castling, enPassantTarget, 0)
 
-        val actualValue = parser.makeMove(position, token)
+        val actualValue = makeMove(position, token)
 
         assertEquals(actualValue, expectedValue)
     }
@@ -186,7 +184,7 @@ class PGNParserTests {
     fun parseMovesTest() {
         val startingPosition = startingPosition()
         val chapter = Chapter("test")
-        parser.parseMoves(chapter, chapterMovesExample, startingPosition)
+        parseMoves(chapter, chapterMovesExample, startingPosition)
 
         var moves = chapter.getMoves(startingPosition)
         assertEquals(moves.size, 1)
@@ -211,17 +209,17 @@ class PGNParserTests {
 
     @Test
     fun extractLineTreeMetadata() {
-        val bookMetadata = parser.extractLineTreeMetadata(metadataExample, true)
+        val bookMetadata = extractLineTreeMetadata(metadataExample, true)
         assertEquals(bookMetadata.first, "Test Study")
         assertEquals(bookMetadata.second, "About the book")
-        val chapterMetadata = parser.extractLineTreeMetadata(metadataExample, false)
+        val chapterMetadata = extractLineTreeMetadata(metadataExample, false)
         assertEquals(chapterMetadata.first, "Chapter 1")
         assertEquals(chapterMetadata.second, "About the chapter")
     }
 
     @Test
     fun parseAnnotatedPgnToChapterTest() {
-        val chapter = parser.parseAnnotatedPgnToChapter(chapterExample, Book(mutableListOf(), "Test Study"))
+        val chapter = parseAnnotatedPgnToChapter(chapterExample, Book(mutableListOf(), "Test Study")) as Chapter
         assertEquals(chapter.name, "Chapter 1")
         assertEquals(chapter.description, "About the chapter")
 
@@ -249,7 +247,7 @@ class PGNParserTests {
 
     @Test
     fun parseAnnotatedPgnToBook() {
-        val book = parser.parseAnnotatedPgnToBook(bookExample)
+        val book = parseAnnotatedPgnToBook(bookExample)
         assertEquals(book.lineTrees.size, 2)
         assertEquals(book.name, "Test Study")
     }

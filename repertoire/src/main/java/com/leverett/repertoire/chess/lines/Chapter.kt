@@ -79,6 +79,10 @@ class Chapter(name: String, description: String? = null, var book: Book? = null)
         }
     }
 
+    fun isStandalone(): Boolean {
+        return book == null
+    }
+
     fun quickDisplay(): String {
         var result = ""
         for (entry in positionHashToMoves) {

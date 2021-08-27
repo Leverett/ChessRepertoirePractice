@@ -50,6 +50,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
     implementation 'org.apache.commons:commons-lang3:3.5'
+    implementation group: 'com.google.code.gson', name: 'gson', version: '2.8.5'
     implementation project(path: ':gamerules')
     implementation project(path: ':repertoire')
     testImplementation 'junit:junit:4.+'

@@ -17,8 +17,8 @@ import com.leverett.chessrepertoirepractice.utils.BoardStyle
 import com.leverett.chessrepertoirepractice.utils.CAPTURE_MOVE_SOUND
 import com.leverett.chessrepertoirepractice.utils.PieceStyle
 import com.leverett.chessrepertoirepractice.utils.playSound
+import com.leverett.repertoire.chess.pgn.makeMoveNotation
 import com.leverett.rules.chess.basic.BasicRulesEngine
-import com.leverett.rules.chess.parsing.PGNBuilder
 import com.leverett.rules.chess.representation.*
 
 
@@ -54,7 +54,7 @@ class BoardFragment(var viewModel: BoardViewModel = BoardViewModel()) : Fragment
         getUISettings()
         val context = requireContext()
 
-        squares = Array(GRID_SIZE) {x -> Array(GRID_SIZE) {y -> SquareLayout(context, viewModel, x, y).also{boardLayout.addView(it)}} }
+        squares = Array(GRID_SIZE) {x -> Array(GRID_SIZE) {y -> SquareLayout(context, this, x, y).also{boardLayout.addView(it)}} }
 
         for (x in 0 until GRID_SIZE) {
             for (y in 0 until GRID_SIZE) {
@@ -131,10 +131,9 @@ class BoardFragment(var viewModel: BoardViewModel = BoardViewModel()) : Fragment
     fun doMove(move: Move) {
         var nextGameState = gameHistory.nextGameState()
         if (nextGameState == null || nextGameState.move != move) {
-            val pgnBuilder = PGNBuilder
             val nextPosition = rulesEngine.getNextPosition(position, move)
             val nextPositionStatus = rulesEngine.positionStatus(nextPosition)
-            nextGameState = GameState(nextPosition, nextPositionStatus, move, pgnBuilder.makeMoveNotation(position, move))
+            nextGameState = GameState(nextPosition, nextPositionStatus, move, makeMoveNotation(position, move))
             gameHistory.addGameState(nextGameState)
         }
         setGameState(nextGameState)
@@ -192,7 +191,7 @@ class BoardFragment(var viewModel: BoardViewModel = BoardViewModel()) : Fragment
     }
 
     fun makePromotionPopup(endCoords: Pair<Int, Int>) {
-        val popupView = layoutInflater.inflate(R.layout.promotion_popup_layout, null)
+        val popupView = layoutInflater.inflate(R.layout.promotion_popup, null)
         popupView.setBackgroundColor(viewModel.boardStyle.promotionBackground)
 
         val popupWindow = PopupWindow(popupView, ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT, true)
@@ -211,7 +210,6 @@ class BoardFragment(var viewModel: BoardViewModel = BoardViewModel()) : Fragment
             processMoveSelection(endCoords, piece)
             popupWindow.dismiss()
         }
-
     }
 
     fun squareAt(coords: Pair<Int, Int>): SquareLayout {
@@ -225,13 +223,11 @@ class BoardFragment(var viewModel: BoardViewModel = BoardViewModel()) : Fragment
         updateBoardView()
     }
 
-//    override fun onActivityCreated(savedInstanceState: Bundle?) {
-//        super.onActivityCreated(savedInstanceState)
-//        viewModel = ViewModelProvider(this).get(BoardViewModel::class.java)
-//
-//
-//        // TODO: Use the ViewModel
-//    }
-
+    fun reset() {
+        viewModel = BoardViewModel()
+        val perspectiveSwitch = activity.findViewById<SwitchCompat>(R.id.perspective_switch)
+        viewModel.perspectiveColor = !perspectiveSwitch.isChecked
+        updateBoardView()
+    }
 
 }

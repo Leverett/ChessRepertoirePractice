@@ -2,6 +2,8 @@
 
     <style name="Widget.Theme.ChessRepertoirePractice.MyView" parent="">
         <item name="android:background">@color/gray_400</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
     <style name="PerspectiveSwitchStyle">
@@ -46,7 +48,7 @@
     </style>
 
     <style name="ExportPGNButtonStyle" parent="RepertoireButtonStyle">
-        <item name="android:onClick">savePgnButton</item>
+        <item name="android:onClick">exportPgnButton</item>
         <item name="android:text">@string/export_pgn</item>
     </style>
 
@@ -115,6 +117,14 @@
         <item name="android:onClick">mistakeAssertionButton</item>
         <item name="android:background">@android:color/holo_green_dark</item>
         <item name="android:text">M</item>
+    </style>
+
+    <style name="PlaySettingButtonStyle">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">30dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">10sp</item>
     </style>
 
 </resources>

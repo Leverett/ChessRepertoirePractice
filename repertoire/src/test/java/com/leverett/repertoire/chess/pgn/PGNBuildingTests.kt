@@ -1,15 +1,75 @@
-package com.leverett.rules.chess.basic.parsing
+package com.leverett.repertoire.chess.pgn
 
-import com.leverett.rules.chess.parsing.PGNBuilder
+import com.leverett.repertoire.chess.lines.Book
 import com.leverett.rules.chess.representation.*
 import com.leverett.rules.chess.representation.Piece.*
 import org.testng.Assert.assertEquals
 import org.testng.annotations.DataProvider
 import org.testng.annotations.Test
 
-class PGNBuilderTests {
+class PGNBuildingTests {
 
-    private val builder = PGNBuilder
+    private val bookExample = "[Event \"Test Study: Chapter 1\"]\n" +
+            "[Site \"https://lichess.org/study/DGjt4lwU/32qGstHX\"]\n" +
+            "[Result \"*\"]\n" +
+            "[UTCDate \"2021.07.25\"]\n" +
+            "[UTCTime \"03:15:10\"]\n" +
+            "[Variant \"Standard\"]\n" +
+            "[ECO \"D20\"]\n" +
+            "[Opening \"Queen's Gambit Accepted: Old Variation\"]\n" +
+            "[Annotator \"https://lichess.org/@/CircleBreaker\"]\n" +
+            "\n" +
+            "1. d4 \$THEORY {just a comment} d5 {comment for a hint} 2. c4 dxc4 \$MISTAKE 3. e3 (3. e4 \$MISTAKE) 3... b5 4. Qf3 *\n" +
+            "\n" +
+            "\n" +
+            "[Event \"Test Study: Chapter 2\"]\n" +
+            "[Site \"https://lichess.org/study/DGjt4lwU/C8nP4WlO\"]\n" +
+            "[Result \"*\"]\n" +
+            "[UTCDate \"2021.07.25\"]\n" +
+            "[UTCTime \"03:33:53\"]\n" +
+            "[Variant \"Standard\"]\n" +
+            "[ECO \"D30\"]\n" +
+            "[Opening \"Queen's Gambit Declined\"]\n" +
+            "[Annotator \"https://lichess.org/@/CircleBreaker\"]\n" +
+            "\n" +
+            "1. d4 d5 2. c4 e6 *\n" +
+            "\n" +
+            "\n" +
+            "[Event \"Test Study: Chapter 3\"]\n" +
+            "[Site \"https://lichess.org/study/DGjt4lwU/C8nP4WlO\"]\n" +
+            "[Result \"*\"]\n" +
+            "[UTCDate \"2021.07.25\"]\n" +
+            "[UTCTime \"03:33:53\"]\n" +
+            "[Variant \"Standard\"]\n" +
+            "[ECO \"D30\"]\n" +
+            "[Opening \"Queen's Gambit Declined\"]\n" +
+            "[Annotator \"https://lichess.org/@/CircleBreaker\"]\n" +
+            "\n" +
+            "1. e4 \$THEORY d5 2. c4 e6 *"
+    private val book: Book = parseAnnotatedPgnToBook(bookExample)
+
+    private val bookResult = "[Event \"Test Study: Chapter 1\"]\n" +
+            "\n" +
+            "1. d4 {just a comment \$THEORY} d5 {comment for a hint } 2. c4 dxc4 { \$MISTAKE} 3. e3 (3. e4 { \$MISTAKE} ) b5 4. Qf3 \n" +
+            "\n" +
+            "\n" +
+            "[Event \"Test Study: Chapter 2\"]\n" +
+            "\n" +
+            "1. d4 d5 2. c4 e6 \n" +
+            "\n" +
+            "\n" +
+            "[Event \"Test Study: Chapter 3\"]\n" +
+            "\n" +
+            "1. e4 { \$THEORY} d5 2. c4 e6 \n\n\n"
+
+
+    @Test
+    fun testTest() {
+        val pgn = makeBookText(book)
+        assertEquals(pgn, bookResult)
+    }
+
+
 
     @DataProvider(name = "makeMoveNotationData")
     fun makeMoveNotationData(): Array<Array<Any?>> {
@@ -35,7 +95,7 @@ class PGNBuilderTests {
             // moves for duplicate pieces on the same rank and file
             arrayOf("Qb4d2", true, Move(Pair(1,3), Pair(3, 1), EMPTY)),
             // promotions
-            arrayOf("h8=Q", true, Move(Pair(7,6), Pair(7, 7), EMPTY, promotion = WHITE_QUEEN)),
+            arrayOf("h8=Q+", true, Move(Pair(7,6), Pair(7, 7), EMPTY, promotion = WHITE_QUEEN)),
             arrayOf("hxg8=Q", true, Move(Pair(7,6), Pair(6, 7), BLACK_BISHOP, promotion = WHITE_QUEEN)),
             // enpassant
             arrayOf("hxg3", false, Move(Pair(7,3), Pair(6, 2), WHITE_PAWN, enPassant = true)),
@@ -55,7 +115,7 @@ class PGNBuilderTests {
         val enPassantTarget = if (!activeColor) Pair(6, 2) else null
         val position = Position(testingPlacements, activeColor, castling, enPassantTarget, 0)
 
-        val actualValue = builder.makeMoveNotation(position, move)
+        val actualValue = makeMoveNotation(position, move)
 
         assertEquals(actualValue, expectedValue)
     }
