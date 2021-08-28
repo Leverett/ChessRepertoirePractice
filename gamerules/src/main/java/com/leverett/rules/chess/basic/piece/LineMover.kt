@@ -51,12 +51,11 @@ abstract class LineMover(i: Int, j: Int):
                 }
                 attackerFile += direction.first
                 attackerRank += direction.second
-                if (attackerFile == 1 && attackerRank == 3) {
-                }
                 if (attackerFile in 0 until GRID_SIZE && attackerRank in 0 until GRID_SIZE) {
                     val locationPiece = placements[attackerFile][attackerRank]
                     if (locationPiece == threateningPiece) {
                         threatens.add(Pair(attackerFile,attackerRank))
+                        clear = false
                     } else if (locationPiece != EMPTY) {
                         clear = false
                     }

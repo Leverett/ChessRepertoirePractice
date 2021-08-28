@@ -172,7 +172,7 @@ object BasicRulesEngine: RulesEngine {
             newCastling.whiteQueenside = false
         }
         if (move == WHITE_QUEENSIDE_CASTLE) {
-            newPlacements[QUEENSIDE_KING_DESTINATION_FILE][castleRank] = WHITE_QUEEN
+            newPlacements[QUEENSIDE_KING_DESTINATION_FILE][castleRank] = WHITE_KING
             newPlacements[QUEENSIDE_ROOK_DESTINATION_FILE][castleRank] = WHITE_ROOK
             newPlacements[0][castleRank] = EMPTY
             newCastling.whiteKingside = false

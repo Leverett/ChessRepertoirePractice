@@ -31,7 +31,7 @@ fun quickDisplay(placements:Array<Array<Piece>>): String {
     var result = "Board\n"
     for (j in 0 until GRID_SIZE) {
         for (i in 0 until GRID_SIZE) {
-            result += placements[GRID_SIZE - 1 - i][GRID_SIZE - 1 - j]
+            result += placements[i][GRID_SIZE - 1 - j]
         }
         result += "\n"
     }
