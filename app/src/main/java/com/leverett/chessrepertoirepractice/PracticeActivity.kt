@@ -53,7 +53,7 @@ class PracticeActivity : ChessActivity() {
     private val previousMoveResults: MoveResults?
         get(){
             val previousGameState = boardViewModel.gameHistory.previousGameState()
-            return if (previousGameState == null) null else  MoveResults(repertoireManager.getMoves(previousGameState!!.position), playSettings, !playerMove)
+            return if (previousGameState == null) null else  MoveResults(repertoireManager.getMoves(previousGameState!!.position), !playerMove)
         }
 
 
@@ -62,7 +62,7 @@ class PracticeActivity : ChessActivity() {
         setContentView(R.layout.activity_practice)
         practiceButtons = findViewById(R.id.practice_activity_move_buttons)
         displayView = findViewById(R.id.display_view)
-        moveResults = MoveResults(lineMoves, playSettings, playerMove)
+        moveResults = MoveResults(lineMoves, playerMove)
         playButtonsLayout = playerMovesButtonLayoutId()
     }
 
@@ -78,7 +78,7 @@ class PracticeActivity : ChessActivity() {
     }
 
     private fun calculateMoveResults() {
-        moveResults = MoveResults(lineMoves, playSettings, playerMove)
+        moveResults = MoveResults(lineMoves, playerMove)
     }
 
     private fun calculateUndoMoveResults() {
@@ -277,8 +277,12 @@ class PracticeActivity : ChessActivity() {
     }
 
     override fun resetActivity() {
-        moveResults = MoveResults(lineMoves, playSettings, playerMove)
-        playButtonsLayout = playerMovesButtonLayoutId()
+        moveResults = MoveResults(lineMoves, playerMove)
+        playButtonsLayout = if (playerMove) {
+            playerMovesButtonLayoutId()
+        } else {
+            R.layout.opponent_move_buttons
+        }
         clearText()
     }
 

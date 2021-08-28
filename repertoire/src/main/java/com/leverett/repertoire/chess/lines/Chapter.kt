@@ -8,6 +8,9 @@ class Chapter(name: String, description: String? = null, var book: Book? = null)
     private val statelessHashToPosition: MutableMap<String, MutableList<Position>> = mutableMapOf() // unlikely to ever have more than one state but who knows
     private val positionHashToMoves: MutableMap<String, MutableList<LineMove>> = mutableMapOf()
 
+    val fullName: String
+        get() = if (isStandalone()) name else book!!.name + ": " + name
+
     override fun getMoves(position: Position): List<LineMove> {
         val moves = mutableListOf<LineMove>()
         val positions = statelessHashToPosition[position.statelessPositionHash]
@@ -96,7 +99,14 @@ class Chapter(name: String, description: String? = null, var book: Book? = null)
     }
 
     override fun copy(): LineTree {
-        return Chapter(name, description)
+        return Chapter(name, description, book)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other == null || other !is Chapter) {
+            return false
+        }
+        return this.fullName == other.fullName
     }
 
 

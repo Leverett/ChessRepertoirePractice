@@ -262,9 +262,6 @@ class PGNParsingTests {
         arrayOf(EMPTY     , EMPTY      , EMPTY, WHITE_PAWN , BLACK_KNIGHT, WHITE_PAWN, EMPTY       , BLACK_BISHOP),
         arrayOf(WHITE_ROOK, EMPTY      , EMPTY, BLACK_PAWN , BLACK_KING  , EMPTY     , WHITE_PAWN  , EMPTY),
     )
-//    private val chapterMovesExample = "1. d4 d5 2. c4 dxc4 { hacking tags <GAMBIT,BEST,THEORY> maybe there can be multiple <OTHER> } 3. e4 { Comment on third move } (3. e3 b5 (3... e5 4. dxe5 \$22)  (3... f5) 4. Qf3 \$140 (4. Nc3 e6)) 3... c5 4. e5 f6 { This is a random comment\n" +
-//            "With new lines\n" +
-//            "a lot of them } (4... g6) 5. f3 g6 (5... h5) 6. a4 *"
 
     private val chapterMovesExample = "1. d4 { a comment with a tag \$GAMBIT } d5 2. c4 \$BEST dxc4 3. e4 (3. e3 b5 (3... e5 4. dxe5 \$22)  (3... f5) 4. Qf3 \$140 (4. Nc3 e6)) 3... c5 4. e5 f6 { This is a random comment\n" +
             "With new lines\n" +

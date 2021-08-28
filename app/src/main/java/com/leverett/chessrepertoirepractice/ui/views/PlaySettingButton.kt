@@ -12,11 +12,10 @@ import com.leverett.chessrepertoirepractice.R
 class PlaySettingButton(context: Context, attributeSet: AttributeSet) : AppCompatTextView(context, attributeSet) {
 
     var active: Boolean = false
-    private val baseColor: Int
+    private val baseColor = Color.LTGRAY
     private val activeColor: Int
     init {
         val theme = context.theme.obtainStyledAttributes(attributeSet, R.styleable.PlaySettingButton, 0, 0)
-        baseColor = theme.getColor(R.styleable.PlaySettingButton_baseColor, Color.WHITE)
         activeColor = theme.getColor(R.styleable.PlaySettingButton_activeColor, Color.LTGRAY)
     }
 

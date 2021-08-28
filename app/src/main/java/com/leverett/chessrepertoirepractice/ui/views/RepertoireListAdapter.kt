@@ -1,7 +1,6 @@
 package com.leverett.chessrepertoirepractice.ui.views
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -58,8 +57,6 @@ class RepertoireListAdapter(deleteOption: Boolean = false): BaseExpandableListAd
         parent: ViewGroup?
     ): View {
         val lineTree = getGroup(groupPosition) as LineTree
-        Log.e("getGroupView", lineTree.name)
-        Log.e("getGroupView", repertoireManager.repertoire.lineTrees[0].name)
 
         val groupView = (parent!!.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater)
             .inflate(itemLayout, null) as ConstraintLayout
@@ -115,21 +112,15 @@ class RepertoireListAdapter(deleteOption: Boolean = false): BaseExpandableListAd
 
     private fun setGroupDeleteButtonListener(view: AppCompatImageView, lineTree: LineTree) {
         view.setOnClickListener {
-            Log.e("setGroupDeleteButtonListener", "before delete")
             repertoireManager.deleteLineTree(lineTree)
-            Log.e("setGroupDeleteButtonListener", "after delete")
             notifyDataSetChanged()
-            Log.e("setGroupDeleteButtonListener", "after notifyDataSetChanged")
         }
     }
 
     private fun setChildDeleteButtonListener(view: AppCompatImageView, book: Book, chapter: Chapter) {
     view.setOnClickListener {
-        Log.e("setChildDeleteButtonListener", "before delete")
         repertoireManager.deleteLineTree(book, chapter)
-        Log.e("setChildDeleteButtonListener", "after delete")
         notifyDataSetChanged()
-        Log.e("setChildDeleteButtonListener", "after notifyDataSetChanged")
     }
 }
 

@@ -30,15 +30,16 @@ abstract class ChessActivity : AppCompatActivity() {
     fun redoNextMove(view: View) {
         boardFragment.redoNextMove()
     }
+
     open fun switchPerspective(view: View) {
         boardFragment.switchPerspective(view)
+        resetActivity()
     }
 
     fun resetBoardButton(view: View) {
         boardFragment.reset()
         resetActivity()
     }
-
     open fun resetActivity() {}
 
     fun boardSettingsButton(view: View) {

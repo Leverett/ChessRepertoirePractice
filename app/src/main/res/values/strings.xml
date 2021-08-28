@@ -36,4 +36,6 @@
     <string name="board_style_pref_key">boardStylePref</string>
     <string name="piece_style_pref_key">pieceStylePref</string>
 
+    <string name="clipboard_toast">Copied To Clipboard</string>
+
 </resources>

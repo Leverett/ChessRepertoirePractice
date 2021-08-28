@@ -21,10 +21,10 @@
     <TextView
         android:id="@+id/player_moves"
         android:layout_width="0dp"
-        android:layout_height="10dp"
+        android:layout_height="20dp"
         android:gravity="center"
         android:text="@string/player_move_options"
-        android:textSize="8sp"
+        android:textSize="10sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/move_options_divider"
         app:layout_constraintTop_toBottomOf="@+id/repertoire_list_view" />
@@ -32,10 +32,10 @@
     <TextView
         android:id="@+id/opponent_moves"
         android:layout_width="0dp"
-        android:layout_height="10dp"
+        android:layout_height="20dp"
         android:gravity="center"
         android:text="@string/opponent_move_options"
-        android:textSize="8sp"
+        android:textSize="10sp"
         app:layout_constraintLeft_toRightOf="@id/move_options_divider"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/repertoire_list_view" />
@@ -43,19 +43,15 @@
     <View
         android:id="@+id/move_options_divider"
         android:layout_width="10dp"
-        android:layout_height="40dp"
+        android:layout_height="50dp"
         app:layout_constraintLeft_toRightOf="@id/player_moves"
         app:layout_constraintRight_toLeftOf="@id/opponent_moves"
         app:layout_constraintTop_toBottomOf="@+id/repertoire_list_view" />
 
     <com.leverett.chessrepertoirepractice.ui.views.PlaySettingButton
         android:id="@+id/player_best"
-        android:layout_width="0dp"
-        android:layout_height="30dp"
-        android:clickable="true"
-        android:gravity="center"
+        style="@style/PlaySettingButtonStyle"
         android:text="@string/best_moves"
-        android:textSize="10sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/player_theory"
         app:layout_constraintTop_toBottomOf="@+id/player_moves"
@@ -65,12 +61,8 @@
 
     <com.leverett.chessrepertoirepractice.ui.views.PlaySettingButton
         android:id="@+id/player_theory"
-        android:layout_width="0dp"
-        android:layout_height="30dp"
-        android:clickable="true"
-        android:gravity="center"
+        style="@style/PlaySettingButtonStyle"
         android:text="@string/theory_moves"
-        android:textSize="10sp"
         app:layout_constraintLeft_toRightOf="@id/player_best"
         app:layout_constraintRight_toLeftOf="@id/player_gambits"
         app:layout_constraintTop_toBottomOf="@+id/player_moves"
@@ -87,8 +79,7 @@
         app:layout_constraintRight_toLeftOf="@id/player_preferred"
         app:layout_constraintTop_toBottomOf="@+id/player_moves"
         app:layout_constraintBottom_toTopOf="@+id/bottom_option_layout"
-        custom:activeColor="@color/light_blue_600"
-        custom:baseColor="@color/light_blue_400" />
+        custom:activeColor="@android:color/holo_red_light" />
 
     <com.leverett.chessrepertoirepractice.ui.views.PlaySettingButton
         android:id="@+id/player_preferred"
@@ -98,8 +89,7 @@
         app:layout_constraintRight_toLeftOf="@id/move_options_divider"
         app:layout_constraintTop_toBottomOf="@+id/player_moves"
         app:layout_constraintBottom_toTopOf="@+id/bottom_option_layout"
-        custom:activeColor="@color/gray_600"
-        custom:baseColor="@color/gray_400" />
+        custom:activeColor="@android:color/holo_green_light" />
 
     <com.leverett.chessrepertoirepractice.ui.views.PlaySettingButton
         android:id="@+id/opponent_best"
@@ -109,8 +99,7 @@
         app:layout_constraintRight_toLeftOf="@id/opponent_theory"
         app:layout_constraintTop_toBottomOf="@+id/player_moves"
         app:layout_constraintBottom_toTopOf="@+id/bottom_option_layout"
-        custom:activeColor="@color/purple_500"
-        custom:baseColor="@color/purple_200" />
+        custom:activeColor="@color/purple_500" />
 
     <com.leverett.chessrepertoirepractice.ui.views.PlaySettingButton
         android:id="@+id/opponent_theory"
@@ -120,8 +109,7 @@
         app:layout_constraintRight_toLeftOf="@id/opponent_gambit"
         app:layout_constraintTop_toBottomOf="@+id/player_moves"
         app:layout_constraintBottom_toTopOf="@+id/bottom_option_layout"
-        custom:activeColor="@color/teal_700"
-        custom:baseColor="@color/teal_200" />
+        custom:activeColor="@color/teal_700" />
 
     <com.leverett.chessrepertoirepractice.ui.views.PlaySettingButton
         android:id="@+id/opponent_gambit"
@@ -131,8 +119,7 @@
         app:layout_constraintRight_toLeftOf="@id/opponent_mistakes"
         app:layout_constraintTop_toBottomOf="@+id/player_moves"
         app:layout_constraintBottom_toTopOf="@+id/bottom_option_layout"
-        custom:activeColor="@color/light_blue_600"
-        custom:baseColor="@color/light_blue_400" />
+        custom:activeColor="@android:color/holo_red_light" />
 
     <com.leverett.chessrepertoirepractice.ui.views.PlaySettingButton
         android:id="@+id/opponent_mistakes"
@@ -142,8 +129,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/player_moves"
         app:layout_constraintBottom_toTopOf="@+id/bottom_option_layout"
-        custom:activeColor="@color/gray_600"
-        custom:baseColor="@color/gray_400" />
+        custom:activeColor="@android:color/holo_green_dark" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bottom_option_layout"
