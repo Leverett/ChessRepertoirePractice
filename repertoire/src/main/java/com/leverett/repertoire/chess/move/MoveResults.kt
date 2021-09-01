@@ -161,29 +161,6 @@ class MoveResults() {
         return result
     }
 
-//    private fun combineOptions(moves: Collection<Move>): String {
-//        var result = ""
-//        val bestMoves = movesToLineMoves.filter{it.value.any{lm -> lm.best}}.keys
-//        if (bestMoves.isNotEmpty()) {
-//            result += "Best moves: " + joinLineMoves(bestMoves)
-//        }
-//        val preferredMoves = movesToLineMoves.filter{it.value.any{lm -> lm.preferred}}.keys
-//        if (preferredMoves.isNotEmpty()) {
-//            result += "Preferred moves: " + joinLineMoves(preferredMoves)
-//        }
-//        if (bestMoves.isEmpty() && preferredMoves.isEmpty()) {
-//            val theoryMoves = movesToLineMoves.filter{it.value.any{lm -> lm.theory}}.keys
-//            result += if (theoryMoves.isNotEmpty()) {
-//                "Theory moves: " + joinLineMoves(preferredMoves)
-//            } else {
-//                val otherMoves = movesToLineMoves.filter{
-//                    it.value.any{lm -> !(lm.theory || lm.preferred || lm.best)}}.keys
-//                "Available moves: " + joinLineMoves(otherMoves)
-//            }
-//        }
-//        return result
-//    }
-
     private fun joinLineMoves(moves: Collection<Move>): String {
         return moves.joinToString("\n") {makeMoveOptionText(it, movesToLineMoves[it]!![0]!!.algMove)}
     }
@@ -211,12 +188,12 @@ class MoveResults() {
         return result
     }
 
-    fun getOpponentMove(playSettings: PlaySettings): Move {
+    fun getOpponentMove(playSettings: PlaySettings): Move? {
         val validMoves = mutableListOf<Move>()
         validMoves.addAll(getMovesForResult(CORRECT))
         if (validMoves.isEmpty()) validMoves.addAll(getMovesForResult(VALID))
         if (playSettings.opponentMistakes) validMoves.addAll(getMovesForResult(CORRECT))
-        return validMoves.random()
+        return if (validMoves.isEmpty()) null else validMoves.random()
     }
 
     fun copy(): MoveResults {

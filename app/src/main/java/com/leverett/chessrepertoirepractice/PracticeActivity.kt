@@ -150,14 +150,16 @@ class PracticeActivity : ChessActivity() {
     }
 
     private fun handleOpponentMistake(move: Move) {
-        // TODO find a way to prevent having to redo this when undoing backwards past it
         opponentMistake = true
         playButtonsLayout = playerMovesButtonLayoutId()
     }
 
 
     fun opponentMoveButton(view: View) {
-        boardFragment.doMove(moveResults.getOpponentMove(playSettings))
+        val move = moveResults.getOpponentMove(playSettings)
+        if (move != null) {
+            boardFragment.doMove(moveResults.getOpponentMove(playSettings)!!)
+        }
     }
 
     fun mistakeAssertionButton(view: View) {
