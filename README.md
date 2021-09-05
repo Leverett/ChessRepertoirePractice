@@ -12,6 +12,14 @@ The key principle to this system is that it is not intended for pure, rote memor
 
 There are 3 Activities available. The Practice Mode is the primary purpose of this app. The contents of the app are structured to allow importing from Lichess Studies.
 
+* To get started, you need to create a study in Lichess. I have an example study here: https://lichess.org/study/1KJCPTuo
+* You can export the study using the Sharing icon below the board and Downloading the Study PGN. Importing the file directly (or using the Lichess link) is a planned feature. I currently save the PGN text to some online document.
+* Open the app and select "Configure Repertoire". Use the "Load PGN" button at the bottom to copy/pase the PGN into the dialog window and select OK.
+* There are additional settings that can be adjusted, as explained below.
+* Back out of the Configuration screen and choose "Practice Mode". This opens the main experience for the app. You may have to switch the perspective color (the switch at the top right) depending on the Studies you are using.
+* You can now make moves and have the opponent make moves as described above, and in more detail below.
+
+
 ### Sandbox Mode
 
 This is just a simple mode that allows the user to play both sides of a game. The top-left has a "reset" button that will return the board to the starting position. The top-right has a switch that will change the board perspective. Between them is a space where the algebraic notation of the moves played up until that point is displayed.
@@ -199,6 +207,7 @@ The app is best explained in the how-to-use section.
 * Delete Study confirmation
 * Indent child options in list
 * Add default perspective to Configurations
+* Import PGN directly from .pgn file, or from Lichess study links
 	
 ### Chess Logic
 * Repetition
