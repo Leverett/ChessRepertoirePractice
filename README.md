@@ -10,7 +10,9 @@ The key principle to this system is that it is not intended for pure, rote memor
 
 ## How to Use
 
-There are 3 Activities available. The Practice Mode is the primary purpose of this app. The contents of the app are structured to allow importing from Lichess Studies.
+There are 3 Activities available. The Practice Mode is the primary purpose of this app. The contents of the app are structured to allow importing from Lichess Studies. The app is set up to have some of my example studies in it, so it can be used right away. Simply open up "Practice Mode" and start making moves. The app will assume that the player is playing White, but this can be changed with the switch at the top right.
+
+Each move made with your perspective color will cause a description (if available) of the move just made and other options in the repertoire. Unknown moves will be rejected. When it is the opposite color's move, you can either make the move manually or use the "Opponent Move" button which will randomly make a move for the opponent. Below are steps to add your own repertoire.
 
 * To get started, you need to create a study in Lichess. I have an example study here: https://lichess.org/study/1KJCPTuo
 * You can export the study using the Sharing icon below the board and Downloading the Study PGN. Importing the file directly (or using the Lichess link) is a planned feature. I currently save the PGN text to some online document.
