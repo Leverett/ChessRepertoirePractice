@@ -6,7 +6,6 @@ import android.view.View
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.children
-import com.leverett.chessrepertoirepractice.ui.views.PlaySettingButton
 import com.leverett.chessrepertoirepractice.ui.views.RepertoireListAdapter
 import com.leverett.repertoire.chess.RepertoireManager
 import com.leverett.repertoire.chess.move.LineMove
@@ -25,7 +24,7 @@ class PracticeActivity : ChessActivity() {
 
     private val playerMove: Boolean
         get() = boardViewModel.perspectiveColor == boardViewModel.activeColor
-    private val latestMove: Move
+    private val latestMove: Move?
         get() = boardViewModel.gameHistory.currentGameState.move!!
 
     private var opponentMistake = false
@@ -34,7 +33,7 @@ class PracticeActivity : ChessActivity() {
     private val lineMoves: Collection<LineMove>
         get() = repertoireManager.getMoves(boardViewModel.position)
 
-    private var playButtonsLayout: Int = playerMovesButtonLayoutId()
+    private var playButtonsLayout: Int = R.layout.player_move_buttons
         set(value) {
             field = value
             practiceButtons.removeAllViews()
@@ -63,7 +62,6 @@ class PracticeActivity : ChessActivity() {
         practiceButtons = findViewById(R.id.practice_activity_move_buttons)
         displayView = findViewById(R.id.display_view)
         moveResults = MoveResults(lineMoves, playerMove)
-        playButtonsLayout = playerMovesButtonLayoutId()
     }
 
     private fun clearText() {
@@ -71,7 +69,7 @@ class PracticeActivity : ChessActivity() {
     }
 
     private fun playerMovesButtonLayoutId(): Int {
-        if (!playSettings.opponentMistakes || mistakesCaught.contains(latestMove)) {
+        if (!playSettings.opponentMistakes || latestMove == null || mistakesCaught.contains(latestMove)) {
             return R.layout.player_move_buttons
         }
         return R.layout.player_move_buttons_mistake
@@ -168,9 +166,9 @@ class PracticeActivity : ChessActivity() {
             mistakesCaught.add(latestMove!!)
             playButtonsLayout = playerMovesButtonLayoutId()
             displayView.text = getString(R.string.opponent_mistake_description_header) +
-                    previousMoveResults!!.getMoveDescriptionText(latestMove)
+                    previousMoveResults!!.getMoveDescriptionText(latestMove!!)
         } else {
-            mistakesCaught.add(latestMove)
+            mistakesCaught.add(latestMove!!)
             displayView.text = getString(R.string.nope)
         }
         playButtonsLayout = playerMovesButtonLayoutId()
@@ -184,7 +182,7 @@ class PracticeActivity : ChessActivity() {
 
     fun showDescriptionButton(view: View) {
         if (previousMoveResults != null) {
-            displayView.text = previousMoveResults!!.getMoveDescriptionText(latestMove)
+            displayView.text = previousMoveResults!!.getMoveDescriptionText(latestMove!!)
         }
     }
 

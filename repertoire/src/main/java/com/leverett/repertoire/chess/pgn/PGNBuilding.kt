@@ -44,7 +44,7 @@ fun makeChapterHeader(chapter: Chapter): String {
 fun makeChapterPgn(chapter: Chapter): String {
     val currentPosition = startingPosition()
     var lineMoves = chapter.getMoves(currentPosition)
-    return generateLinePgn(currentPosition, lineMoves, chapter, false)
+    return generateLinePgn(currentPosition, lineMoves, chapter, false) + " $CHAPTER_END"
 }
 
 fun makeMetadataToken(metadataPrefix: String, metadataValue: String): String {
@@ -52,38 +52,46 @@ fun makeMetadataToken(metadataPrefix: String, metadataValue: String): String {
 }
 
 private fun generateLinePgn(currentPosition: Position, lineMoves: List<LineMove>, lineTree: LineTree, isFiltered: Boolean): String {
-    // Because "getMoves" will pull in moves from technically different positions (for transposition), they have to get filtered for the actual position
-    // Can use an "isFiltered" flag to prevent doing this for each recursion
-    val filteredMoves = if (isFiltered) lineMoves
-        else lineMoves.filter { it.previousPosition == currentPosition }
-
     var result = ""
-    for ((branchNumber, lineMove) in filteredMoves.withIndex()) {
+    for ((branchNumber, lineMove) in lineMoves.withIndex()) {
         val turn = currentPosition.turn.toString()
         result += if (branchNumber > 0) {
             val turnToken = if (currentPosition.activeColor) "" else "$turn... "
-            BRANCH_START + turnToken + generateLinePgn(currentPosition, filteredMoves.drop(branchNumber), lineTree, true) + BRANCH_END + " "
+            TOKEN_DELIMITER.toString() + BRANCH_START + turnToken + generateLinePgn(currentPosition, listOf(lineMoves[branchNumber]), lineTree, true) + BRANCH_END
         } else {
             val turnToken = if (currentPosition.activeColor) "$turn. " else ""
-            turnToken + lineMove.algMove + " " + makeMoveDetailsString(lineMove.moveDetails)
+            (turnToken +
+             annotatedMoveNotation(lineMove.algMove, lineMove.moveDetails) +
+             TOKEN_DELIMITER +
+             makeMoveDetailsString(lineMove.moveDetails)).trim()
         }
     }
-    if (filteredMoves.isNotEmpty()) {
-        val currentMove = filteredMoves.first()
-        result += generateLinePgn(currentMove.nextPosition, lineTree.getMoves(currentMove.nextPosition), lineTree, false)
+    if (lineMoves.isNotEmpty()) {
+        val currentMove = lineMoves.first()
+        val nextPosition = currentMove.nextPosition
+        val nextMoves = lineTree.getMoves(nextPosition).filter{it.chapter == currentMove.chapter}
+        if (nextMoves.isNotEmpty()) {
+            result += TOKEN_DELIMITER + generateLinePgn(nextPosition, nextMoves, lineTree, false)
+        }
     }
     return result
 }
 
 fun makeMoveDetailsString(moveDetails: MoveDetails): String {
     val commentString: String = moveDetails.description?: ""
-    val tagString = moveDetails.tags.joinToString("", transform = { TAG_CHAR + it.name})
-    if (commentString.isNotEmpty() || tagString.isNotEmpty()) {
-        return "$COMMENT_START$commentString $tagString$COMMENT_END "
-    }
-    return ""
+    val tagString = moveDetails.tags.mapNotNull{tagToAnnotation(it)}.joinToString("") {it + TOKEN_DELIMITER}
+    return if (commentString.isNotEmpty()) {
+        "$tagString$COMMENT_START $commentString $COMMENT_END "
+    } else tagString
 }
 
+private fun tagToAnnotation(tag: MoveDetails.Tag): String? {
+    return when (tag) {
+        MoveDetails.Tag.PREFERRED -> WHITE_INITIATIVE_ANNOTATION
+        MoveDetails.Tag.GAMBIT -> WHITE_ATTACK_ANNOTATION
+        else -> null
+    }
+}
 
 fun makeMoveNotation(position: Position?, move: Move?): String {
     var legalitylessMove = ""
@@ -121,6 +129,15 @@ fun makeMoveNotation(position: Position?, move: Move?): String {
     }
 
     return annotateLegality(legalitylessMove, rulesEngine.getNextPosition(position, move))
+}
+
+fun annotatedMoveNotation(algMove: String, moveDetails: MoveDetails): String {
+    return when {
+        moveDetails.best -> algMove + BRILLIANT_ANNOTATION
+        moveDetails.theory -> algMove + GOOD_ANNOTATION
+        moveDetails.mistake -> algMove + MISTAKE_ANNOTATION
+        else -> algMove
+    }
 }
 
 private fun disambiguatePieceToken(position: Position, startLoc: Pair<Int,Int>, pieceRules: PieceRules): String {

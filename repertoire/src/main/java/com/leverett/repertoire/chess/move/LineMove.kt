@@ -6,7 +6,12 @@ import com.leverett.repertoire.chess.pgn.makeMoveNotation
 import com.leverett.rules.chess.representation.Move
 import com.leverett.rules.chess.representation.Position
 
-class LineMove(val chapter: Chapter, val previousPosition: Position, val nextPosition: Position, val move: Move, val moveDetails: MoveDetails, algMove: String? = null) {
+class LineMove(val chapter: Chapter,
+               val previousPosition: Position,
+               val nextPosition: Position,
+               val move: Move,
+               val moveDetails: MoveDetails,
+               algMove: String? = null) {
 
     val best: Boolean
         get() = moveDetails.best
@@ -24,5 +29,9 @@ class LineMove(val chapter: Chapter, val previousPosition: Position, val nextPos
 
     private fun makeAlgMove(): String {
         return makeMoveNotation(previousPosition, move)
+    }
+
+    override fun toString(): String {
+        return algMove
     }
 }

@@ -2,10 +2,10 @@ package com.leverett.repertoire.chess.move
 
 import com.leverett.repertoire.chess.RepertoireManager
 import com.leverett.repertoire.chess.lines.Book
+import com.leverett.repertoire.chess.lines.Chapter
 import com.leverett.rules.chess.representation.Move
 import com.leverett.repertoire.chess.move.MoveResult.*
 import com.leverett.repertoire.chess.settings.PlaySettings
-import com.leverett.rules.chess.representation.log
 
 class MoveResults() {
 
@@ -86,25 +86,69 @@ class MoveResults() {
 
         val otherBestMoves = bestMoves.filter{it != move}
         if (otherBestMoves.isNotEmpty()) {
-            displayText += ("\n Other best moves available: " + getOtherMoveDisplayText(move, otherBestMoves))
+            displayText += ("\nOther best moves available:\n" + getOtherMoveDisplayText(move, otherBestMoves))
         }
         val otherPreferredMoves = preferredMoves.filter{it != move}
         if (playerMove && otherPreferredMoves.isNotEmpty()) {
-            displayText += ("\n Other preferred moves available: " + getOtherMoveDisplayText(move, otherPreferredMoves))
+            displayText += ("\nOther preferred moves available:\n" + getOtherMoveDisplayText(move, otherPreferredMoves))
         }
         return displayText
     }
 
     fun getMoveDescriptionText(move: Move): String {
-        val lineMoves = movesToLineMoves[move]!!
-        val movesWithDescription = lineMoves.filter{!it.moveDetails.description.isNullOrEmpty()}
-        if (movesWithDescription.size == 1) {
-            return movesWithDescription[0].moveDetails.description!!
-        }
-        return movesWithDescription.joinToString(separator = "\n", transform = {
-            if (it.moveDetails.description == null) ""
-            else it.chapter.fullName + " - " + it.moveDetails.description})
+        val bookToLineMoves: MutableMap<Book, MutableList<LineMove>> = mutableMapOf()
+        val standaloneLineMoves: MutableList<LineMove> = mutableListOf()
+        sortMoveOptions(move, bookToLineMoves, standaloneLineMoves)
 
+        var result = bookToLineMoves.entries.joinToString("\n\n") { getMoveDescriptionsTextForBook(it.key, it.value) }
+        if (standaloneLineMoves.isNotEmpty()) {
+            result += "\n" + standaloneLineMoves.joinToString("\n") {
+                if (it.moveDetails.description.isNullOrBlank()) it.chapter.name
+                else it.chapter.name + " - " + it.moveDetails.description}
+        }
+        return result
+    }
+
+    private fun getMoveDescriptionsTextForBook(book: Book, lineMoves: List<LineMove>): String {
+        if (lineMoves.size == 1) {
+            var result = ""
+            val lineMove = lineMoves[0]
+            result += lineMove.chapter.fullName
+            if (lineMove.moveDetails.description != null) {
+                result += " - " + lineMoves[0].moveDetails.description!!
+            }
+            return result
+        }
+        val descriptionsToChapters = mutableMapOf<String, MutableList<String>>()
+        val descriptionlessMoveChapters = mutableListOf<String>()
+        lineMoves.forEach{
+            val description = it.moveDetails.description
+            if (description.isNullOrBlank()) {
+                descriptionlessMoveChapters.add(it.chapter.name)
+            }
+            else {
+                val chapters = descriptionsToChapters[description]
+                if (chapters != null) {
+                    chapters.add(it.chapter.name)
+                } else {
+                    descriptionsToChapters[description] = mutableListOf(it.chapter.name)
+                }
+            }
+        }
+        if (descriptionsToChapters.isEmpty()) {
+            return book.name
+        }
+        if (descriptionsToChapters.size == 1) {
+            return book.name + " - " + descriptionsToChapters.keys.joinToString()
+        }
+        var result = book.name + ":\n"
+        result += descriptionsToChapters.entries.joinToString("\n") {
+            it.value.joinToString(", ") + " - " + it.key
+        }
+        if (descriptionlessMoveChapters.isNotEmpty()) {
+            result += "\n" + descriptionlessMoveChapters.joinToString(", ")
+        }
+        return result
     }
 
     private fun getOtherMoveDisplayText(move: Move, moves: Collection<Move>): String {
@@ -117,13 +161,6 @@ class MoveResults() {
     }
 
     fun getOptionsText(): String {
-        for (entry in nextMoveResults.entries) {
-            log("getOptionsText", entry.key.toString() + ": " + entry.value.name)
-        }
-        val validOptions = getMovesForResult(VALID)
-        for (option in validOptions) {
-            log("getOptionsText", "option: $option")
-        }
         val correctOptions = getMovesForResult(CORRECT)
         return if (correctOptions.isNotEmpty()) {
             combineOptions(correctOptions)
@@ -134,31 +171,45 @@ class MoveResults() {
 
     private fun combineOptions(moves: Collection<Move>): String {
         var result = ""
-        val filteredMap = movesToLineMoves.filter { moves.contains(it.key) }
-        val bestMoves = filteredMap.filter{it.value.any{lm -> lm.best}}.keys
+        val bestMoves = mutableSetOf<Move>()
+        val preferredMoves = mutableSetOf<Move>()
+        val theoryMoves = mutableSetOf<Move>()
+        val otherMoves = mutableSetOf<Move>()
+        sortOptions(moves, bestMoves, preferredMoves, theoryMoves, otherMoves)
         if (bestMoves.isNotEmpty()) {
-            result += "Best moves:\n" + joinLineMoves(bestMoves)
+            result += "Best moves:\n" + joinLineMoves(bestMoves) + "\n"
         }
-        val preferredMoves = filteredMap.filter{it.value.any{lm -> lm.preferred}}.keys
         if (preferredMoves.isNotEmpty()) {
-            result += "Preferred moves:\n" + joinLineMoves(preferredMoves)
+            result += "Preferred moves:\n" + joinLineMoves(preferredMoves) + "\n"
         }
-        if (bestMoves.isEmpty() && preferredMoves.isEmpty()) {
-            val theoryMoves = filteredMap.filter{it.value.any{lm -> lm.theory}}.keys
-            val otherMoves = filteredMap.filter {!theoryMoves.contains(it.key)}.keys
-            if (theoryMoves.isNotEmpty()) {
-                result += "Theory moves:\n" + joinLineMoves(theoryMoves)
-                if (otherMoves.isNotEmpty()) {
-                    result += "\nOther available moves:\n"
-                }
+        if (theoryMoves.isNotEmpty()) {
+            result += "Theory moves:\n" + joinLineMoves(theoryMoves) + "\n"
+        }
+        if (otherMoves.isNotEmpty()) {
+            result += if (otherMoves.size == moves.size) {
+                "Available moves:\n"
             } else {
-                result += "Available moves:\n"
+                "Other available moves:\n"
             }
-            if (otherMoves.isNotEmpty()) {
-                result += joinLineMoves(otherMoves)
-            }
+            result += joinLineMoves(otherMoves) + "\n"
         }
         return result
+    }
+
+    private fun sortOptions(moves: Collection<Move>,
+                            bestMoves: MutableSet<Move>,
+                            preferredMoves: MutableSet<Move>,
+                            theoryMoves: MutableSet<Move>,
+                            otherMoves: MutableSet<Move>) {
+        val filteredMap = movesToLineMoves.filter { moves.contains(it.key) }
+        for (entry in filteredMap) {
+            when {
+                entry.value.any{it.best} -> bestMoves.add(entry.key)
+                entry.value.any{it.preferred} -> preferredMoves.add(entry.key)
+                entry.value.any{it.theory} -> theoryMoves.add(entry.key)
+                else -> otherMoves.add(entry.key)
+            }
+        }
     }
 
     private fun joinLineMoves(moves: Collection<Move>): String {
@@ -168,6 +219,15 @@ class MoveResults() {
     private fun makeMoveOptionText(move: Move, algMove: String): String {
         val bookToLineMoves: MutableMap<Book, MutableList<LineMove>> = mutableMapOf()
         val standaloneLineMoves: MutableList<LineMove> = mutableListOf()
+        sortMoveOptions(move, bookToLineMoves, standaloneLineMoves)
+        var result = "$algMove ("
+        result += bookToLineMoves.entries.joinToString(", ") { if (it.value.size > 1) it.key.name else it.value[0]!!.chapter.fullName }
+        result += standaloneLineMoves.joinToString(", ") { it.chapter.fullName }
+        result += ")"
+        return result
+    }
+
+    private fun sortMoveOptions(move: Move, bookToLineMoves: MutableMap<Book, MutableList<LineMove>>, standaloneLineMoves: MutableList<LineMove>) {
         movesToLineMoves[move]!!.forEach{
             val chapter = it.chapter
             if (chapter.isStandalone()) {
@@ -181,18 +241,13 @@ class MoveResults() {
                 }
             }
         }
-        var result = "$algMove ("
-        result += bookToLineMoves.entries.joinToString(", ") { if (it.value.size > 1) it.key.name else it.value[0]!!.chapter.fullName }
-        result += standaloneLineMoves.joinToString(", ") { it.chapter.fullName }
-        result += ")"
-        return result
     }
 
     fun getOpponentMove(playSettings: PlaySettings): Move? {
         val validMoves = mutableListOf<Move>()
         validMoves.addAll(getMovesForResult(CORRECT))
         if (validMoves.isEmpty()) validMoves.addAll(getMovesForResult(VALID))
-        if (playSettings.opponentMistakes) validMoves.addAll(getMovesForResult(CORRECT))
+        if (playSettings.opponentMistakes) validMoves.addAll(getMovesForResult(MISTAKE))
         return if (validMoves.isEmpty()) null else validMoves.random()
     }
 

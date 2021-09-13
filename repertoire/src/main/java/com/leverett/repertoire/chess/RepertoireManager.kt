@@ -7,6 +7,7 @@ import com.leverett.rules.chess.representation.Position
 
 object RepertoireManager {
 
+
     private lateinit var storeRepertoireFunction: () -> Unit
     private lateinit var storeConfigurationFunction: () -> Unit
     private lateinit var deleteLineTreeFileFunction: (LineTree) -> Unit

@@ -3,6 +3,8 @@ package com.leverett.repertoire.chess.pgn
 import com.leverett.repertoire.chess.lines.Book
 import com.leverett.repertoire.chess.lines.Chapter
 import com.leverett.repertoire.chess.move.MoveDetails
+import com.leverett.repertoire.chess.move.MoveDetails.Tag
+import com.leverett.repertoire.chess.move.MoveDetails.Tag.*
 import com.leverett.rules.chess.representation.*
 import com.leverett.rules.chess.representation.Piece.*
 import org.testng.Assert.assertEquals
@@ -50,17 +52,16 @@ class PGNParsingTests {
     @DataProvider(name = "extractTagData")
     fun extractTagData(): Array<Array<Any?>> {
         return arrayOf(
-            arrayOf("\$BEST", 0, MoveDetails.Tag.BEST),
-            arrayOf(" a \$THEORY", 3, MoveDetails.Tag.THEORY),
+            arrayOf("\$BEST", 0, BEST),
+            arrayOf(" a \$THEORY", 3, THEORY),
             arrayOf("\$BEasdST", 0, null),
-            arrayOf("\$BESTandmore", 0, MoveDetails.Tag.BEST),
-            arrayOf("\$GAMBIT and more", 0, MoveDetails.Tag.GAMBIT),
+            arrayOf("\$BESTandmore", 0, BEST),
+            arrayOf("\$GAMBIT and more", 0, GAMBIT),
         )
     }
 
     @Test(dataProvider = "extractTagData")
-    fun extractTagTest(text: String, charIndex: Int, expectedValue: MoveDetails.Tag?) {
-
+    fun extractTagTest(text: String, charIndex: Int, expectedValue: Tag?) {
         val actualValue = extractTag(text, charIndex)
         assertEquals(actualValue, expectedValue)
     }
@@ -85,13 +86,13 @@ class PGNParsingTests {
         return arrayOf(
             arrayOf("some basic comment", "some basic comment", false, false),
             arrayOf("  some basic comment with whitespace ", "some basic comment with whitespace", false, false),
-            arrayOf("  tagged comment \$BEST with best ", "tagged comment  with best", true, false),
+            arrayOf("  tagged comment \$BEST with best ", "tagged comment  with best", true, true),
             arrayOf("\$THEORY tagged at the start", "tagged at the start", false, true),
-            arrayOf(" tagged at the end \$BEST", "tagged at the end", true, false),
+            arrayOf(" tagged at the end \$BEST", "tagged at the end", true, true),
             arrayOf("\$THEORY tagged on both sides \$BEST", "tagged on both sides", true, true),
             arrayOf("\$THEORY\$BEST two tags no space", "two tags no space", true, true),
             arrayOf("\$THEORY\$BEST  ", null, true, true),
-            arrayOf("middle \$BEST tag", "middle  tag", true, false),
+            arrayOf("middle \$BEST tag", "middle  tag", true, true),
             arrayOf("  ", null, false, false),
         )
     }
@@ -165,7 +166,6 @@ class PGNParsingTests {
             arrayOf("O-O-O#", false, BLACK_QUEENSIDE_CASTLE),
             arrayOf("0-0-0", true, WHITE_QUEENSIDE_CASTLE),
             arrayOf("0-0-0", false, BLACK_QUEENSIDE_CASTLE),
-
             )
     }
 
@@ -178,6 +178,36 @@ class PGNParsingTests {
         val actualValue = makeMove(position, token)
 
         assertEquals(actualValue, expectedValue)
+    }
+
+    @DataProvider(name = "processAnnotationsData")
+    fun processAnnotationsData(): Array<Array<Any?>> {
+        return arrayOf(
+            // regular piece moves from each color
+            arrayOf("Rh2?", "Rh2", false, false, true),
+            arrayOf("Rc8+?", "Rc8+", false, false, true),
+            // pawn moves
+            arrayOf("b6+", "b6+", false, false, false),
+            arrayOf("b5+!!", "b5+", true, true, false),
+            // regular moves for duplicate pieces on the same file
+            arrayOf("Q2b3!", "Q2b3", false, true, false),
+            arrayOf("Q4b3", "Q4b3", false, false, false),
+            // capture moves for duplicate pieces on the same file
+            arrayOf("R5xa7#", "R5xa7#", false, false, false),
+            arrayOf("R8xa7", "R8xa7", false, false, false),
+        )
+    }
+
+    @Test(dataProvider = "processAnnotationsData")
+    fun processAnnotations(token: String, expectedToken: String, best: Boolean, theory: Boolean, mistake: Boolean) {
+
+        val moveDetails = MoveDetails()
+        val actualToken = processAnnotations(token, moveDetails)
+
+        assertEquals(actualToken, expectedToken)
+        assertEquals(moveDetails.best, best)
+        assertEquals(moveDetails.theory, theory)
+        assertEquals(moveDetails.mistake, mistake)
     }
 
     @Test

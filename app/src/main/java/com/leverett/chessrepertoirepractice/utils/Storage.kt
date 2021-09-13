@@ -23,8 +23,15 @@ fun setupRepertoireManager(context: Context) {
     val repertoireManager = RepertoireManager
     val repertoireDir = File(context.filesDir, REPERTOIRE_DIR_NAME)
     if (repertoireDir.exists()) {
-        try {
-            for (repertoireFile in repertoireDir.listFiles()) {
+        val files = repertoireDir.listFiles()
+        if (files.isEmpty()) {
+            repertoireManager.repertoire.lineTrees.add(parseAnnotatedPgnToBook(DRAGON_SICILIAN))
+            repertoireManager.repertoire.lineTrees.add(parseAnnotatedPgnToBook(CLOSED_SICILIAN))
+            repertoireManager.repertoire.lineTrees.add(parseAnnotatedPgnToBook(QUEENS_GAMBIT_DECLINED))
+            storeRepertoire(context)
+        }
+        for (repertoireFile in repertoireDir.listFiles()) {
+            try {
                 val reader = FileReader(repertoireFile)
                 val text = reader.readText()
                 reader.close()
@@ -34,11 +41,11 @@ fun setupRepertoireManager(context: Context) {
                 if (lineTree != null) {
                     repertoireManager.repertoire.lineTrees.add(lineTree)
                 }
+            } catch (e: Exception) {
+                    e.printStackTrace()
             }
-            repertoireManager.newActiveRepertoire()
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
+        repertoireManager.newActiveRepertoire()
     }
     val configurationsFile = File(context.filesDir, CONFIGURATIONS_FILE_NAME)
     if (configurationsFile.exists()) {
@@ -54,8 +61,8 @@ fun setupRepertoireManager(context: Context) {
 }
 
 fun storeRepertoire(context: Context) {
+    val repertoireManager = RepertoireManager
     try {
-        val repertoireManager = RepertoireManager
         val repertoireDir = File(context.filesDir, REPERTOIRE_DIR_NAME)
         if (!repertoireDir.exists()) {
             repertoireDir.mkdir()

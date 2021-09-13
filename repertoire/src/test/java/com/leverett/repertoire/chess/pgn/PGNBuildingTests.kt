@@ -62,11 +62,66 @@ class PGNBuildingTests {
             "\n" +
             "1. e4 { \$THEORY} d5 2. c4 e6 \n\n\n"
 
+    private val bookExample2 = "[Event \"Test Study: Chapter 1\"]\n" +
+            "[Site \"https://lichess.org/study/DGjt4lwU/32qGstHX\"]\n" +
+            "[Result \"*\"]\n" +
+            "[UTCDate \"2021.07.25\"]\n" +
+            "[UTCTime \"03:15:10\"]\n" +
+            "[Variant \"Standard\"]\n" +
+            "[ECO \"D20\"]\n" +
+            "[Opening \"Queen's Gambit Accepted: Old Variation\"]\n" +
+            "[Annotator \"https://lichess.org/@/CircleBreaker\"]\n" +
+            "\n" +
+            "1. d4 \$THEORY\$PREFERRED\$GAMBIT {just a comment} d5 {comment for a hint} 2. c4 dxc4 \$BEST 3. e3 (3. e4 \$MISTAKE) 3... b5 4. Qf3 *\n" +
+            "\n" +
+            "\n" +
+            "[Event \"Test Study: Chapter 2\"]\n" +
+            "[Site \"https://lichess.org/study/DGjt4lwU/C8nP4WlO\"]\n" +
+            "[Result \"*\"]\n" +
+            "[UTCDate \"2021.07.25\"]\n" +
+            "[UTCTime \"03:33:53\"]\n" +
+            "[Variant \"Standard\"]\n" +
+            "[ECO \"D30\"]\n" +
+            "[Opening \"Queen's Gambit Declined\"]\n" +
+            "[Annotator \"https://lichess.org/@/CircleBreaker\"]\n" +
+            "\n" +
+            "1. d4 d5 { \$BEST } 2. c4 { \$GAMBIT } e6 *\n" +
+            "\n" +
+            "\n" +
+            "[Event \"Test Study: Chapter 3\"]\n" +
+            "[Site \"https://lichess.org/study/DGjt4lwU/C8nP4WlO\"]\n" +
+            "[Result \"*\"]\n" +
+            "[UTCDate \"2021.07.25\"]\n" +
+            "[UTCTime \"03:33:53\"]\n" +
+            "[Variant \"Standard\"]\n" +
+            "[ECO \"D30\"]\n" +
+            "[Opening \"Queen's Gambit Declined\"]\n" +
+            "[Annotator \"https://lichess.org/@/CircleBreaker\"]\n" +
+            "\n" +
+            "1. e4 \$THEORY d5 2. c4 e6 *"
+    private val book2: Book = parseAnnotatedPgnToBook(bookExample2)
+
+    private val bookResult2 = "[Event \"Test Study: Chapter 1\"]\n" +
+            "\n" +
+            "1. d4! $WHITE_INITIATIVE_ANNOTATION $WHITE_ATTACK_ANNOTATION { just a comment } d5 { comment for a hint } 2. c4 dxc4!! 3. e3 (3. e4?) b5 4. Qf3 *\n" +
+            "\n" +
+            "\n" +
+            "[Event \"Test Study: Chapter 2\"]\n" +
+            "\n" +
+            "1. d4 d5!! 2. c4 $WHITE_ATTACK_ANNOTATION e6 *\n" +
+            "\n" +
+            "\n" +
+            "[Event \"Test Study: Chapter 3\"]\n" +
+            "\n" +
+            "1. e4! d5 2. c4 e6 *\n\n\n"
+
 
     @Test
     fun testTest() {
-        val pgn = makeBookText(book)
-        assertEquals(pgn, bookResult)
+//        val pgn = makeBookText(book)
+//        assertEquals(pgn, bookResult)
+        val pgn = makeBookText(book2)
+        assertEquals(pgn, bookResult2)
     }
 
 

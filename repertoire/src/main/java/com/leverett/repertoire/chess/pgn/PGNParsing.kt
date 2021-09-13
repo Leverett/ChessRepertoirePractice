@@ -4,6 +4,8 @@ import com.leverett.repertoire.chess.lines.Book
 import com.leverett.repertoire.chess.lines.Chapter
 import com.leverett.repertoire.chess.move.LineMove
 import com.leverett.repertoire.chess.move.MoveDetails
+import com.leverett.repertoire.chess.move.MoveDetails.Tag
+import com.leverett.repertoire.chess.move.MoveDetails.Tag.*
 import com.leverett.rules.chess.basic.BasicRulesEngine
 import com.leverett.rules.chess.basic.piece.*
 import com.leverett.rules.chess.parsing.notationToFile
@@ -86,7 +88,8 @@ internal fun parseMoves(chapter: Chapter, chapterMoves: String, position: Positi
                 }
 
                 // now we calculate the move that the current token indicates
-                latestMoveToken = extractMove(chapterMoves, charIndex)
+                val annotatedMove = extractMove(chapterMoves, charIndex)
+                latestMoveToken = processAnnotations(annotatedMove, latestMoveDetails)
                 latestMove = makeMove(currentPosition, latestMoveToken)
 
                 // update index
@@ -108,10 +111,10 @@ internal fun parseMoves(chapter: Chapter, chapterMoves: String, position: Positi
             }
             // Just add a tag for the currently stored move
             currentChar == TAG_CHAR -> {
-                val tag = extractTag(chapterMoves, charIndex)
+                var tag = extractTag(chapterMoves, charIndex)
                 if (tag != null) {
                     latestMoveDetails.addTag(tag)
-                    charIndex += tag.name.length
+                    charIndex += 3
                 }
                 charIndex++
             }
@@ -136,11 +139,12 @@ internal fun parseMoves(chapter: Chapter, chapterMoves: String, position: Positi
 internal fun makeMove(position: Position, moveToken: String): Move {
     val activeColor = position.activeColor
 
+    var token = moveToken
+
     if (moveToken.contains(CASTLE_CHAR)) {
         return castleMove(activeColor, moveToken.filter { it == CASTLE_CHAR }.count() == 1)!!
     }
 
-    var token = moveToken
     if (token.contains(CHECK_CHAR) || token.contains(CHECKMATE_CHAR)) {
         token = token.dropLast(1)
     }
@@ -169,6 +173,15 @@ internal fun makeMove(position: Position, moveToken: String): Move {
     return Move(startLoc, endLoc, capture, promotionPiece, enPassant)
 }
 
+internal fun processAnnotations(moveToken: String, moveDetails: MoveDetails): String {
+    when {
+        moveToken.endsWith(BRILLIANT_ANNOTATION) -> {moveDetails.addTag(BEST); return moveToken.dropLast(2)}
+        moveToken.endsWith(GOOD_ANNOTATION) -> {moveDetails.addTag(THEORY); return moveToken.dropLast(1)}
+        moveToken.endsWith(MISTAKE_ANNOTATION) -> {moveDetails.addTag(MISTAKE); return moveToken.dropLast(1)}
+    }
+    return moveToken
+}
+
 internal fun findStartLoc(accessibleLocations: List<Pair<Int,Int>>, token: String): Pair<Int,Int> {
     if (accessibleLocations.size == 1) {
         return accessibleLocations[0]
@@ -186,18 +199,9 @@ internal fun parseCommentBlock(commentBlock: String, moveDetails: MoveDetails) {
     var charIndex = 0
     var descripton = ""
     while (charIndex < commentBlock.length) {
-        val currentChar = commentBlock[charIndex]
-        when (currentChar) {
+        when (val currentChar = commentBlock[charIndex]) {
             GRAPHIC_START -> {
                 charIndex += extractSingleLayerBlock(commentBlock, charIndex, GRAPHIC_END).length + 2
-            }
-            TAG_CHAR -> {
-                val tag = extractTag(commentBlock, charIndex)
-                if (tag != null) {
-                    moveDetails.addTag(tag)
-                    charIndex += tag.name.length
-                }
-                charIndex++
             }
             else -> {
                 descripton += currentChar
@@ -234,16 +238,17 @@ internal fun extractNestedBlock(text: String, startIndex: Int, startChar: Char, 
 }
 
 internal fun extractMove(text: String, charIndex: Int): String {
-    val endCharIndex = text.indexOf(MOVE_DELIMITER, charIndex)
-    val endIndex = if (endCharIndex == -1) text.length else endCharIndex
+    var endIndex = text.indexOf(TOKEN_DELIMITER, charIndex)
+    if (endIndex == -1) endIndex = text.length
     return text.substring(charIndex, endIndex)
 }
 
-internal fun extractTag(text: String, charIndex: Int): MoveDetails.Tag? {
-    for (tag in MoveDetails.Tag.values()) {
-        if (text.substring(charIndex+1).startsWith(tag.name)) {
-            return tag
-        }
+internal fun extractTag(text: String, charIndex: Int): Tag? {
+    return when {
+        text.startsWith(WHITE_INITIATIVE_ANNOTATION, charIndex) -> PREFERRED
+        text.startsWith(BLACK_INITIATIVE_ANNOTATION, charIndex) -> PREFERRED
+        text.startsWith(WHITE_ATTACK_ANNOTATION, charIndex) -> GAMBIT
+        text.startsWith(BLACK_ATTACK_ANNOTATION, charIndex) -> GAMBIT
+        else -> null
     }
-    return null
 }
