@@ -9,6 +9,7 @@ import com.leverett.rules.chess.basic.BasicRulesEngine
 import com.leverett.rules.chess.basic.piece.PieceRules
 import com.leverett.rules.chess.parsing.fileToNotation
 import com.leverett.rules.chess.parsing.locationToNotation
+import com.leverett.rules.chess.parsing.positionFromFen
 import com.leverett.rules.chess.representation.*
 
 private val rulesEngine = BasicRulesEngine
@@ -37,29 +38,36 @@ fun makeChapterHeader(chapter: Chapter): String {
         val descriptionToken = makeMetadataToken(CHAPTER_DESCRIPTION_PREFIX, chapter.description!!)
         result += "\n" + descriptionToken
     }
+    if (chapter.startingPositionFen != null) {
+        val fenToken = makeMetadataToken(FEN_PREFIX, chapter.startingPositionFen!!)
+        result += "\n" + fenToken
+    }
     result += HEADER_DELIMITER
     return result
 }
 
 fun makeChapterPgn(chapter: Chapter): String {
-    val currentPosition = startingPosition()
+    val currentPosition = if (chapter.startingPositionFen == null) startingPosition() else positionFromFen(chapter.startingPositionFen)
     var lineMoves = chapter.getMoves(currentPosition)
-    return generateLinePgn(currentPosition, lineMoves, chapter, false) + " $CHAPTER_END"
+    return generateLinePgn(currentPosition, lineMoves, chapter, true) + " $CHAPTER_END"
 }
 
 fun makeMetadataToken(metadataPrefix: String, metadataValue: String): String {
     return METADATA_TOKEN_START + metadataPrefix + METADATA_VALUE_TAG + metadataValue + METADATA_VALUE_TAG + METADATA_TOKEN_END
 }
 
-private fun generateLinePgn(currentPosition: Position, lineMoves: List<LineMove>, lineTree: LineTree, isFiltered: Boolean): String {
-    var result = ""
+private fun generateLinePgn(currentPosition: Position, lineMoves: List<LineMove>, lineTree: LineTree, isFirstMove: Boolean = false): String {
+    val turn = currentPosition.turn.toString()
+    var result = if (isFirstMove && !currentPosition.activeColor) "$turn... " else ""
     for ((branchNumber, lineMove) in lineMoves.withIndex()) {
-        val turn = currentPosition.turn.toString()
         result += if (branchNumber > 0) {
-            val turnToken = if (currentPosition.activeColor) "" else "$turn... "
-            TOKEN_DELIMITER.toString() + BRANCH_START + turnToken + generateLinePgn(currentPosition, listOf(lineMoves[branchNumber]), lineTree, true) + BRANCH_END
+            TOKEN_DELIMITER.toString() + BRANCH_START + generateLinePgn(currentPosition, listOf(lineMoves[branchNumber]), lineTree, true) + BRANCH_END
         } else {
-            val turnToken = if (currentPosition.activeColor) "$turn. " else ""
+            val turnToken = if (currentPosition.activeColor) {
+                "$turn. "
+            } else if (lineMove.previousLineMove != null && !lineMove.previousLineMove.moveDetails.description.isNullOrBlank() && !currentPosition.activeColor && !isFirstMove) {
+                "$turn... "
+            } else ""
             (turnToken +
              annotatedMoveNotation(lineMove.algMove, lineMove.moveDetails) +
              TOKEN_DELIMITER +
@@ -69,9 +77,9 @@ private fun generateLinePgn(currentPosition: Position, lineMoves: List<LineMove>
     if (lineMoves.isNotEmpty()) {
         val currentMove = lineMoves.first()
         val nextPosition = currentMove.nextPosition
-        val nextMoves = lineTree.getMoves(nextPosition).filter{it.chapter == currentMove.chapter}
+        val nextMoves = lineTree.getMoves(nextPosition).filter{it.previousLineMove == currentMove}
         if (nextMoves.isNotEmpty()) {
-            result += TOKEN_DELIMITER + generateLinePgn(nextPosition, nextMoves, lineTree, false)
+            result += TOKEN_DELIMITER + generateLinePgn(nextPosition, nextMoves, lineTree)
         }
     }
     return result

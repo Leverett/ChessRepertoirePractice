@@ -2,7 +2,6 @@ package com.leverett.repertoire.chess.move
 
 import com.leverett.repertoire.chess.RepertoireManager
 import com.leverett.repertoire.chess.lines.Book
-import com.leverett.repertoire.chess.lines.Chapter
 import com.leverett.rules.chess.representation.Move
 import com.leverett.repertoire.chess.move.MoveResult.*
 import com.leverett.repertoire.chess.settings.PlaySettings
@@ -119,8 +118,8 @@ class MoveResults() {
             }
             return result
         }
-        val descriptionsToChapters = mutableMapOf<String, MutableList<String>>()
-        val descriptionlessMoveChapters = mutableListOf<String>()
+        val descriptionsToChapters = mutableMapOf<String, MutableSet<String>>()
+        val descriptionlessMoveChapters = mutableSetOf<String>()
         lineMoves.forEach{
             val description = it.moveDetails.description
             if (description.isNullOrBlank()) {
@@ -131,10 +130,11 @@ class MoveResults() {
                 if (chapters != null) {
                     chapters.add(it.chapter.name)
                 } else {
-                    descriptionsToChapters[description] = mutableListOf(it.chapter.name)
+                    descriptionsToChapters[description] = mutableSetOf(it.chapter.name)
                 }
             }
         }
+        descriptionlessMoveChapters.removeIf { ch -> !descriptionsToChapters.keys.any { it.contentEquals(ch) } }
         if (descriptionsToChapters.isEmpty()) {
             return book.name
         }

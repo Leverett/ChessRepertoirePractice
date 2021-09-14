@@ -3,7 +3,7 @@ package com.leverett.repertoire.chess.lines
 import com.leverett.repertoire.chess.move.LineMove
 import com.leverett.rules.chess.representation.Position
 
-class Chapter(name: String, description: String? = null, var book: Book? = null) : LineTreeBase(name, description), LineTree {
+class Chapter(name: String, description: String? = null, val startingPositionFen: String? = null, var book: Book? = null) : LineTreeBase(name, description), LineTree {
 
     private val statelessHashToPosition: MutableMap<String, MutableList<Position>> = mutableMapOf() // unlikely to ever have more than one state but who knows
     private val positionHashToMoves: MutableMap<String, MutableList<LineMove>> = mutableMapOf()
@@ -88,18 +88,14 @@ class Chapter(name: String, description: String? = null, var book: Book? = null)
 
     fun quickDisplay(): String {
         var result = ""
-        for (entry in positionHashToMoves) {
-            result += "("
-            for (move in entry.value) {
-                result += move.algMove + " "
-            }
-            result += ")"
+        for (value in positionHashToMoves.values) {
+            result += value.joinToString(" ", "(", ")")
         }
         return result
     }
 
     override fun copy(): LineTree {
-        return Chapter(name, description, book)
+        return Chapter(name, description, startingPositionFen, book)
     }
 
     override fun equals(other: Any?): Boolean {

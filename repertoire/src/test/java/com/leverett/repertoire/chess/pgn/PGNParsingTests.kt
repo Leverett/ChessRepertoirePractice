@@ -52,11 +52,13 @@ class PGNParsingTests {
     @DataProvider(name = "extractTagData")
     fun extractTagData(): Array<Array<Any?>> {
         return arrayOf(
-            arrayOf("\$BEST", 0, BEST),
-            arrayOf(" a \$THEORY", 3, THEORY),
+            arrayOf("\$36", 0, PREFERRED),
+            arrayOf("\$37", 0, PREFERRED),
+            arrayOf("\$40", 0, GAMBIT),
+            arrayOf("\$41", 0, GAMBIT),
+            arrayOf(" a \$36", 3, PREFERRED),
             arrayOf("\$BEasdST", 0, null),
-            arrayOf("\$BESTandmore", 0, BEST),
-            arrayOf("\$GAMBIT and more", 0, GAMBIT),
+            arrayOf("\$33", 0, null)
         )
     }
 
@@ -86,13 +88,6 @@ class PGNParsingTests {
         return arrayOf(
             arrayOf("some basic comment", "some basic comment", false, false),
             arrayOf("  some basic comment with whitespace ", "some basic comment with whitespace", false, false),
-            arrayOf("  tagged comment \$BEST with best ", "tagged comment  with best", true, true),
-            arrayOf("\$THEORY tagged at the start", "tagged at the start", false, true),
-            arrayOf(" tagged at the end \$BEST", "tagged at the end", true, true),
-            arrayOf("\$THEORY tagged on both sides \$BEST", "tagged on both sides", true, true),
-            arrayOf("\$THEORY\$BEST two tags no space", "two tags no space", true, true),
-            arrayOf("\$THEORY\$BEST  ", null, true, true),
-            arrayOf("middle \$BEST tag", "middle  tag", true, true),
             arrayOf("  ", null, false, false),
         )
     }
@@ -238,13 +233,14 @@ class PGNParsingTests {
     }
 
     @Test
-    fun extractLineTreeMetadata() {
-        val bookMetadata = extractLineTreeMetadata(metadataExample, true)
-        assertEquals(bookMetadata.first, "Test Study")
-        assertEquals(bookMetadata.second, "About the book")
-        val chapterMetadata = extractLineTreeMetadata(metadataExample, false)
-        assertEquals(chapterMetadata.first, "Chapter 1")
-        assertEquals(chapterMetadata.second, "About the chapter")
+    fun createEmptyLineTreeTest() {
+        val book = createEmptyLineTree(metadataExample, null) as Book
+        assertEquals(book.name, "Test Study")
+        assertEquals(book.description, "About the book")
+        val chapter = createEmptyLineTree(metadataExample, book) as Chapter
+        assertEquals(chapter.name, "Chapter 1")
+        assertEquals(chapter.description, "About the chapter")
+        assertEquals(chapter.book, book)
     }
 
     @Test
@@ -293,7 +289,7 @@ class PGNParsingTests {
         arrayOf(WHITE_ROOK, EMPTY      , EMPTY, BLACK_PAWN , BLACK_KING  , EMPTY     , WHITE_PAWN  , EMPTY),
     )
 
-    private val chapterMovesExample = "1. d4 { a comment with a tag \$GAMBIT } d5 2. c4 \$BEST dxc4 3. e4 (3. e3 b5 (3... e5 4. dxe5 \$22)  (3... f5) 4. Qf3 \$140 (4. Nc3 e6)) 3... c5 4. e5 f6 { This is a random comment\n" +
+    private val chapterMovesExample = "1. d4 \$40 { a comment with a tag } d5 2. c4!! dxc4 3. e4 (3. e3 b5 (3... e5 4. dxe5 \$22)  (3... f5) 4. Qf3 \$140 (4. Nc3 e6)) 3... c5 4. e5 f6 { This is a random comment\n" +
             "With new lines\n" +
             "a lot of them } (4... g6) 5. f3 g6 (5... h5) 6. a4 *"
 
@@ -321,7 +317,7 @@ class PGNParsingTests {
             "[Opening \"Queen's Gambit Accepted: Old Variation\"]\n" +
             "[Annotator \"https://lichess.org/@/CircleBreaker\"]\n" +
             "\n" +
-            "1. d4 { a comment with a tag \$GAMBIT } d5 2. c4 \$BEST dxc4 3. e4 (3. e3 b5 (3... e5 4. dxe5 \$22)  (3... f5) 4. Qf3 \$140 (4. Nc3 e6)) 3... c5 4. e5 f6 { This is a random comment\n" +
+            "1. d4 \$40 { a comment with a tag } d5 2. c4!! dxc4 3. e4 (3. e3 b5 (3... e5 4. dxe5 \$22)  (3... f5) 4. Qf3 \$140 (4. Nc3 e6)) 3... c5 4. e5 f6 { This is a random comment\n" +
             "With new lines\n" +
             "a lot of them } (4... g6) 5. f3 g6 (5... h5) 6. a4 *"
 

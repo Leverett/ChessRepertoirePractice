@@ -2,6 +2,7 @@ package com.leverett.repertoire.chess.pgn
 
 import com.leverett.repertoire.chess.lines.Book
 import com.leverett.repertoire.chess.lines.Chapter
+import com.leverett.repertoire.chess.lines.LineTree
 import com.leverett.repertoire.chess.move.LineMove
 import com.leverett.repertoire.chess.move.MoveDetails
 import com.leverett.repertoire.chess.move.MoveDetails.Tag
@@ -10,6 +11,7 @@ import com.leverett.rules.chess.basic.BasicRulesEngine
 import com.leverett.rules.chess.basic.piece.*
 import com.leverett.rules.chess.parsing.notationToFile
 import com.leverett.rules.chess.parsing.notationToLocation
+import com.leverett.rules.chess.parsing.positionFromFen
 import com.leverett.rules.chess.representation.*
 import org.apache.commons.lang3.StringUtils
 
@@ -18,8 +20,7 @@ private val rulesEngine = BasicRulesEngine
 
 fun parseAnnotatedPgnToBook(bookPgn: String): Book {
     val chapterStrings = bookPgn.split(CHAPTER_DELIMITER).filter{it.isNotBlank()}
-    val bookMetadata = extractLineTreeMetadata(chapterStrings[0], true)
-    val book = Book(mutableListOf(), bookMetadata.first, bookMetadata.second)
+    val book = createEmptyLineTree(chapterStrings[0], null) as Book
     chapterStrings.mapNotNull{parseAnnotatedPgnToChapter(it, book)}.forEach{book.lineTrees.add(it)}
     return book
 }
@@ -30,17 +31,19 @@ fun parseAnnotatedPgnToChapter(chapterPgn: String, book: Book?): Chapter? {
         log("parseAnnotatedPgnToChapter", "Incorrect number of chapter tokens")
         // TODO parsing exception
     }
-    val chapterMetadata = extractLineTreeMetadata(chapterTokens[0], false)
-    val chapter = Chapter(chapterMetadata.first, chapterMetadata.second, book)
+    val chapter = createEmptyLineTree(chapterTokens[0], book) as Chapter
+    val startingPositionFen = chapter.startingPositionFen
+    val startingPosition = if (startingPositionFen == null) startingPosition() else positionFromFen(startingPositionFen)
 
-    return if (chapterTokens[1] != '*'.toString()) {
-        parseMoves(chapter, chapterTokens[1], startingPosition())
+    return if (chapterTokens[1] != CHAPTER_END.toString()) {
+        parseMoves(chapter, chapterTokens[1], startingPosition)
         chapter
     }
     else null
 }
 
-internal fun extractLineTreeMetadata(chapterMetadataString: String, book: Boolean): Pair<String, String?> {
+internal fun createEmptyLineTree(chapterMetadataString: String, book: Book?): LineTree {
+    val isBook = book == null
     val chapterMetadataTokens = StringUtils.substringsBetween(chapterMetadataString, METADATA_TOKEN_START, METADATA_TOKEN_END).toList()
     val nameToken: String =
         chapterMetadataTokens.stream().filter { it.startsWith(NAME_PREFIX) }.findFirst().get()
@@ -49,19 +52,26 @@ internal fun extractLineTreeMetadata(chapterMetadataString: String, book: Boolea
     if (bookAndChapterNameStrings.size != 2) {
         // TODO parsing exception
     }
-    val name = if (book) bookAndChapterNameStrings[0] else bookAndChapterNameStrings[1]
-    val descriptionPrefix = if (book) BOOK_DESCRIPTION_PREFIX else CHAPTER_DESCRIPTION_PREFIX
+    val name = if (isBook) bookAndChapterNameStrings[0] else bookAndChapterNameStrings[1]
+    val descriptionPrefix = if (isBook) BOOK_DESCRIPTION_PREFIX else CHAPTER_DESCRIPTION_PREFIX
     val descriptionToken =
         chapterMetadataTokens.stream().filter { it.startsWith(descriptionPrefix) }.findFirst()
     val description = if(descriptionToken.isPresent) StringUtils.substringBetween(descriptionToken.get(), METADATA_VALUE_TAG) else null
-    return Pair(name, description)
+    if (isBook) {
+        return Book(mutableListOf(), name, description)
+    }
+    val fenToken =
+        chapterMetadataTokens.stream().filter { it.startsWith(FEN_PREFIX) }.findFirst()
+    val fen = if(fenToken.isPresent) StringUtils.substringBetween(fenToken.get(), METADATA_VALUE_TAG) else null
+    return Chapter(name, description, fen, book)
 }
 
-internal fun parseMoves(chapter: Chapter, chapterMoves: String, position: Position) {
+internal fun parseMoves(chapter: Chapter, chapterMoves: String, position: Position, previousLineMove: LineMove? = null) {
     var currentPosition = position
     var latestMove: Move? = null
     var latestMoveDetails = MoveDetails()
     var latestMoveToken = ""
+    var latestLineMove: LineMove? = previousLineMove
     var charIndex = 0
     while (charIndex < chapterMoves.length) {
         val currentChar = chapterMoves[charIndex]
@@ -79,12 +89,14 @@ internal fun parseMoves(chapter: Chapter, chapterMoves: String, position: Positi
                         nextPosition.copy(),
                         latestMove.copy(),
                         latestMoveDetails.copy(),
+                        latestLineMove,
                         latestMoveToken
                     )
                     chapter.addMove(lineMove)
                     // we now get set to the position before the current move gets calculated, and get rid of the comments
                     currentPosition = nextPosition
                     latestMoveDetails = MoveDetails()
+                    latestLineMove = lineMove
                 }
 
                 // now we calculate the move that the current token indicates
@@ -106,7 +118,7 @@ internal fun parseMoves(chapter: Chapter, chapterMoves: String, position: Positi
             // We don't do anything else though, it's as if the internal process is about to encounter a move
             currentChar == BRANCH_START -> {
                 val branchBlock = extractNestedBlock(chapterMoves, charIndex + 1, BRANCH_START, BRANCH_END)
-                parseMoves(chapter, branchBlock, currentPosition.copy())
+                parseMoves(chapter, branchBlock, currentPosition.copy(), latestLineMove)
                 charIndex += branchBlock.length + 2
             }
             // Just add a tag for the currently stored move
@@ -131,6 +143,7 @@ internal fun parseMoves(chapter: Chapter, chapterMoves: String, position: Positi
         nextPosition.copy(),
         latestMove,
         latestMoveDetails.copy(),
+        latestLineMove,
         latestMoveToken
     )
     chapter.addMove(lineMove)

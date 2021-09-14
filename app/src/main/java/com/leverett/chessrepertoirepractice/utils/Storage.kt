@@ -22,14 +22,14 @@ private val gson = Gson()
 fun setupRepertoireManager(context: Context) {
     val repertoireManager = RepertoireManager
     val repertoireDir = File(context.filesDir, REPERTOIRE_DIR_NAME)
-    if (repertoireDir.exists()) {
-        val files = repertoireDir.listFiles()
-        if (files.isEmpty()) {
-            repertoireManager.repertoire.lineTrees.add(parseAnnotatedPgnToBook(DRAGON_SICILIAN))
-            repertoireManager.repertoire.lineTrees.add(parseAnnotatedPgnToBook(CLOSED_SICILIAN))
-            repertoireManager.repertoire.lineTrees.add(parseAnnotatedPgnToBook(QUEENS_GAMBIT_DECLINED))
-            storeRepertoire(context)
-        }
+    if (!repertoireDir.exists()) repertoireDir.mkdir()
+    val files = repertoireDir.listFiles()
+    if (files.isEmpty()) {
+        repertoireManager.repertoire.lineTrees.add(parseAnnotatedPgnToBook(DRAGON_SICILIAN))
+        repertoireManager.repertoire.lineTrees.add(parseAnnotatedPgnToBook(CLOSED_SICILIAN))
+        repertoireManager.repertoire.lineTrees.add(parseAnnotatedPgnToBook(QUEENS_GAMBIT_DECLINED))
+        storeRepertoire(context)
+    } else {
         for (repertoireFile in repertoireDir.listFiles()) {
             try {
                 val reader = FileReader(repertoireFile)
@@ -42,11 +42,11 @@ fun setupRepertoireManager(context: Context) {
                     repertoireManager.repertoire.lineTrees.add(lineTree)
                 }
             } catch (e: Exception) {
-                    e.printStackTrace()
+                e.printStackTrace()
             }
         }
-        repertoireManager.newActiveRepertoire()
     }
+    repertoireManager.newActiveRepertoire()
     val configurationsFile = File(context.filesDir, CONFIGURATIONS_FILE_NAME)
     if (configurationsFile.exists()) {
         try {

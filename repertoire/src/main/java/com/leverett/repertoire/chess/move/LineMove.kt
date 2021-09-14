@@ -1,7 +1,6 @@
 package com.leverett.repertoire.chess.move
 
 import com.leverett.repertoire.chess.lines.Chapter
-import com.leverett.repertoire.chess.lines.LineTree
 import com.leverett.repertoire.chess.pgn.makeMoveNotation
 import com.leverett.rules.chess.representation.Move
 import com.leverett.rules.chess.representation.Position
@@ -11,6 +10,7 @@ class LineMove(val chapter: Chapter,
                val nextPosition: Position,
                val move: Move,
                val moveDetails: MoveDetails,
+               val previousLineMove: LineMove?,
                algMove: String? = null) {
 
     val best: Boolean
