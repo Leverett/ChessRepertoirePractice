@@ -66,9 +66,15 @@ private fun castlingFromFen(fenToken: String): Castling {
 
 fun fenFromPosition(position: Position): String {
     val statelessFen = statelessFenFromPosition(position)
+    val enPassantTarget = position.enPassantTarget
+    val enPassantTargetToken =
+        if (enPassantTarget != null)
+            locationToNotation(enPassantTarget)
+        else
+            NO_ENPASSANT_TARGET
     val halfmoveClockToken = "0" //TODO Halfmove clock
     val fullmoveClockToken = position.turn.toString()
-    return arrayOf(statelessFen, halfmoveClockToken, fullmoveClockToken).joinToString(DELIMITER)
+    return arrayOf(statelessFen, enPassantTargetToken, halfmoveClockToken, fullmoveClockToken).joinToString(DELIMITER)
 }
 
 fun statelessFenFromPosition(position: Position): String {
@@ -76,22 +82,15 @@ fun statelessFenFromPosition(position: Position): String {
     val activeColorToken = if (position.activeColor) WHITE_CHAR else BLACK_CHAR
     val castlingToken = position.castling.toString()
 
-    val enPassantTarget = position.enPassantTarget
-    val enPassantTargetToken =
-        if (enPassantTarget != null)
-            locationToNotation(enPassantTarget)
-        else
-            NO_ENPASSANT_TARGET
-
-    return arrayOf(placementsToken, activeColorToken, castlingToken, enPassantTargetToken).joinToString(DELIMITER)
+    return arrayOf(placementsToken, activeColorToken, castlingToken).joinToString(DELIMITER)
 }
 
 private fun fenPlacementsFromPosition(position: Position): String {
     val placements = position.placements
     var result = ""
     var emptyCount = 0
-    for (i in 0 until GRID_SIZE) {
-        for (j in 0 until GRID_SIZE) {
+    for (j in 0 until GRID_SIZE) {
+        for (i in 0 until GRID_SIZE) {
             val piece = placements[i][GRID_SIZE - j - 1]
             if (piece == Piece.EMPTY) {
                 emptyCount++
