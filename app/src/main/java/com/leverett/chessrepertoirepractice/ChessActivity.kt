@@ -1,14 +1,9 @@
 package com.leverett.chessrepertoirepractice
 
 import android.content.Context
-import android.view.Gravity
 import android.view.View
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.PopupWindow
-import android.widget.Spinner
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import com.leverett.chessrepertoirepractice.utils.BoardStyle
 import com.leverett.chessrepertoirepractice.utils.PieceStyle
 import com.leverett.rules.chess.representation.Move
@@ -21,7 +16,7 @@ abstract class ChessActivity : AppCompatActivity() {
     open val boardViewModel: BoardViewModel
         get() = boardFragment.viewModel
 
-    abstract fun handleMove(move: Move?, undo:Boolean = false)
+    open fun handleMove(move: Move?, undo:Boolean = false) {}
 
     fun undoMove(view: View) {
         boardViewModel.canMove = true
@@ -42,9 +37,7 @@ abstract class ChessActivity : AppCompatActivity() {
     }
     open fun resetActivity() {}
 
-    fun boardSettingsButton(view: View) {
-        val popupView = layoutInflater.inflate(R.layout.board_settings_popup, null) as ConstraintLayout
-        val popupWindow = PopupWindow(popupView, ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT, true)
+    protected fun setupBoardSettingsOptions(popupView: View) {
         val boardStyleSpinner = popupView.findViewById(R.id.board_style_spinner) as Spinner
         val boardStyleSpinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, BoardStyle.values())
         boardStyleSpinner.adapter = boardStyleSpinnerAdapter
@@ -53,21 +46,34 @@ abstract class ChessActivity : AppCompatActivity() {
         val pieceStyleSpinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, PieceStyle.values())
         pieceStyleSpinner.adapter = pieceStyleSpinnerAdapter
         pieceStyleSpinner.setSelection(pieceStyleSpinnerAdapter.getPosition(boardViewModel.pieceStyle))
-        popupWindow.showAtLocation(boardFragment.view, Gravity.CENTER, 0, 0)
 
-        popupView.findViewById<Button>(R.id.ok_button).setOnClickListener {
-            boardViewModel.boardStyle = boardStyleSpinner.selectedItem as BoardStyle
-            boardViewModel.pieceStyle = pieceStyleSpinner.selectedItem as PieceStyle
-            boardFragment.updateBoardView()
 
-            val sharedPref = this?.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
-            with (sharedPref.edit()) {
-                putString(getString(R.string.board_style_pref_key), boardViewModel.boardStyle.name)
-                putString(getString(R.string.piece_style_pref_key), boardViewModel.pieceStyle.name)
-                apply()
+        boardStyleSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
             }
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                boardViewModel.boardStyle = boardStyleSpinnerAdapter.getItem(position)!!
+                boardFragment.updateBoardView()
+                saveBoardPreferences()
+            }
+        }
+        pieceStyleSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+            }
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                boardViewModel.pieceStyle = pieceStyleSpinnerAdapter.getItem(position)!!
+                boardFragment.updateBoardView()
+                saveBoardPreferences()
+            }
+        }
+    }
 
-            popupWindow.dismiss()
+    private fun saveBoardPreferences() {
+        val sharedPref = this.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+        with (sharedPref.edit()) {
+            putString(getString(R.string.board_style_pref_key), boardViewModel.boardStyle.name)
+            putString(getString(R.string.piece_style_pref_key), boardViewModel.pieceStyle.name)
+            apply()
         }
     }
 

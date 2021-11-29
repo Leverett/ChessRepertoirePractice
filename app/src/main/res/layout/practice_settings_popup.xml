@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/move_settings_popup"
-    android:layout_width="360dp"
+    android:layout_width="0dp"
     android:layout_height="wrap_content"
     android:background="@color/white">
 
@@ -30,7 +29,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Switch
+    <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/player_best_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -38,7 +37,7 @@
         app:layout_constraintEnd_toEndOf="@+id/player_theory_switch"
         app:layout_constraintTop_toBottomOf="@id/player_move_options" />
 
-    <Switch
+    <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/opponent_best_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -46,7 +45,7 @@
         app:layout_constraintEnd_toEndOf="@+id/opponent_theory_switch"
         app:layout_constraintTop_toBottomOf="@id/player_move_options" />
 
-    <Switch
+    <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/player_theory_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -54,7 +53,7 @@
         app:layout_constraintEnd_toEndOf="@+id/player_gambits_switch"
         app:layout_constraintTop_toBottomOf="@id/player_best_switch" />
 
-    <Switch
+    <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/opponent_theory_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -62,7 +61,7 @@
         app:layout_constraintEnd_toEndOf="@+id/opponent_gambits_switch"
         app:layout_constraintTop_toBottomOf="@id/opponent_best_switch" />
 
-    <Switch
+    <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/player_gambits_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -70,7 +69,7 @@
         app:layout_constraintEnd_toEndOf="@+id/player_preferred_switch"
         app:layout_constraintTop_toBottomOf="@id/player_theory_switch" />
 
-    <Switch
+    <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/opponent_gambits_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -78,16 +77,16 @@
         app:layout_constraintEnd_toEndOf="@+id/opponent_mistakes_switch"
         app:layout_constraintTop_toBottomOf="@id/opponent_theory_switch" />
 
-    <Switch
+    <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/player_preferred_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/preferred_moves"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/opponent_mistakes_switch"
-        app:layout_constraintTop_toBottomOf="@id/player_gambits_switch" />
+        app:layout_constraintTop_toBottomOf="@id/opponent_gambits_switch" />
 
-    <Switch
+    <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/opponent_mistakes_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -96,13 +95,95 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/opponent_gambits_switch" />
 
+    <TextView
+        android:id="@+id/other_move_settings"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@android:color/holo_green_light"
+        android:text="@string/other_move_settings"
+        android:textAlignment="center"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/player_preferred_switch" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/sandbox_mode_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/sandbox_mode"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/automate_opponent_moves_switch"
+        app:layout_constraintTop_toBottomOf="@id/other_move_settings" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/automate_opponent_moves_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/automate_moves"
+        app:layout_constraintLeft_toRightOf="@id/sandbox_mode_switch"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/other_move_settings" />
+
+    <TextView
+        android:id="@+id/board_settings"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@android:color/holo_purple"
+        android:text="@string/board_settings"
+        android:textAlignment="center"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sandbox_mode_switch" />
+
+    <TextView
+        android:id="@+id/board_style"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@android:color/holo_purple"
+        android:text="@string/board_style"
+        android:textAlignment="center"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/piece_style"
+        app:layout_constraintTop_toBottomOf="@id/board_settings" />
+
+    <TextView
+        android:id="@+id/piece_style"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@android:color/holo_purple"
+        android:text="@string/piece_style"
+        android:textAlignment="center"
+        app:layout_constraintLeft_toRightOf="@id/board_style"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/board_settings" />
+
+
+    <Spinner
+        android:id="@+id/board_style_spinner"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        app:layout_constraintBottom_toTopOf="@id/ok_button"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/piece_style_spinner"
+        app:layout_constraintTop_toBottomOf="@id/board_style" />
+
+    <Spinner
+        android:id="@+id/piece_style_spinner"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        app:layout_constraintBottom_toTopOf="@id/ok_button"
+        app:layout_constraintLeft_toRightOf="@id/board_style_spinner"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/piece_style" />
+
+
     <Button
         android:id="@+id/ok_button"
         style="@style/OkButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/player_preferred_switch" />
+        app:layout_constraintTop_toBottomOf="@id/board_style_spinner" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

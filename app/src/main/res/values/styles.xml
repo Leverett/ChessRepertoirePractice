@@ -13,8 +13,6 @@
     <style name="PracticeButtonStyle">
         <item name="android:layout_width">@dimen/practice_button_width</item>
         <item name="android:layout_height">0dp</item>
-        <!--item name="android:layout_marginStart">16dp</item>
-        <item name="android:layout_marginEnd">16dp</item-->
         <item name="android:textSize">@dimen/practice_button_text</item>
     </style>
 
@@ -22,44 +20,13 @@
         <item name="android:layout_width">@dimen/practice_repertoire_button_width</item>
     </style>
 
-    <style name="BoardSettingsButtonStyle" parent="RepertoireButtonStyle">
-        <item name="android:onClick">boardSettingsButton</item>
-        <item name="android:text">@string/board_settings</item>
+    <style name="InvisibleButtonStyle" parent="PracticeButtonStyle">
+        <item name="android:visibility">invisible</item>
     </style>
 
-    <style name="MoveSettingsButtonStyle" parent="RepertoireButtonStyle">
-        <item name="android:onClick">moveSettingsButton</item>
-        <item name="android:text">@string/move_settings</item>
-    </style>
-
-    <style name="ConfigureRepertoireButtonStyle" parent="RepertoireButtonStyle">
-        <item name="android:onClick">repertoireSettingsButton</item>
-        <item name="android:text">@string/configure_repertoire</item>
-    </style>
-
-    <style name="EditDescriptionButton" parent="RepertoireButtonStyle">
-        <item name="android:onClick">editDescriptionButton</item>
-        <item name="android:text">@string/edit_description</item>
-    </style>
-
-    <style name="LoadPGNButtonStyle" parent="RepertoireButtonStyle">
-        <item name="android:onClick">loadPgnButton</item>
-        <item name="android:text">@string/load_pgn</item>
-    </style>
-
-    <style name="ExportPGNButtonStyle" parent="RepertoireButtonStyle">
-        <item name="android:onClick">exportPgnButton</item>
-        <item name="android:text">@string/export_pgn</item>
-    </style>
-
-    <style name="LoadConfigurationButtonStyle" parent="RepertoireButtonStyle">
-        <item name="android:onClick">loadConfigurationButton</item>
-        <item name="android:text">@string/load_configuration</item>
-    </style>
-
-    <style name="SaveConfigurationButtonStyle" parent="RepertoireButtonStyle">
-        <item name="android:onClick">saveConfigurationButton</item>
-        <item name="android:text">@string/save_configuration</item>
+    <style name="ShowOptionsButtonStyle" parent="PracticeButtonStyle">
+        <item name="android:onClick">showOptionsButton</item>
+        <item name="android:text">@string/show_options</item>
     </style>
 
     <style name="DescriptionButtonStyle" parent="PracticeButtonStyle">
@@ -67,9 +34,9 @@
         <item name="android:text">@string/show_description</item>
     </style>
 
-    <style name="ShowOptionsButtonStyle" parent="PracticeButtonStyle">
-        <item name="android:onClick">showOptionsButton</item>
-        <item name="android:text">@string/show_options</item>
+    <style name="AssertMistakeButtonStyle" parent="PracticeButtonStyle">
+        <item name="android:onClick">mistakeAssertionButton</item>
+        <item name="android:text">@string/assert_mistake</item>
     </style>
 
     <style name="UndoMoveButtonStyle" parent="PracticeButtonStyle">
@@ -80,11 +47,6 @@
     <style name="UndoMistakeMoveButtonStyle" parent="PracticeButtonStyle">
         <item name="android:onClick">undoMove</item>
         <item name="android:text">@string/undo_mistake</item>
-    </style>
-
-    <style name="AddToRepertoireButtonStyle" parent="PracticeButtonStyle">
-        <item name="android:onClick">addToRepertoireButton</item>
-        <item name="android:text">@string/add_move</item>
     </style>
 
     <style name="SearchRepertoireButtonStyle" parent="PracticeButtonStyle">
@@ -109,16 +71,6 @@
         <item name="android:text">Cancel</item>
     </style>
 
-    <style name="MistakeAssertionButton">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:textAlignment">center</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:onClick">mistakeAssertionButton</item>
-        <item name="android:background">@android:color/holo_green_dark</item>
-        <item name="android:text">M</item>
-    </style>
-
     <style name="PlaySettingButtonStyle">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">30dp</item>
@@ -126,6 +78,5 @@
         <item name="android:gravity">center</item>
         <item name="android:textSize">10sp</item>
     </style>
-
 </resources>
 

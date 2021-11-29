@@ -13,18 +13,13 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import com.leverett.chessrepertoirepractice.ui.views.SquareLayout
-import com.leverett.chessrepertoirepractice.utils.BoardStyle
-import com.leverett.chessrepertoirepractice.utils.CAPTURE_MOVE_SOUND
-import com.leverett.chessrepertoirepractice.utils.PieceStyle
-import com.leverett.chessrepertoirepractice.utils.playSound
+import com.leverett.chessrepertoirepractice.utils.*
 import com.leverett.repertoire.chess.pgn.makeMoveNotation
 import com.leverett.rules.chess.basic.BasicRulesEngine
 import com.leverett.rules.chess.representation.*
 
 
 class BoardFragment(var viewModel: BoardViewModel = BoardViewModel()) : Fragment() {
-
-    private val squareDimensions = "1:1"
 
     private lateinit var boardLayout: ConstraintLayout
     private lateinit var squares: Array<Array<SquareLayout>>
@@ -47,7 +42,7 @@ class BoardFragment(var viewModel: BoardViewModel = BoardViewModel()) : Fragment
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val view: View = inflater.inflate(R.layout.board_fragment, container, false)
         boardLayout = view.findViewById(R.id.grid_layout)
         historyView = view.findViewById(R.id.move_history)
@@ -60,7 +55,7 @@ class BoardFragment(var viewModel: BoardViewModel = BoardViewModel()) : Fragment
             for (y in 0 until GRID_SIZE) {
                 val square = squares[x][y]
                 val layoutParams = ConstraintLayout.LayoutParams(0, 0)
-                layoutParams.dimensionRatio = squareDimensions
+                layoutParams.dimensionRatio = SQUARE_DIMENSIONS
                 if (x == 0) {
                     layoutParams.leftToLeft = boardLayout.id
                 } else {
@@ -88,7 +83,7 @@ class BoardFragment(var viewModel: BoardViewModel = BoardViewModel()) : Fragment
     }
 
     private fun getUISettings() {
-        val sharedPref = activity?.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE) ?: return
+        val sharedPref = activity.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE) ?: return
 
         val defaultBoardStyle = viewModel.boardStyle.name
         val boardStylePrefKey = getString(R.string.board_style_pref_key)
@@ -218,8 +213,8 @@ class BoardFragment(var viewModel: BoardViewModel = BoardViewModel()) : Fragment
 
     fun switchPerspective(view: View) {
         val perspectiveSwitch = view as SwitchCompat
-        perspectiveSwitch.isChecked = perspectiveSwitch.isChecked
         viewModel.perspectiveColor = !perspectiveSwitch.isChecked
+        viewModel.activeSquareCoords = null
         updateBoardView()
     }
 

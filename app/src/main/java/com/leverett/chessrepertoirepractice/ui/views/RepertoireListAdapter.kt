@@ -1,21 +1,31 @@
 package com.leverett.chessrepertoirepractice.ui.views
 
 import android.content.Context
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseExpandableListAdapter
 import android.widget.CheckBox
+import android.widget.ExpandableListView
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import com.leverett.chessrepertoirepractice.R
+import com.leverett.chessrepertoirepractice.utils.deleteLineTreeFile
+import com.leverett.chessrepertoirepractice.utils.makeConfirmationDialog
+import com.leverett.chessrepertoirepractice.utils.storeConfigurations
+import com.leverett.chessrepertoirepractice.utils.storeRepertoire
 import com.leverett.repertoire.chess.RepertoireManager
 import com.leverett.repertoire.chess.lines.*
 
-class RepertoireListAdapter(deleteOption: Boolean = false): BaseExpandableListAdapter() {
+class RepertoireListAdapter(private val context: Context,
+                            private val layoutInflater: LayoutInflater,
+                            private val repertoireListView: ExpandableListView,
+                            private val selectAllView: CheckBox): BaseExpandableListAdapter() {
 
-    private val itemLayout = if (deleteOption) R.layout.repertoire_list_item_deletable else R.layout.repertoire_list_item
+    private val itemLayout = R.layout.repertoire_list_item
     private val repertoireManager = RepertoireManager
     private val bookToGroupView = mutableMapOf<Book, ConstraintLayout>()
     private val chapterToItemView = mutableMapOf<Chapter, ConstraintLayout>()
@@ -71,9 +81,8 @@ class RepertoireListAdapter(deleteOption: Boolean = false): BaseExpandableListAd
         }
         setOnCheckListener(checkBox, lineTree)
         val deleteButton = groupView.findViewById<AppCompatImageView>(R.id.delete_repertoire_item)
-        if (deleteButton != null) {
-            setGroupDeleteButtonListener(deleteButton, lineTree)
-        }
+        setGroupDeleteButtonListener(deleteButton, lineTree)
+        groupView.setBackgroundColor(ContextCompat.getColor(groupView.context,  R.color.purple_200))
         return groupView
     }
 
@@ -83,6 +92,7 @@ class RepertoireListAdapter(deleteOption: Boolean = false): BaseExpandableListAd
             .inflate(itemLayout, null) as ConstraintLayout
         val textView = childView.findViewById<TextView>(R.id.repertoire_item_text_view)
         textView.text = chapter.name
+        textView.gravity = Gravity.CENTER_HORIZONTAL
         val checkBox = childView.findViewById<CheckBox>(R.id.repertoire_item_check_box)
         val book = getGroup(groupPosition) as Book
         if (repertoireManager.isActiveLine(book) || repertoireManager.isActiveLine(chapter)) {
@@ -91,9 +101,7 @@ class RepertoireListAdapter(deleteOption: Boolean = false): BaseExpandableListAd
         chapterToItemView[chapter] = childView
         setOnCheckListener(checkBox, chapter)
         val deleteButton = childView.findViewById<AppCompatImageView>(R.id.delete_repertoire_item)
-        if (deleteButton != null) {
-            setChildDeleteButtonListener(deleteButton, book, chapter)
-        }
+        setChildDeleteButtonListener(deleteButton, book, chapter)
         return childView
     }
 
@@ -102,29 +110,59 @@ class RepertoireListAdapter(deleteOption: Boolean = false): BaseExpandableListAd
             if (!isRefreshing) {
                 if (isChecked) {
                     repertoireManager.addActiveLine(lineTree)
+                    selectAllView.isChecked = repertoireManager.isFullRepertoire()
+
                 } else {
                     repertoireManager.removeActiveLine(lineTree)
+                    selectAllView.isChecked = false
                 }
                 refreshListViewChecks()
             }
+            storeConfigurations(context)
         }
     }
 
     private fun setGroupDeleteButtonListener(view: AppCompatImageView, lineTree: LineTree) {
         view.setOnClickListener {
-            repertoireManager.deleteLineTree(lineTree)
-            notifyDataSetChanged()
+            makeConfirmationDialog(context, layoutInflater, repertoireListView, "Delete ${lineTree.name}?") {
+                deleteGroup(lineTree)
+            }
         }
     }
 
-    private fun setChildDeleteButtonListener(view: AppCompatImageView, book: Book, chapter: Chapter) {
-    view.setOnClickListener {
-        repertoireManager.deleteLineTree(book, chapter)
+    private fun deleteGroup(lineTree: LineTree) {
+        val deletePosition = repertoireManager.repertoire.lineTrees.indexOf(lineTree)
+        for (i: Int in deletePosition until repertoireManager.repertoireSize) {
+            if (repertoireListView.isGroupExpanded(i + 1)) {
+                repertoireListView.expandGroup(i)
+            } else {
+                repertoireListView.collapseGroup(i)
+            }
+        }
+        repertoireManager.deleteLineTree(lineTree)
+        deleteLineTreeFile(context, lineTree)
+        storeRepertoire(context)
         notifyDataSetChanged()
     }
-}
 
-    fun refreshListViewChecks() {
+    private fun setChildDeleteButtonListener(view: AppCompatImageView, book: Book, chapter: Chapter) {
+        view.setOnClickListener {
+            makeConfirmationDialog(context, layoutInflater, repertoireListView, "Delete ${chapter.name}?") {
+                deleteChild(book, chapter)
+            }
+        }
+    }
+
+    private fun deleteChild(book: Book, chapter: Chapter) {
+        val lineTree = repertoireManager.deleteLineTree(book, chapter)
+        if (lineTree != null) {
+            deleteLineTreeFile(context, lineTree)
+        }
+        storeRepertoire(context)
+        notifyDataSetChanged()
+    }
+
+    private fun refreshListViewChecks() {
         isRefreshing = true
         for (lineTreeEntry in bookToGroupView.entries) {
             lineTreeEntry.value.findViewById<CheckBox>(R.id.repertoire_item_check_box).isChecked =

@@ -1,7 +1,11 @@
 package com.leverett.chessrepertoirepractice
 
 import android.os.Bundle
-import com.leverett.rules.chess.representation.Move
+import android.view.Gravity
+import android.view.View
+import android.widget.Button
+import android.widget.PopupWindow
+import androidx.constraintlayout.widget.ConstraintLayout
 
 class SandboxActivity : ChessActivity() {
 
@@ -12,7 +16,13 @@ class SandboxActivity : ChessActivity() {
         setContentView(R.layout.activity_sandbox)
     }
 
-    override fun handleMove(move: Move?, undo: Boolean) {
-        // Nothing, this is a sandbox
+    fun boardSettingsButton(view: View) {
+        val popupView = layoutInflater.inflate(R.layout.board_settings_popup, null) as ConstraintLayout
+        val popupWindow = PopupWindow(popupView, ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT, true)
+        popupWindow.showAtLocation(boardFragment.view, Gravity.CENTER, 0, 0)
+        setupBoardSettingsOptions(popupView)
+        popupView.findViewById<Button>(R.id.ok_button).setOnClickListener {
+            popupWindow.dismiss()
+        }
     }
 }

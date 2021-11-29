@@ -4,11 +4,14 @@
 
     <string name="player_move_options">Player Move Options</string>
     <string name="opponent_move_options">Opponent Move Options</string>
+    <string name="other_move_settings">Other Move Settings</string>
     <string name="best_moves">Best</string>
     <string name="theory_moves">Theory</string>
     <string name="preferred_moves">Preferred</string>
     <string name="gambit_moves">Gambits</string>
     <string name="mistake_moves">Mistakes</string>
+    <string name="sandbox_mode">Sandbox Mode</string>
+    <string name="automate_moves">Automate Opponent</string>
     <string name="undo_move">Undo Move</string>
     <string name="undo_mistake">Undo Mistake</string>
     <string name="add_move">Add To Repertoire</string>
@@ -18,24 +21,41 @@
     <string name="show_options">Show Options</string>
     <string name="start_display_text">White to move</string>
     <string name="opponent_move">Opponent Move</string>
-    <string name="move_settings">Move Settings</string>
+    <string name="practice_settings">Settings</string>
     <string name="board_settings">Board Settings</string>
-    <string name="configure_repertoire">Configure Repertoire</string>
+    <string name="edit_configurations">Edit Configurations</string>
     <string name="edit_description">Edit Description</string>
     <string name="load_pgn">Load PGN</string>
     <string name="export_pgn">Export PGN</string>
-    <string name="load_configuration">Load Configuration</string>
     <string name="save_configuration">Save Configuration</string>
     <string name="player_mistake_description_header">Mistake!\n</string>
     <string name="incorrect_move_description_header">Incorrect Move\n</string>
     <string name="opponent_mistake_description_header">Correct, this was a mistake\n</string>
     <string name="nope">Nope!</string>
     <string name="missed_mistake">Nope! Missed a mistake</string>
+    <string name="board_style">Board Style</string>
+    <string name="piece_style">Piece Style</string>
+
+    <string name="new_configuration">New Configuration</string>
+    <string name="delete_configuration">Delete Configuration</string>
+    <string name="sync_repertoire">Sync Repertoire</string>
+    <string name="start_training">Start Training</string>
+    <string name="assert_mistake">Mistake?</string>
+
 
     <string name="preference_file_key">com.leverett.chessrepertoirepractice.Prefs</string>
     <string name="board_style_pref_key">boardStylePref</string>
     <string name="piece_style_pref_key">pieceStylePref</string>
 
     <string name="clipboard_toast">Copied To Clipboard</string>
+    <string name="configuration_popup_hint">Name Configuration</string>
+    <string name="configurations">Configurations</string>
+    <string name="select_all">Select All</string>
+    <string name="account_info">Input Account Info</string>
+    <string name="account_name">Account Name</string>
+    <string name="account_name_hint">Lichess Username</string>
+    <string name="api_token_label">Account Authorization Token</string>
+    <string name="api_token_hint">API Token</string>
+    <string name="practice_mode">Practice Mode</string>
 
 </resources>

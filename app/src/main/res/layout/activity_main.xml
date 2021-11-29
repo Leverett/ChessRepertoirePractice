@@ -13,11 +13,23 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="64dp"
         android:onClick="sandboxModeButton"
-        android:text="Sandbox Mode"
-        app:layout_constraintBottom_toTopOf="@+id/repertoire_button"
+        android:text="@string/sandbox_mode"
+        app:layout_constraintBottom_toTopOf="@+id/account_info_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/account_info_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:onClick="accountInfoButton"
+        android:text="@string/account_info"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sandbox_button"
+        app:layout_constraintBottom_toTopOf="@+id/repertoire_button" />
 
     <Button
         android:id="@+id/repertoire_button"
@@ -25,10 +37,10 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:onClick="repertoireModeButton"
-        android:text="Configure Repertoire"
+        android:text="@string/edit_configurations"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sandbox_button"
+        app:layout_constraintTop_toBottomOf="@+id/account_info_button"
         app:layout_constraintBottom_toTopOf="@+id/practice_button" />
 
     <Button
@@ -37,7 +49,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:onClick="practiceModeButton"
-        android:text="Practice Mode"
+        android:text="@string/practice_mode"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/repertoire_button" />
