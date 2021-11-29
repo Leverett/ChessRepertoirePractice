@@ -1,13 +1,9 @@
 package com.leverett.repertoire.chess.lines
 
-import com.leverett.rules.chess.representation.log
-
-class Repertoire(lineTrees: MutableList<LineTree>) : LineTreeSet(lineTrees, "repertoire", null) {
-
+class Repertoire(lineTrees: MutableList<LineTree>) : LineTreeSet(lineTrees, REPERTOIRE_NAME, null) {
 
     fun makeActiveRepertoire(): LineTreeSet {
-        log("makeActiveRepertoire", lineTrees.joinToString(",") { it.name })
-        return LineTreeSet(this.lineTrees.map { it.copy() }.toMutableList(),"activeRepertoire")
+        return LineTreeSet(this.lineTrees.map { it.copy() }.toMutableList(),ACTIVE_REPERTOIRE_NAME)
     }
 
     fun findLineTreeByName(name: String): LineTree? {

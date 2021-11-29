@@ -14,9 +14,32 @@ import com.leverett.rules.chess.parsing.notationToLocation
 import com.leverett.rules.chess.parsing.positionFromFen
 import com.leverett.rules.chess.representation.*
 import org.apache.commons.lang3.StringUtils
+import java.lang.StringBuilder
 
 
 private val rulesEngine = BasicRulesEngine
+
+fun getFullRepertoire(pgn: String): Set<LineTree> {
+    val books: MutableSet<Book> = mutableSetOf()
+    if (pgn.isNotBlank()) {
+        val chapterStrings = pgn.split(CHAPTER_DELIMITER).filter { it.isNotBlank() }
+        var book: Book? = null
+        for (chapterString: String in chapterStrings) {
+            val chapterTokens = chapterString.split(HEADER_DELIMITER)
+            val chapterMetadataString = chapterTokens[0]
+            val names = extractLineTreeNames(chapterMetadataString)
+            if (book == null) {
+                book = createEmptyLineTree(chapterMetadataString, null) as Book
+            } else if (book.name != names.first) {
+                books.add(book.copy() as Book)
+                book = createEmptyLineTree(chapterMetadataString, null) as Book
+            }
+            book.lineTrees.add(parseAnnotatedPgnToChapter(chapterString, book) as Chapter)
+        }
+        books.add(book!!.copy() as Book)
+    }
+    return books
+}
 
 fun parseAnnotatedPgnToBook(bookPgn: String): Book {
     val chapterStrings = bookPgn.split(CHAPTER_DELIMITER).filter{it.isNotBlank()}
@@ -28,7 +51,6 @@ fun parseAnnotatedPgnToBook(bookPgn: String): Book {
 fun parseAnnotatedPgnToChapter(chapterPgn: String, book: Book?): Chapter? {
     val chapterTokens = chapterPgn.split(HEADER_DELIMITER)
     if (chapterTokens.size != 2) {
-        log("parseAnnotatedPgnToChapter", "Incorrect number of chapter tokens")
         // TODO parsing exception
     }
     val chapter = createEmptyLineTree(chapterTokens[0], book) as Chapter
@@ -45,14 +67,8 @@ fun parseAnnotatedPgnToChapter(chapterPgn: String, book: Book?): Chapter? {
 internal fun createEmptyLineTree(chapterMetadataString: String, book: Book?): LineTree {
     val isBook = book == null
     val chapterMetadataTokens = StringUtils.substringsBetween(chapterMetadataString, METADATA_TOKEN_START, METADATA_TOKEN_END).toList()
-    val nameToken: String =
-        chapterMetadataTokens.stream().filter { it.startsWith(NAME_PREFIX) }.findFirst().get()
-    val nameTokenValue = StringUtils.substringBetween(nameToken, METADATA_VALUE_TAG)
-    val bookAndChapterNameStrings = nameTokenValue.split(BOOK_CHAPTER_NAME_DELIMITER)
-    if (bookAndChapterNameStrings.size != 2) {
-        // TODO parsing exception
-    }
-    val name = if (isBook) bookAndChapterNameStrings[0] else bookAndChapterNameStrings[1]
+    val names = extractLineTreeNames(chapterMetadataString)
+    val name = if (isBook) names.first else names.second
     val descriptionPrefix = if (isBook) BOOK_DESCRIPTION_PREFIX else CHAPTER_DESCRIPTION_PREFIX
     val descriptionToken =
         chapterMetadataTokens.stream().filter { it.startsWith(descriptionPrefix) }.findFirst()
@@ -64,6 +80,18 @@ internal fun createEmptyLineTree(chapterMetadataString: String, book: Book?): Li
         chapterMetadataTokens.stream().filter { it.startsWith(FEN_PREFIX) }.findFirst()
     val fen = if(fenToken.isPresent) StringUtils.substringBetween(fenToken.get(), METADATA_VALUE_TAG) else null
     return Chapter(name, description, fen, book)
+}
+
+private fun extractLineTreeNames(chapterMetadataString: String): Pair<String, String> {
+    val chapterMetadataTokens = StringUtils.substringsBetween(chapterMetadataString, METADATA_TOKEN_START, METADATA_TOKEN_END).toList()
+    val nameToken: String =
+        chapterMetadataTokens.stream().filter { it.startsWith(NAME_PREFIX) }.findFirst().get()
+    val nameTokenValue = StringUtils.substringBetween(nameToken, METADATA_VALUE_TAG)
+    val bookAndChapterNameStrings = nameTokenValue.split(BOOK_CHAPTER_NAME_DELIMITER)
+    if (bookAndChapterNameStrings.size != 2) {
+        // TODO parsing exception
+    }
+    return Pair(bookAndChapterNameStrings[0], bookAndChapterNameStrings[1])
 }
 
 internal fun parseMoves(chapter: Chapter, chapterMoves: String, position: Position, previousLineMove: LineMove? = null) {
@@ -123,7 +151,7 @@ internal fun parseMoves(chapter: Chapter, chapterMoves: String, position: Positi
             }
             // Just add a tag for the currently stored move
             currentChar == TAG_CHAR -> {
-                var tag = extractTag(chapterMoves, charIndex)
+                val tag = extractTag(chapterMoves, charIndex)
                 if (tag != null) {
                     latestMoveDetails.addTag(tag)
                     charIndex += 3
@@ -179,7 +207,7 @@ internal fun makeMove(position: Position, moveToken: String): Move {
         token = token.dropLast(1)
     }
     val piece = getPieceRules(pieceType, endLoc) as PieceRules
-    val accessibleLocations = piece.canMoveToCoordFrom(position.placements, activeColor, position.enPassantTarget)
+    val accessibleLocations = piece.canMoveToCoordFrom(position, activeColor, position.enPassantTarget)
     val startLoc = findStartLoc(accessibleLocations, token)
     val enPassant = (endLoc == position.enPassantTarget && pieceType == Piece.PieceType.PAWN)
     val capture = if (enPassant) getPiece(!activeColor, Piece.PieceType.PAWN) else position.pieceAt(endLoc)
@@ -205,6 +233,9 @@ internal fun findStartLoc(accessibleLocations: List<Pair<Int,Int>>, token: Strin
             .first { !token.last().isDigit() || it.second == token.last().digitToInt() - 1 }
 
     }
+    // It turns out that when a piece is pinned to its King, the notation doesn't have to consider it
+    // if it would otherwise have been able to legally move to a square that another piece of the same
+    // type can reach.
     return Pair(-1, -1) //failure case
 }
 
@@ -235,19 +266,28 @@ internal fun extractSingleLayerBlock(text: String, charIndex: Int, endChar: Char
 }
 
 internal fun extractNestedBlock(text: String, startIndex: Int, startChar: Char, endChar: Char): String {
-    var result = ""
+    val result = StringBuilder()
     var layers = 1
     var charIndex = startIndex
+    var insideComment = false
     do {
         val currentChar = text[charIndex]
-        result += currentChar
+        result.append(currentChar)
         charIndex ++
-        when (text[charIndex]) {
-            startChar -> layers++
-            endChar -> layers--
+        if (text[charIndex] == COMMENT_START) {
+            insideComment = true
+        }
+        if (text[charIndex] == COMMENT_END) {
+            insideComment = false
+        }
+        if (!insideComment) {
+            when (text[charIndex]) {
+                startChar -> layers++
+                endChar -> layers--
+            }
         }
     } while (layers > 0)
-    return result
+    return result.toString()
 }
 
 internal fun extractMove(text: String, charIndex: Int): String {

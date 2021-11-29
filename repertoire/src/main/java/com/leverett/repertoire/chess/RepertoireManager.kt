@@ -7,43 +7,37 @@ import com.leverett.rules.chess.representation.Position
 
 object RepertoireManager {
 
-
-    private lateinit var storeRepertoireFunction: () -> Unit
-    private lateinit var storeConfigurationFunction: () -> Unit
-    private lateinit var deleteLineTreeFileFunction: (LineTree) -> Unit
-
-    fun setupStorageFunctions(storeRepertoireFunction: () -> Unit,
-                              storeConfigurationFunction: () -> Unit,
-                              deleteLineTreeFileFunction: (LineTree) -> Unit) {
-        this.storeRepertoireFunction = storeRepertoireFunction
-        this.storeConfigurationFunction = storeConfigurationFunction
-        this.deleteLineTreeFileFunction = deleteLineTreeFileFunction
-    }
-
     var repertoire: Repertoire = Repertoire(mutableListOf())
     private var activeRepertoire: LineTreeSet = repertoire.makeActiveRepertoire()
     fun newActiveRepertoire() {
         activeRepertoire = repertoire.makeActiveRepertoire()
     }
     var playSettings: PlaySettings = PlaySettings()
-        set(value) {
-            field = value
-            storeRepertoireFunction()
-        }
+
+    var currentConfiguration: String? = null
 
     var configurations: MutableMap<String, Pair<List<String>, PlaySettings>> = mutableMapOf()
+    val configurationNames: List<String>
+        get() = configurations.keys.toMutableList()
 
     val repertoireSize: Int
         get() = repertoire.lineTrees.size
 
-    fun saveConfiguration(configurationName: String) {
-        val activeRepertoireNames = activeRepertoire.lineTrees.map{it.name}
-        configurations[configurationName] = Pair(activeRepertoireNames, playSettings.copy())
-        storeConfigurationFunction()
+    fun isFullRepertoire(): Boolean {
+        return repertoire.lineTreeNames().containsAll(activeRepertoire.lineTreeNames()) &&
+                activeRepertoire.lineTreeNames().containsAll(repertoire.lineTreeNames())
+    }
+
+    fun newConfiguration(configurationName: String) {
+        currentConfiguration = configurationName
+        val activeRepertoireNames = activeRepertoire.lineTrees.map { it.name }
+        configurations[currentConfiguration!!] =
+            Pair(activeRepertoireNames, playSettings.copy())
     }
 
     fun loadConfiguration(configurationName: String) {
         val configuration = configurations[configurationName]!!
+        currentConfiguration = configurationName
 
         //TODO validate that all of these are actually still in the repertoire
         val activeRepertoireNames = configuration.first
@@ -52,33 +46,36 @@ object RepertoireManager {
         playSettings = configuration.second.copy()
     }
 
-    fun deleteConfiguration(configurationName: String) {
-        configurations.remove(configurationName)
-        storeConfigurationFunction()
-    }
-
-    fun deleteLineTree(lineTree: LineTree, chapter: Chapter? = null) {
-        if (chapter != null) {
-            val book = repertoire.lineTrees.find{it == lineTree} as Book
-            book.lineTrees.remove(chapter)
-            if (book.lineTrees.isEmpty()) {
-                deleteLineTreeFileFunction(book)
-                repertoire.lineTrees.remove(book)
-                removeActiveLine(book)
+    fun deleteConfiguration() {
+        if (currentConfiguration != null) {
+            configurations.remove(currentConfiguration)
+            if (configurationNames.isNotEmpty()) {
+                loadConfiguration(configurationNames[0])
             } else {
-                removeActiveLine(chapter)
-                storeRepertoireFunction()
+                currentConfiguration = null
             }
-        } else {
-            repertoire.lineTrees.remove(lineTree)
-            deleteLineTreeFileFunction(lineTree)
         }
     }
 
-    fun addToRepertoire(lineTree: LineTree) {
-        repertoire.lineTrees.remove(lineTree)
-        repertoire.lineTrees.add(lineTree)
-        storeRepertoireFunction()
+    fun deleteLineTree(lineTree: LineTree, chapter: Chapter? = null): LineTree? {
+        val deletedLineTree: LineTree? = if (chapter != null) {
+            val book = repertoire.lineTrees.find{it == lineTree} as Book
+            book.lineTrees.remove(chapter)
+            if (book.lineTrees.isEmpty()) {
+                repertoire.lineTrees.remove(book)
+                removeActiveLine(book)
+                lineTree
+            } else {
+                removeActiveLine(chapter)
+                null
+            }
+        } else {
+            repertoire.lineTrees.remove(lineTree)
+            lineTree
+        }
+        syncRepertoireInternal()
+        updateConfiguration()
+        return deletedLineTree
     }
 
     fun getMoves(position: Position): List<LineMove> {
@@ -105,6 +102,7 @@ object RepertoireManager {
                 activeRepertoire.lineTrees.add(book)
             }
         }
+        updateConfiguration()
     }
 
     fun removeActiveLine(lineTree: LineTree) {
@@ -131,6 +129,37 @@ object RepertoireManager {
                 }
             }
         }
+        updateConfiguration()
+    }
+
+    fun setFullActiveRepertoire(selectAll: Boolean) {
+        if (selectAll) {
+            newActiveRepertoire()
+        } else {
+            activeRepertoire.lineTrees.clear()
+        }
+        updateConfiguration()
+    }
+
+    private fun updateConfiguration() {
+        if (currentConfiguration != null) {
+            configurations[currentConfiguration!!] = Pair(activeRepertoire.lineTreeNames(), playSettings)
+        }
+    }
+
+    fun syncRepertoire(lineTrees: Set<LineTree>) {
+        repertoire.lineTrees.clear()
+        repertoire.lineTrees.addAll(lineTrees)
+        syncRepertoireInternal()
+    }
+
+    private fun syncRepertoireInternal() {
+        configurationNames.forEach{
+            val configuration = configurations[it] as Pair<List<String>, PlaySettings>
+            configurations[it] = Pair(configuration.first.filter { n -> repertoire.findLineTreeByName(n) != null },
+                configuration.second)
+        }
+        activeRepertoire.lineTrees.removeAll{ repertoire.findLineTreeByName(it.name) == null}
     }
 
     private fun clearBook(book: Book) {
