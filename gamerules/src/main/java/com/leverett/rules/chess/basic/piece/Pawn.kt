@@ -1,10 +1,9 @@
 package com.leverett.rules.chess.basic.piece
 
+import com.leverett.rules.chess.basic.BasicRulesEngine
 import com.leverett.rules.chess.representation.*
 import com.leverett.rules.chess.representation.Piece.EMPTY
 import com.leverett.rules.chess.representation.Piece.PieceType.PAWN
-import java.util.logging.Level
-import java.util.logging.Logger
 
 class Pawn(i: Int, j: Int) : PieceRulesBase(i, j) {
 
@@ -114,7 +113,9 @@ class Pawn(i: Int, j: Int) : PieceRulesBase(i, j) {
         return threatens
     }
 
-    override fun canMoveToCoordFrom(placements: Array<Array<Piece>>, color: Boolean, enPassantTarget: Pair<Int,Int>?): List<Pair<Int, Int>> {
+    override fun canMoveToCoordFrom(position: Position, color: Boolean, enPassantTarget: Pair<Int,Int>?): List<Pair<Int, Int>> {
+        val rulesEngine = BasicRulesEngine
+        val placements = position.placements
         val moves = mutableListOf<Pair<Int,Int>>().also{it.addAll(threatensCoord(placements, color, enPassantTarget))}
         val direction = if (color) -1 else 1
         val pawnPiece = getPiece(color, PAWN)
@@ -129,7 +130,7 @@ class Pawn(i: Int, j: Int) : PieceRulesBase(i, j) {
         if (maybeHomeRank == homeRank(color) && placements[i][startRank] == EMPTY && placements[i][maybeHomeRank] == pawnPiece) {
             moves.add(Pair(i, maybeHomeRank))
         }
-        return moves
+        return moves.filter { rulesEngine.isMoveLegal(Move(it, Pair(i, j), null), position) }
     }
 
     private fun homeRank(color: Boolean): Int {

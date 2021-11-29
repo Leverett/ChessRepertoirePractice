@@ -14,32 +14,13 @@ class GameState(val position: Position, val positionStatus: PositionStatus, val 
         return position == other.position
     }
 
+    override fun hashCode(): Int {
+        return position.hashCode()
+    }
+
     fun copy(): GameState {
         return if (move == null) GameState(position.copy(), positionStatus.copy(), null, algMove)
             else GameState(position.copy(), positionStatus.copy(), move.copy(), algMove)
     }
 
-
-//    val inCheckmate: Boolean
-//        get() {
-//        get() {
-//            return positionStatus.inCheckmate
-//        }
-//
-//    val inStalemate: Boolean
-//        get() {
-//            return positionStatus.inStalemate
-//        }
-//
-//    fun moveStatus(move: Move): MoveStatus {
-//        return positionStatus.moveStatus(move)
-//    }
-//
-//    fun findMoveAndStatus(startLoc: Pair<Int,Int>, endLoc: Pair<Int,Int>, promotionPiece: Piece? = null): Pair<Move?, MoveStatus> {
-//        return positionStatus.findMoveAndStatus(startLoc, endLoc, promotionPiece)
-//    }
-//
-//    fun copy(): GameState {
-//        return GameState(position.copy(), positionStatus.copy())
-//    }
 }

@@ -20,7 +20,8 @@ interface PieceRules {
 
     /**
      * Determines where pieces of the instance type can move to the initialized location from, if any
-     * This doesn't determine check-wise legality, just whether the piece can move there mechanically
+     * This will check for complete legality, as it is used to generate notation and a pinned piece
+     * can confuse the disambiguation of piece moves
      */
-    fun canMoveToCoordFrom(placements: Array<Array<Piece>>, color: Boolean, enPassantTarget: Pair<Int,Int>? = null): List<Pair<Int,Int>>
+    fun canMoveToCoordFrom(position: Position, color: Boolean, enPassantTarget: Pair<Int,Int>? = null): List<Pair<Int,Int>>
 }

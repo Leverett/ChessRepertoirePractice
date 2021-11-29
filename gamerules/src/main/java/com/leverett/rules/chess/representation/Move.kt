@@ -2,12 +2,11 @@ package com.leverett.rules.chess.representation
 
 import com.leverett.rules.chess.parsing.locationToNotation
 
-class Move(val startLoc: Pair<Int,Int>, val endLoc: Pair<Int,Int>, val capture: Piece,
-           val promotion: Piece? = null, val enPassant: Boolean = false) { // TODO is the enpassant val necessary? depends on how move reversal will work
+class Move(val startLoc: Pair<Int,Int>, val endLoc: Pair<Int,Int>, val capture: Piece?,
+           val promotion: Piece? = null, val enPassant: Boolean = false) {
 
     override fun toString(): String {
-        return locationToNotation(startLoc) + " -> " + locationToNotation(endLoc)
-//        return "$startLoc -> $endLoc"
+        return "${locationToNotation(startLoc)} -> ${locationToNotation(endLoc)}"
     }
 
     override fun equals(other: Any?): Boolean {

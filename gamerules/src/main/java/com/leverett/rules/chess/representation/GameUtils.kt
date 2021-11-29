@@ -38,6 +38,8 @@ fun quickDisplay(placements:Array<Array<Piece>>): String {
     return result
 }
 
-fun log(tag: String, message: String) {
-    Logger.getLogger(tag).log(Level.SEVERE, message)
+fun log(tag: String, message: Any, log: Boolean = true) {
+    if (log) {
+        Logger.getLogger(tag).log(Level.SEVERE, message.toString())
+    }
 }

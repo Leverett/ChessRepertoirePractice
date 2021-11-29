@@ -54,6 +54,7 @@ object BasicRulesEngine: RulesEngine {
                         ROOK -> pieceRules.add(Rook(i, j))
                         QUEEN -> pieceRules.add(Queen(i, j))
                         KING -> pieceRules.add(King(i, j))
+                        else -> null
                     }
                 }
             }
@@ -107,7 +108,7 @@ object BasicRulesEngine: RulesEngine {
 
     private fun inLegalCheck(position: Position) : Boolean {
         val kingLoc = findKing(position.placements, position.activeColor)
-        if (kingLoc == MISSING_KING) return false.also {}
+        if (kingLoc == MISSING_KING) return false
         return underAttack(position.placements, kingLoc, !position.activeColor)
     }
 
@@ -117,7 +118,7 @@ object BasicRulesEngine: RulesEngine {
         return underAttack(position.placements, kingLoc, position.activeColor)
     }
 
-    private fun isMoveLegal(move: Move, position: Position): Boolean {
+    fun isMoveLegal(move: Move, position: Position): Boolean {
         val newPosition = getNextPosition(position, move)
         return !inIllegalCheck(newPosition)
     }

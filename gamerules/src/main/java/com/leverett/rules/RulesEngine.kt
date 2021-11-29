@@ -14,7 +14,7 @@ interface RulesEngine {
      */
     fun validMoves(position: Position): Pair<List<Move>,List<Move>>
     fun validateMove(position: Position, move: Move): MoveStatus
-    fun isMovePromotion(position: Position, start: Pair<Int,Int>, end: Pair<Int,Int>): Boolean
+    fun isMovePromotion(position: Position, startLoc: Pair<Int,Int>, endLoc: Pair<Int,Int>): Boolean
 
     fun isInCheck(position: Position): Boolean
     fun isInCheckMate(position: Position): Boolean
