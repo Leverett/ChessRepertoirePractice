@@ -54,6 +54,7 @@
         android:gravity="center"
         android:text="@string/player_move_options"
         android:textSize="10sp"
+        android:background="@android:color/holo_blue_light"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/move_options_divider"
         app:layout_constraintTop_toBottomOf="@+id/repertoire_list_view" />
@@ -65,6 +66,7 @@
         android:gravity="center"
         android:text="@string/opponent_move_options"
         android:textSize="10sp"
+        android:background="@android:color/holo_red_light"
         app:layout_constraintLeft_toRightOf="@id/move_options_divider"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/repertoire_list_view" />
@@ -97,8 +99,7 @@
         app:layout_constraintRight_toLeftOf="@id/player_gambits"
         app:layout_constraintTop_toBottomOf="@+id/player_moves"
         custom:activeColor="@color/teal_700"
-        custom:baseColor="@color/teal_200"
-        tools:ignore="DuplicateSpeakableTextCheck" />
+        custom:baseColor="@color/teal_200" />
 
     <com.leverett.chessrepertoirepractice.ui.views.PlaySettingButton
         android:id="@+id/player_gambits"

@@ -32,7 +32,7 @@ private const val NULL_VALUE = "null"
 
 val gson = Gson()
 val repertoireManager = RepertoireManager
-val accountInfo = AccountInfo
+val accountInfo = LichessAccountInfo
 
 
 fun syncRepertoire(context: Context) = runBlocking {
@@ -109,7 +109,7 @@ fun storeConfigurations(context: Context) {
 
 fun storeAccountInfo(context: Context) {
     try {
-        val accountInfo = AccountInfo
+        val accountInfo = LichessAccountInfo
         val accountName = accountInfo.accountName
         val apiToken = accountInfo.apiToken
         val accountInfoFile = File(context.filesDir, ACCOUNT_INFO_FILE_NAME)
@@ -199,7 +199,7 @@ fun setupRepertoireManager(context: Context) {
 }
 
 fun setupAccountInfo(context: Context) {
-    val accountInfo = AccountInfo
+    val accountInfo = LichessAccountInfo
     val accountInfoFile = File(context.filesDir, ACCOUNT_INFO_FILE_NAME)
     if (accountInfoFile.exists()) {
         try {

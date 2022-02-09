@@ -37,7 +37,7 @@
 
         <Button
             android:id="@+id/edit_configurations_button"
-            style="@style/RepertoireButtonStyle"
+            style="@style/PracticeButtonStyle"
             android:text="@string/edit_configurations"
             android:onClick="editConfigurationsButton"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -47,7 +47,7 @@
             app:layout_constraintTop_toTopOf="parent" />
         <Button
             android:id="@+id/practice_settings_button"
-            style="@style/RepertoireButtonStyle"
+            style="@style/PracticeButtonStyle"
             android:onClick="practiceSettingsButton"
             android:text="@string/practice_settings"
             app:layout_constraintBottom_toBottomOf="parent"

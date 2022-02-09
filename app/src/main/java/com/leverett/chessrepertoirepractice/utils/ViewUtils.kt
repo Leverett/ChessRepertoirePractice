@@ -29,7 +29,7 @@ fun makeConfirmationDialog(context: Context, layoutInflater: LayoutInflater, anc
 }
 
 fun makeAccountInfoPopup(context: Context, layoutInflater: LayoutInflater, anchorView: View, action: (() -> Unit)? = null) {
-    val accountInfo = AccountInfo
+    val accountInfo = LichessAccountInfo
     val popupView = layoutInflater.inflate(R.layout.account_info_popup, null) as ConstraintLayout
     val popupWindow = PopupWindow(popupView, popupWidthDp(context, 2.5f), ConstraintLayout.LayoutParams.WRAP_CONTENT, true)
     val accountNameInputView = popupView.findViewById<TextInputEditText>(R.id.account_name_input)

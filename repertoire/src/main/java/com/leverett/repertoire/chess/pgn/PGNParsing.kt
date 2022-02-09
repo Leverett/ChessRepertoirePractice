@@ -16,7 +16,6 @@ import com.leverett.rules.chess.representation.*
 import org.apache.commons.lang3.StringUtils
 import java.lang.StringBuilder
 
-
 private val rulesEngine = BasicRulesEngine
 
 fun getFullRepertoire(pgn: String): Set<LineTree> {
@@ -34,7 +33,10 @@ fun getFullRepertoire(pgn: String): Set<LineTree> {
                 books.add(book.copy() as Book)
                 book = createEmptyLineTree(chapterMetadataString, null) as Book
             }
-            book.lineTrees.add(parseAnnotatedPgnToChapter(chapterString, book) as Chapter)
+            val chapter: Chapter? = parseAnnotatedPgnToChapter(chapterString, book)
+            if (chapter != null) {
+                book.lineTrees.add(chapter)
+            }
         }
         books.add(book!!.copy() as Book)
     }

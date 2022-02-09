@@ -1,6 +1,6 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
-    <dimen name="practice_button_width">96dp</dimen>
+    <dimen name="practice_button_width">102dp</dimen>
     <dimen name="button_height">48dp</dimen>
     <dimen name="practice_button_text">8sp</dimen>
     <dimen name="practice_repertoire_button_width">96dp</dimen>
