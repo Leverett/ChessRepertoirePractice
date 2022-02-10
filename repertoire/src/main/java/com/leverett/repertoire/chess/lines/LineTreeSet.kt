@@ -3,7 +3,7 @@ package com.leverett.repertoire.chess.lines
 import com.leverett.repertoire.chess.move.LineMove
 import com.leverett.rules.chess.representation.Position
 
-open class LineTreeSet(open val lineTrees: MutableList<LineTree>, name: String = ACTIVE_REPERTOIRE_NAME,  description: String? = null) : LineTreeBase(name, description) {
+open class LineTreeSet<T : LineTree>(open val lineTrees: MutableList<T>, name: String,  description: String? = null) : LineTreeBase(name, description) {
 
     override fun getMoves(position: Position): List<LineMove> {
         val moves = arrayListOf<LineMove>()

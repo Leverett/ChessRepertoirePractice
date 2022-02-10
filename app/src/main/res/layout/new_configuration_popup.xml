@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:layout_constraintWidth_percent="0.9"
@@ -11,10 +12,20 @@
         android:layout_width="0dp"
         android:layout_height="64dp"
         android:hint="@string/configuration_popup_hint"
-        app:layout_constraintBottom_toTopOf="@+id/ok_button"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/color_switch"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="TextContrastCheck" />
+    <!--        app:layout_constraintHorizontal_bias="0.25"-->
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/color_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="64dp"
+        android:theme="@style/ColorSwitchStyle"
+        android:text="@string/color_text"
         app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/configuration_name_input"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button

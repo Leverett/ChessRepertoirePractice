@@ -1,10 +1,6 @@
 package com.leverett.repertoire.chess.lines
 
-class Repertoire(lineTrees: MutableList<LineTree>) : LineTreeSet(lineTrees, REPERTOIRE_NAME, null) {
-
-    fun makeActiveRepertoire(): LineTreeSet {
-        return LineTreeSet(this.lineTrees.map { it.copy() }.toMutableList(),ACTIVE_REPERTOIRE_NAME)
-    }
+class Repertoire(lineTrees: MutableList<LineTree>) : LineTreeSet<LineTree>(lineTrees, REPERTOIRE_NAME, null) {
 
     fun findLineTreeByName(name: String): LineTree? {
         for (lineTree in lineTrees) {

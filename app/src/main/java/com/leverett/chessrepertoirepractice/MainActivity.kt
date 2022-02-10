@@ -19,10 +19,7 @@ import com.leverett.rules.chess.representation.log
 
 
 class MainActivity : AppCompatActivity() {
-//
-//    private val rcSignIn = 9001
-//    private val driveScopeUri = "https://www.googleapis.com/auth/drive.file"
-//    private var mSignInClient: GoogleSignInClient? = null
+
     var resultLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->

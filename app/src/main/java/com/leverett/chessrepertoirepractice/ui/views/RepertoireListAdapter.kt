@@ -18,7 +18,9 @@ import com.leverett.chessrepertoirepractice.utils.makeConfirmationDialog
 import com.leverett.chessrepertoirepractice.utils.storeConfigurations
 import com.leverett.chessrepertoirepractice.utils.storeRepertoire
 import com.leverett.repertoire.chess.RepertoireManager
+import com.leverett.repertoire.chess.RepertoireManager.printConfigurationRepertoires
 import com.leverett.repertoire.chess.lines.*
+import com.leverett.rules.chess.representation.log
 
 class RepertoireListAdapter(private val context: Context,
                             private val layoutInflater: LayoutInflater,
@@ -91,7 +93,7 @@ class RepertoireListAdapter(private val context: Context,
         val childView = (parent!!.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater)
             .inflate(itemLayout, null) as ConstraintLayout
         val textView = childView.findViewById<TextView>(R.id.repertoire_item_text_view)
-        textView.text = chapter.name
+        textView.text = chapter.chapterName
         textView.gravity = Gravity.CENTER_HORIZONTAL
         val checkBox = childView.findViewById<CheckBox>(R.id.repertoire_item_check_box)
         val book = getGroup(groupPosition) as Book
@@ -107,6 +109,7 @@ class RepertoireListAdapter(private val context: Context,
 
     private fun setOnCheckListener(view: CheckBox, lineTree: LineTree) {
         view.setOnCheckedChangeListener { _, isChecked ->
+//            log("onCheckListener", printConfigurationRepertoires())
             if (!isRefreshing) {
                 if (isChecked) {
                     repertoireManager.addActiveLine(lineTree)
@@ -118,6 +121,7 @@ class RepertoireListAdapter(private val context: Context,
                 }
                 refreshListViewChecks()
             }
+            printConfigurationRepertoires()
             storeConfigurations(context)
         }
     }

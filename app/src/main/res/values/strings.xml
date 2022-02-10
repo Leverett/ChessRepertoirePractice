@@ -57,5 +57,6 @@
     <string name="api_token_label">Account Authorization Token</string>
     <string name="api_token_hint">API Token</string>
     <string name="practice_mode">Practice Mode</string>
+    <string name="color_text">Color</string>
 
 </resources>

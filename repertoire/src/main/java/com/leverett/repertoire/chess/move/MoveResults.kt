@@ -117,10 +117,10 @@ class MoveResults() {
         if (lineMoves.size == 1) {
             val lineMove = lineMoves[0]
             result.append(
-                if (lineMove.chapter.name == BASELINE_CHAPTER_NAME) {
+                if (lineMove.chapter.chapterName == BASELINE_CHAPTER_NAME) {
                     book.name
                 } else {
-                    lineMove.chapter.fullName
+                    lineMove.chapter.name
                 })
             if (lineMove.moveDetails.description != null) {
                 result.append(" - ${lineMoves[0].moveDetails.description!!}")
@@ -130,16 +130,16 @@ class MoveResults() {
         val descriptionsToChapters = mutableMapOf<String, MutableSet<String>>()
         val descriptionlessMoveChapters = mutableSetOf<String>()
         lineMoves.forEach{
-            val description = it.moveDetails.description
+            val description = it.moveDetails.description?.trim()
             if (description.isNullOrBlank()) {
-                descriptionlessMoveChapters.add(it.chapter.name)
+                descriptionlessMoveChapters.add(it.chapter.chapterName)
             }
             else {
                 val chapters = descriptionsToChapters[description]
                 if (chapters != null) {
-                    chapters.add(it.chapter.name)
+                    chapters.add(it.chapter.chapterName)
                 } else {
-                    descriptionsToChapters[description] = mutableSetOf(it.chapter.name)
+                    descriptionsToChapters[description] = mutableSetOf(it.chapter.chapterName)
                 }
             }
         }
@@ -164,7 +164,7 @@ class MoveResults() {
         if (moves.size > 1) {
             val otherMoves = moves.filter{it != move}
             val otherMoveText = joinLineMoves(otherMoves)
-            return if (otherMoveText.isNotEmpty()) otherMoveText else ""
+            return otherMoveText.ifEmpty { "" }
         }
         return ""
     }
@@ -234,8 +234,8 @@ class MoveResults() {
         val result = StringBuilder()
         result.append("$algMove (")
         result.append(bookToLineMoves.entries.joinToString(", ") {
-            if (it.value.size > 1 || it.value[0].chapter.name == BASELINE_CHAPTER_NAME) it.key.name else it.value[0].chapter.fullName })
-        result.append(standaloneLineMoves.joinToString(", ") { it.chapter.fullName })
+            if (it.value.size > 1 || it.value[0].chapter.chapterName == BASELINE_CHAPTER_NAME) it.key.name else it.value[0].chapter.name })
+        result.append(standaloneLineMoves.joinToString(", ") { it.chapter.name })
         result.append(")")
         return result.toString()
     }

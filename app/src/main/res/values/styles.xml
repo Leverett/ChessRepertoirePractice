@@ -6,7 +6,7 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="PerspectiveSwitchStyle">
+    <style name="ColorSwitchStyle">
         <item name="colorControlActivated">@color/black</item>
     </style>
 

@@ -44,7 +44,7 @@ fun makeAccountInfoPopup(context: Context, layoutInflater: LayoutInflater, ancho
     popupView.findViewById<Button>(R.id.ok_button).setOnClickListener {
         accountInfo.accountName = accountNameInputView.text.toString()
         accountInfo.apiToken = apiTokenInputView.text.toString()
-        storeAccountInfo(context)
+        storeLichessAccountInfo(context)
         if (!accountInfo.incompleteInfo && action != null) {
             action()
         }

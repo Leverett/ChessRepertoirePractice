@@ -1,8 +1,11 @@
 package com.leverett.repertoire.chess.lines
 
-class Book(chapters: MutableList<LineTree>, name: String, description: String? = null) : LineTreeSet(chapters, name, description) {
+class Book(chapters: MutableList<Chapter>, name: String, description: String? = null) : LineTreeSet<Chapter>(chapters, name, description) {
+
+    val chapters: MutableList<Chapter> = lineTrees
+
     fun quickDisplay(): String {
-        return lineTrees.joinToString("\n", transform = {(it as Chapter).quickDisplay()})
+        return lineTrees.joinToString("\n", transform = {it.quickDisplay()})
     }
 
     override fun copy(): LineTree {

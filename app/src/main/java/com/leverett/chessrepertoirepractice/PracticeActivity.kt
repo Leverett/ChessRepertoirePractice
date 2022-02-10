@@ -85,9 +85,7 @@ class PracticeActivity : ChessActivity() {
             .also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
         configurationsView = findViewById(R.id.configurations_menu)
         configurationsView.adapter = configurationViewAdapter
-        if (repertoireManager.currentConfiguration != null) {
-            configurationsView.setSelection(configurationViewAdapter.getPosition(repertoireManager.currentConfiguration))
-        }
+        configurationsView.setSelection(configurationViewAdapter.getPosition(repertoireManager.currentConfigurationName))
         configurationsView.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }

@@ -12,8 +12,11 @@ import com.leverett.chessrepertoirepractice.ui.views.RepertoireListAdapter
 import com.leverett.repertoire.chess.RepertoireManager
 import com.leverett.repertoire.chess.settings.PlaySettings
 import android.widget.*
+import androidx.appcompat.widget.SwitchCompat
 import com.leverett.chessrepertoirepractice.utils.*
+import com.leverett.repertoire.chess.RepertoireManager.DEFAULT_CONFIGURATION_NAME
 import com.leverett.repertoire.chess.lines.LineTree
+import com.leverett.rules.chess.representation.log
 
 
 class RepertoireActivity : AppCompatActivity() {
@@ -68,19 +71,20 @@ class RepertoireActivity : AppCompatActivity() {
     }
 
     private fun setupConfigurationsMenu() {
-        configurationViewAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, repertoireManager.configurationNames)
+        log("setupConfigurationsMenu", "something")
+        configurationViewAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, repertoireManager.configurationNames.toMutableList())
             .also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
         configurationsView = findViewById(R.id.configurations_menu)
         configurationsView.adapter = configurationViewAdapter
-        if (repertoireManager.currentConfiguration != null) {
-            configurationsView.setSelection(configurationViewAdapter.getPosition(repertoireManager.currentConfiguration))
-        }
+        configurationsView.setSelection(configurationViewAdapter.getPosition(repertoireManager.currentConfigurationName))
         configurationsView.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                log("onItemSelected", configurationViewAdapter.getItem(position)!!)
                 repertoireManager.loadConfiguration(configurationViewAdapter.getItem(position)!!)
                 repertoireViewAdapter.notifyDataSetChanged()
+                log("onItemSelected", repertoireManager.currentConfigurationName)
                 refreshPlayOptionButtonColors()
             }
         }
@@ -117,11 +121,22 @@ class RepertoireActivity : AppCompatActivity() {
         val popupWindow = PopupWindow(popupView, popupWidthDp(applicationContext, 2.5f), ConstraintLayout.LayoutParams.WRAP_CONTENT, true)
         popupWindow.showAtLocation(repertoireView, Gravity.CENTER, 0, -100)
         popupView.findViewById<Button>(R.id.ok_button).setOnClickListener {
-            val configurationName = popupView.findViewById<TextInputEditText>(R.id.configuration_name_input).text.toString()
-            repertoireManager.newConfiguration(configurationName)
-            storeConfigurations(applicationContext)
-            updateConfigurationsMenu()
-            popupWindow.dismiss()
+            val configurationName = popupView.findViewById<TextInputEditText>(R.id.configuration_name_input).text.toString().trim()
+            val color = !popupView.findViewById<SwitchCompat>(R.id.color_switch).isChecked
+            log("newConfigurationButton", configurationName)
+            if (configurationName == DEFAULT_CONFIGURATION_NAME) {
+                // TODO make toast for invalid configuration name
+            } else {
+                log("newConfigurationButton", "before new configuration")
+                repertoireManager.newConfiguration(configurationName, color)
+                log("newConfigurationButton", "after new configuration")
+                storeConfigurations(applicationContext)
+                log("newConfigurationButton", "after store configuration")
+                updateConfigurationsMenu()
+                log("newConfigurationButton", "after updateConfigurationsMenu")
+                popupWindow.dismiss()
+                log("newConfigurationButton", "after dismiss")
+            }
         }
         popupView.findViewById<Button>(R.id.cancel_button).setOnClickListener {
             popupWindow.dismiss()
@@ -129,13 +144,15 @@ class RepertoireActivity : AppCompatActivity() {
     }
 
     fun deleteConfigurationButton(view: View) {
-        if (repertoireManager.currentConfiguration != null) {
-            makeConfirmationDialog(applicationContext, layoutInflater, repertoireView, "Delete Configuration: ${repertoireManager.currentConfiguration}?")
+        if (repertoireManager.currentConfigurationName != DEFAULT_CONFIGURATION_NAME) {
+            makeConfirmationDialog(applicationContext, layoutInflater, repertoireView, "Delete Configuration: ${repertoireManager.currentConfigurationName}?")
             {
                 repertoireManager.deleteConfiguration()
                 storeConfigurations(applicationContext)
                 updateConfigurationsMenu()
             }
+        } else {
+            // TODO make toast, default cannot be deleted
         }
     }
 
@@ -183,9 +200,7 @@ class RepertoireActivity : AppCompatActivity() {
         configurationViewAdapter.clear()
         configurationViewAdapter.addAll(repertoireManager.configurationNames)
         configurationViewAdapter.notifyDataSetChanged()
-        if (repertoireManager.currentConfiguration != null) {
-            configurationsView.setSelection(configurationViewAdapter.getPosition(repertoireManager.currentConfiguration))
-        }
+        configurationsView.setSelection(configurationViewAdapter.getPosition(repertoireManager.currentConfigurationName))
     }
 
     private fun togglePlayOption(view: PlaySettingButton) {

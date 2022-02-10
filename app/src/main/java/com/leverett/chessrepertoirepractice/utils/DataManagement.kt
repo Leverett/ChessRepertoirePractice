@@ -10,6 +10,7 @@ import com.leverett.repertoire.chess.pgn.getFullRepertoire
 import com.leverett.repertoire.chess.pgn.makeLineTreeText
 import com.leverett.repertoire.chess.pgn.parseAnnotatedPgnToBook
 import com.leverett.repertoire.chess.pgn.parseAnnotatedPgnToChapter
+import com.leverett.repertoire.chess.settings.Configuration
 import com.leverett.repertoire.chess.settings.PlaySettings
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -95,19 +96,16 @@ fun storeConfigurations(context: Context) {
         configurationsWriter.close()
 
         val configurationFile = File(context.filesDir, CURRENT_CONFIGURATION_FILE_NAME)
-        if (repertoireManager.currentConfiguration != null) {
-            val configurationWriter = FileWriter(configurationFile)
-            configurationWriter.write(repertoireManager.currentConfiguration)
-            configurationWriter.flush()
-            configurationWriter.close()
-        } else if (configurationFile.exists())
-            configurationFile.delete()
+        val configurationWriter = FileWriter(configurationFile)
+        configurationWriter.write(repertoireManager.currentConfigurationName)
+        configurationWriter.flush()
+        configurationWriter.close()
     } catch (e: Exception) {
         e.printStackTrace()
     }
 }
 
-fun storeAccountInfo(context: Context) {
+fun storeLichessAccountInfo(context: Context) {
     try {
         val accountInfo = LichessAccountInfo
         val accountName = accountInfo.accountName
@@ -173,22 +171,21 @@ fun setupRepertoireManager(context: Context) {
             }
         }
     }
-    repertoireManager.newActiveRepertoire()
     val configurationsFile = File(context.filesDir, CONFIGURATIONS_FILE_NAME)
     if (configurationsFile.exists()) {
         try {
             val reader = FileReader(configurationsFile)
-            val type = object : TypeToken<MutableMap<String, Pair<List<String>, PlaySettings>>>() {}.type
+            val type = object : TypeToken<MutableMap<String, Configuration>>() {}.type
             repertoireManager.configurations = gson.fromJson(reader.readText(), type)
             reader.close()
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
-    val configurationFile = File(context.filesDir, CURRENT_CONFIGURATION_FILE_NAME)
-    if (configurationFile.exists()) {
+    val currentConfigurationFile = File(context.filesDir, CURRENT_CONFIGURATION_FILE_NAME)
+    if (currentConfigurationFile.exists()) {
         try {
-            val reader = FileReader(configurationFile)
+            val reader = FileReader(currentConfigurationFile)
             val configurationName = reader.readText()
             repertoireManager.loadConfiguration(configurationName)
             reader.close()

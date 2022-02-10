@@ -3,20 +3,18 @@ package com.leverett.repertoire.chess.lines
 import com.leverett.repertoire.chess.move.LineMove
 import com.leverett.rules.chess.representation.Position
 
-class Chapter(name: String, description: String? = null, val startingPositionFen: String? = null, var book: Book? = null) : LineTreeBase(name, description), LineTree {
+class Chapter(val chapterName: String, description: String? = null, val startingPositionFen: String? = null, var book: Book? = null) :
+    LineTreeBase(if (book != null) {"${book.name} : $chapterName"} else chapterName, description), LineTree {
 
     private val statelessHashToPosition: MutableMap<String, MutableList<Position>> = mutableMapOf() // unlikely to ever have more than one state but who knows
     private val positionHashToMoves: MutableMap<String, MutableList<LineMove>> = mutableMapOf()
-
-    val fullName: String
-        get() = if (isStandalone()) name else book!!.name + ": " + name
 
     override fun getMoves(position: Position): List<LineMove> {
         val moves = mutableListOf<LineMove>()
         val positions = statelessHashToPosition[position.statelessPositionHash]
         if (positions != null) {
-            for (position in positions) {
-                val lineMoves = positionHashToMoves[position.fen]
+            for (p in positions) {
+                val lineMoves = positionHashToMoves[p.fen]
                 if (lineMoves != null) {
                     moves.addAll(lineMoves)
                 }
@@ -49,37 +47,6 @@ class Chapter(name: String, description: String? = null, val startingPositionFen
         } else {
             statelessHashToPosition[nextPositionHash] = mutableListOf(nextPosition)
         }
-
-    }
-
-    fun removeMove(move: LineMove) {
-        val previousPosition = move.previousPosition
-        val moves = positionHashToMoves[previousPosition.fen]
-        if (moves != null && moves.contains(move)) {
-            moves.remove(move)
-            if (moves.isEmpty()) {
-                positionHashToMoves.remove(previousPosition.fen)
-            }
-        }
-
-        val nextPosition = move.nextPosition
-        var otherWaysToPosition = false
-        for (entry in positionHashToMoves) {
-            for (m in entry.value) {
-                if (m.nextPosition == nextPosition) {
-                    otherWaysToPosition = true
-                }
-            }
-        }
-        if (!otherWaysToPosition) {
-            val positionHash = nextPosition.statelessPositionHash
-            val positions = statelessHashToPosition[positionHash].also{ states ->
-                states?.remove(nextPosition)
-            }
-            if (positions.isNullOrEmpty()) {
-                statelessHashToPosition.remove(positionHash)
-            }
-        }
     }
 
     fun isStandalone(): Boolean {
@@ -102,7 +69,7 @@ class Chapter(name: String, description: String? = null, val startingPositionFen
         if (other == null || other !is Chapter) {
             return false
         }
-        return this.fullName == other.fullName
+        return this.name == other.name
     }
 
 
