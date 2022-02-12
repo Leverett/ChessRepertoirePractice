@@ -8,8 +8,8 @@ abstract class LineMover(i: Int, j: Int):
 
     abstract val directions: Array<Pair<Int,Int>>
 
-    override fun candidateMoves(position: Position): List<Move> {
-        val candidateMoves: MutableList<Move> = mutableListOf()
+    override fun candidateMoves(position: Position): List<MoveAction> {
+        val candidateMoves: MutableList<MoveAction> = mutableListOf()
         val activeColor = position.activeColor
         val startCoord = Pair(i, j)
         for (direction in directions) {
@@ -22,9 +22,9 @@ abstract class LineMover(i: Int, j: Int):
                 if (moveFile in 0 until GRID_SIZE && moveRank in 0 until GRID_SIZE) {
                     val locationPiece = position.placements[moveFile][moveRank]
                     when {
-                        locationPiece == EMPTY -> candidateMoves.add(Move(startCoord, Pair(moveFile, moveRank), EMPTY))
+                        locationPiece == EMPTY -> candidateMoves.add(MoveAction(startCoord, Pair(moveFile, moveRank), EMPTY))
                         activeColor != locationPiece.color!! -> {
-                            candidateMoves.add(Move(startCoord, Pair(moveFile, moveRank), locationPiece))
+                            candidateMoves.add(MoveAction(startCoord, Pair(moveFile, moveRank), locationPiece))
                             moveable = false
                         }
                         else ->  moveable = false
@@ -41,14 +41,10 @@ abstract class LineMover(i: Int, j: Int):
         val threatens = mutableListOf<Pair<Int,Int>>()
         val threateningPiece = getPiece(threateningColor, pieceType)
         for (direction in directions) {
-            if (direction == Pair(-1,0)) {
-            }
             var clear = true
             var attackerFile = i
             var attackerRank = j
             while (clear) {
-                if (direction == Pair(-1,0)) {
-                }
                 attackerFile += direction.first
                 attackerRank += direction.second
                 if (attackerFile in 0 until GRID_SIZE && attackerRank in 0 until GRID_SIZE) {

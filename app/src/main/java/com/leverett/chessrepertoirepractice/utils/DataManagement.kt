@@ -6,28 +6,22 @@ import com.google.gson.reflect.TypeToken
 import com.leverett.repertoire.chess.RepertoireManager
 import com.leverett.repertoire.chess.lines.Book
 import com.leverett.repertoire.chess.lines.LineTree
-import com.leverett.repertoire.chess.pgn.getFullRepertoire
-import com.leverett.repertoire.chess.pgn.makeLineTreeText
-import com.leverett.repertoire.chess.pgn.parseAnnotatedPgnToBook
-import com.leverett.repertoire.chess.pgn.parseAnnotatedPgnToChapter
+import com.leverett.repertoire.chess.pgn.*
 import com.leverett.repertoire.chess.settings.Configuration
-import com.leverett.repertoire.chess.settings.PlaySettings
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
 import java.lang.Exception
 import java.lang.RuntimeException
-import java.lang.StringBuilder
-import java.net.HttpURLConnection
-import java.net.URL
 
 private const val REPERTOIRE_DIR_NAME = "Repertoire"
 private const val CONFIGURATIONS_FILE_NAME = "Configurations.json"
 private const val CURRENT_CONFIGURATION_FILE_NAME = "CurrentConfiguration.txt"
 private const val ACCOUNT_INFO_FILE_NAME = "AccountInfo.txt"
+
+private const val TEMP_DIR_NAME = "temp"
 
 private const val NULL_VALUE = "null"
 
@@ -43,25 +37,6 @@ fun syncRepertoire(context: Context) = runBlocking {
         repertoireManager.syncRepertoire(books)
         storeRepertoire(context)
     }
-}
-
-private fun getStudies(accountName: String, apiToken: String, retry: Boolean = false): String {
-    val url = URL("https://lichess.org/study/by/$accountName/export.pgn")
-    val urlConnection: HttpURLConnection = url.openConnection() as HttpURLConnection
-    urlConnection.setRequestProperty("Authorization", "Bearer $apiToken")
-    urlConnection.setRequestProperty("Content-Type", "application/x-chess-pgn")
-    val inputStream = BufferedInputStream(urlConnection.inputStream)
-    val pgnBuilder = StringBuilder()
-    var c: Int
-    while (inputStream.read().also { c = it } != -1) {
-        pgnBuilder.append(c.toChar())
-    }
-    urlConnection.disconnect()
-    val pgn = pgnBuilder.toString()
-    if (!retry && pgn.isBlank()) {
-        return getStudies(accountName, apiToken, true)
-    }
-    return pgn
 }
 
 fun storeRepertoire(context: Context) {
@@ -195,7 +170,7 @@ fun setupRepertoireManager(context: Context) {
     }
 }
 
-fun setupAccountInfo(context: Context) {
+fun setupLichessAccountInfo(context: Context) {
     val accountInfo = LichessAccountInfo
     val accountInfoFile = File(context.filesDir, ACCOUNT_INFO_FILE_NAME)
     if (accountInfoFile.exists()) {
@@ -219,6 +194,19 @@ fun setupAccountInfo(context: Context) {
             e.printStackTrace()
         }
     }
+}
+
+fun storeTempPgnFile(context: Context, configuration: Configuration): File {
+    val color = if (configuration.color) {"white"} else {"black"}
+    val name = "${configuration.name}_$color.pgn"
+    val pgn = makeRepertoirePgnForConfiguration(configuration)
+    val tempDir = File(context.filesDir, TEMP_DIR_NAME)
+    if (!tempDir.exists()) {
+        tempDir.mkdir()
+    }
+    val file = File(tempDir, name)
+    file.writeText(pgn)
+    return file
 }
 
 private fun lineTreeFileName(lineTree: LineTree): String {

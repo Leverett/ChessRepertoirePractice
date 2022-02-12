@@ -5,7 +5,6 @@ import com.leverett.repertoire.chess.move.LineMove
 import com.leverett.repertoire.chess.settings.Configuration
 import com.leverett.repertoire.chess.settings.PlaySettings
 import com.leverett.rules.chess.representation.Position
-import com.leverett.rules.chess.representation.log
 
 object RepertoireManager {
 
@@ -20,14 +19,6 @@ object RepertoireManager {
     var configurations: MutableMap<String, Configuration> = mutableMapOf(Pair(DEFAULT_CONFIGURATION_NAME, DEFAULT_CONFIGURATION))
     val configurationNames: List<String>
         get() = configurations.keys.toList()
-
-    fun printConfigurationRepertoires() {
-        log("printConfigurationRepertoires", currentConfigurationName)
-        for (configurationPair in configurations) {
-            log(configurationPair.key, configurationPair.value.activeRepertoire)
-        }
-        log("currentConfiguration", configurations[currentConfigurationName]!!.name)
-    }
 
     private val activeRepertoire
         get() = configuration.activeRepertoire
@@ -47,17 +38,13 @@ object RepertoireManager {
     }
 
     fun newConfiguration(configurationName: String, color: Boolean) {
-        log("newConfiguration", configurationName)
         configurations[configurationName] =
             Configuration(configurationName, mutableSetOf(), PlaySettings(), color)
         currentConfigurationName = configurationName
-        printConfigurationRepertoires()
     }
 
     fun loadConfiguration(configurationName: String) {
-        log("loadConfiguration", configurationName)
         if (configurationNames.contains(configurationName)) {
-            log("loadConfiguration", "true")
             currentConfigurationName = configurationName
         }
     }
@@ -91,14 +78,13 @@ object RepertoireManager {
 
     fun getMoves(position: Position): List<LineMove> {
         val allMoves = repertoire.getMoves(position)
-        return allMoves.filter { isChapterInActiveRepertoire(it.chapter) }
+        return allMoves.filter { isMoveInActiveRepertoire(it) }
     }
 
-    private fun isChapterInActiveRepertoire(chapter: Chapter): Boolean {
-        return activeRepertoire.contains(chapter.name) ||
-                (!chapter.isStandalone() && activeRepertoire.contains(chapter.book!!.name))
+    private fun isMoveInActiveRepertoire(lineMove: LineMove): Boolean {
+        return activeRepertoire.contains(lineMove.fullName) ||
+                activeRepertoire.contains(lineMove.bookName)
     }
-
     fun getLineTree(i: Int): LineTree {
         return repertoire.lineTrees[i]
     }
@@ -110,7 +96,7 @@ object RepertoireManager {
     fun addActiveLine(lineTree: LineTree) {
         activeRepertoire.add(lineTree.name)
         if (lineTree is Book) {
-            clearBook(lineTree)
+            clearBookChapters(lineTree)
         }
         if (lineTree is Chapter && !lineTree.isStandalone()) {
             val book = lineTree.book!!
@@ -125,7 +111,7 @@ object RepertoireManager {
         val name = lineTree.name
         if (lineTree is Book) {
             activeRepertoire.remove(name)
-            clearBook(lineTree)
+            clearBookChapters(lineTree)
         }
         if (lineTree is Chapter) {
             if (activeRepertoire.contains(name)) {
@@ -167,7 +153,7 @@ object RepertoireManager {
         }
     }
 
-    private fun clearBook(book: Book) {
+    private fun clearBookChapters(book: Book) {
         book.chapters.forEach{ activeRepertoire.remove(it.name) }
     }
 

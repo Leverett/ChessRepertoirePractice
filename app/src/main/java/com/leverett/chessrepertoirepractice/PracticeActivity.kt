@@ -13,12 +13,12 @@ import com.leverett.repertoire.chess.move.MoveResult
 import com.leverett.repertoire.chess.move.MoveResult.*
 import com.leverett.repertoire.chess.move.MoveResults
 import com.leverett.repertoire.chess.settings.PlaySettings
-import com.leverett.rules.chess.representation.Move
-import com.leverett.rules.chess.representation.log
+import com.leverett.rules.chess.representation.MoveAction
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import android.text.method.ScrollingMovementMethod
 import androidx.appcompat.widget.SwitchCompat
+import com.leverett.repertoire.chess.move.MoveDefinition
 
 
 class PracticeActivity : ChessActivity() {
@@ -34,11 +34,17 @@ class PracticeActivity : ChessActivity() {
 
     private val playerMove: Boolean
         get() = boardViewModel.perspectiveColor == boardViewModel.activeColor
-    private val latestMove: Move?
-        get() = boardViewModel.gameHistory.currentGameState.move
+    private val latestMove: MoveDefinition?
+        get() = if (boardViewModel.gameHistory.currentGameState.moveAction == null) { null } else {
+            MoveDefinition(
+                boardViewModel.gameHistory.previousGameState()!!.position,
+                boardViewModel.gameHistory.currentGameState.position,
+                boardViewModel.gameHistory.currentGameState.moveAction!!
+            )
+        }
 
     private var opponentMistake = false
-    private val mistakesCaught: MutableList<Move> = mutableListOf()
+    private val mistakesCaught: MutableList<MoveAction> = mutableListOf()
 
     private val lineMoves: Collection<LineMove>
         get() = repertoireManager.getMoves(boardViewModel.position)
@@ -101,7 +107,8 @@ class PracticeActivity : ChessActivity() {
     }
 
     private fun playerMovesButtonLayoutId(): Int {
-        if (!playSettings.opponentMistakes || latestMove == null || mistakesCaught.contains(latestMove)) {
+        if (!playSettings.opponentMistakes || latestMove == null || mistakesCaught.contains(
+                latestMove!!.moveAction)) {
             return R.layout.player_move_buttons
         }
         return R.layout.player_move_buttons_mistake
@@ -119,7 +126,12 @@ class PracticeActivity : ChessActivity() {
         }
     }
 
-    private fun handleMove(move: Move?, undo: Boolean, moveResults: MoveResults?) {
+    override fun handleMove(moveDefinition: MoveDefinition, undo: Boolean) {
+        handleMove(moveDefinition, undo, moveResults)
+    }
+
+    private fun handleMove(moveDefinition: MoveDefinition, undo: Boolean, moveResults: MoveResults?) {
+        val moveAction = moveDefinition.moveAction
         if (!automateOpponent || !playerMove) {
             clearText()
         }
@@ -129,10 +141,10 @@ class PracticeActivity : ChessActivity() {
         }
         var moveResult: MoveResult? = null
         if (sandboxMode) {
-            handleSandboxModeMove(move)
+            handleSandboxModeMove(moveAction)
         }
-        else if (move != null && moveResults != null) {
-            moveResult = moveResults.getMoveResult(move)
+        else if (moveResults != null) {
+            moveResult = moveResults.getMoveResult(moveDefinition)
             if (playSettings.opponentMistakes && opponentMistake && !undo) {
                 handleMissedMistake()
             } else {
@@ -142,16 +154,16 @@ class PracticeActivity : ChessActivity() {
                 } else if (!playerMove) { //The underlying board has already been updated, so this is actually responding to a players move
                     opponentMistake = false
                     when (moveResult) {
-                        CORRECT -> handleCorrect(move, moveResults)
-                        VALID -> handlePlayerValid(move, moveResults)
+                        CORRECT -> handleCorrect(moveDefinition, moveResults)
+                        VALID -> handlePlayerValid(moveDefinition, moveResults)
                         MISTAKE -> handlePlayerWrongMove(
-                            move,
+                            moveDefinition,
                             moveResults,
                             getString(R.string.player_mistake_description_header),
                             true
                         )
                         INCORRECT -> handlePlayerWrongMove(
-                            move,
+                            moveDefinition,
                             moveResults,
                             getString(R.string.incorrect_move_description_header),
                             true
@@ -160,15 +172,15 @@ class PracticeActivity : ChessActivity() {
                 } else {
                     opponentMistake = false
                     when (moveResult) {
-                        MISTAKE -> handleOpponentMistake(move)
+                        MISTAKE -> handleOpponentMistake(moveAction)
                         // Using the player wrong move here is ok, because it only happens when the player makes the opponent move
                         INCORRECT -> handlePlayerWrongMove(
-                            move,
+                            moveDefinition,
                             moveResults,
                             getString(R.string.incorrect_move_description_header),
                             false
                         )
-                        else -> handleOpponentValid(move)
+                        else -> handleOpponentValid(moveAction)
                     }
                 }
             }
@@ -185,10 +197,6 @@ class PracticeActivity : ChessActivity() {
         }
     }
 
-    override fun handleMove(move: Move?, undo: Boolean) {
-        handleMove(move, undo, moveResults)
-    }
-
     private fun doAutomaticMove() = runBlocking {
         launch {
             Thread.sleep(1500)
@@ -196,10 +204,9 @@ class PracticeActivity : ChessActivity() {
         }
     }
 
-    private fun handleSandboxModeMove(move: Move?) {
+    private fun handleSandboxModeMove(moveAction: MoveAction?) {
         playButtonsLayout = R.layout.sandbox_move_buttons
-        if (move != null) {
-            log("handleSandboxModeMove", move.toString())
+        if (moveAction != null) {
             showDescription()
         }
     }
@@ -210,28 +217,28 @@ class PracticeActivity : ChessActivity() {
         displayView.text = "Unknown move"
     }
 
-    private fun handleCorrect(move: Move, moveResults: MoveResults) {
+    private fun handleCorrect(moveDefinition: MoveDefinition, moveResults: MoveResults) {
         playButtonsLayout = R.layout.opponent_move_buttons
-        displayView.text = moveResults.getCorrectMoveDescriptionText(move)
+        displayView.text = moveResults.getCorrectMoveDescriptionText(moveDefinition)
     }
 
-    private fun handlePlayerValid(move: Move, moveResults: MoveResults) {
+    private fun handlePlayerValid(moveDefinition: MoveDefinition, moveResults: MoveResults) {
         playButtonsLayout = R.layout.opponent_move_buttons
-        displayView.text = moveResults.getValidMoveDescriptionText(move, true)
+        displayView.text = moveResults.getValidMoveDescriptionText(moveDefinition, true)
     }
 
-    private fun handlePlayerWrongMove(move: Move, moveResults: MoveResults, descriptionHeader: String, disableMoves: Boolean) {
+    private fun handlePlayerWrongMove(moveDefinition: MoveDefinition, moveResults: MoveResults, descriptionHeader: String, disableMoves: Boolean) {
         boardViewModel.canMove = !disableMoves
         playButtonsLayout = R.layout.wrong_move_buttons
-        val descriptionText = descriptionHeader + moveResults.getMoveDescriptionText(move)
+        val descriptionText = descriptionHeader + moveResults.getMoveDescriptionText(moveDefinition)
         displayView.text = descriptionText
     }
 
-    private fun handleOpponentValid(move: Move) {
+    private fun handleOpponentValid(moveAction: MoveAction) {
         playButtonsLayout = playerMovesButtonLayoutId()
     }
 
-    private fun handleOpponentMistake(move: Move) {
+    private fun handleOpponentMistake(moveAction: MoveAction) {
         opponentMistake = true
         playButtonsLayout = playerMovesButtonLayoutId()
     }
@@ -243,20 +250,20 @@ class PracticeActivity : ChessActivity() {
     private fun doOpponentMove() {
         val move = moveResults.getOpponentMove(playSettings)
         if (move != null) {
-            boardFragment.doMove(moveResults.getOpponentMove(playSettings)!!)
+            boardFragment.doMove(moveResults.getOpponentMove(playSettings)!!.moveAction)
         }
     }
 
     fun mistakeAssertionButton(view: View) {
         if (opponentMistake) {
             opponentMistake = false
-            mistakesCaught.add(latestMove!!)
+            mistakesCaught.add(latestMove!!.moveAction)
             playButtonsLayout = playerMovesButtonLayoutId()
             val displayText = getString(R.string.opponent_mistake_description_header) +
                     previousMoveResults!!.getMoveDescriptionText(latestMove!!)
             displayView.text = displayText
         } else {
-            mistakesCaught.add(latestMove!!)
+            mistakesCaught.add(latestMove!!.moveAction)
             displayView.text = getString(R.string.nope)
         }
         playButtonsLayout = playerMovesButtonLayoutId()
@@ -329,14 +336,14 @@ class PracticeActivity : ChessActivity() {
                     if (sandboxMode) {
                         automateOpponent = false
                     }
-                    handleMove(latestMove, false, previousMoveResults)
+                    handleMove(latestMove!!, false, previousMoveResults)
                 }
                 popupView.findViewById<SwitchCompat>(R.id.automate_opponent_moves_switch) ->
                 {
                     automateOpponent = switch.isChecked
                     if (automateOpponent && sandboxMode) {
                         sandboxMode = false
-                        handleMove(latestMove)
+                        handleMove(latestMove!!)
                     }
                 }
             }

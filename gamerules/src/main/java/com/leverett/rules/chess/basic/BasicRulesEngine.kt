@@ -13,7 +13,7 @@ object BasicRulesEngine: RulesEngine {
 
     private val MISSING_KING = Pair(-1,-1)
 
-    override fun validateMove(position: Position, move: Move): MoveStatus {
+    override fun validateMove(position: Position, move: MoveAction): MoveStatus {
         return positionStatus(position).moveStatus(move)
     }
 
@@ -40,7 +40,7 @@ object BasicRulesEngine: RulesEngine {
         return positionStatus(position).inStalemate
     }
 
-    override fun validMoves(position: Position): Pair<List<Move>, List<Move>> {
+    override fun validMoves(position: Position): Pair<List<MoveAction>, List<MoveAction>> {
         val activeColor = position.activeColor
         val pieceRules: MutableList<PieceRules> = mutableListOf()
         for (i in 0 until GRID_SIZE) {
@@ -54,16 +54,16 @@ object BasicRulesEngine: RulesEngine {
                         ROOK -> pieceRules.add(Rook(i, j))
                         QUEEN -> pieceRules.add(Queen(i, j))
                         KING -> pieceRules.add(King(i, j))
-                        else -> null
+                        else -> {}
                     }
                 }
             }
         }
-        val candidateMovesLists: List<List<Move>> = pieceRules.parallelStream().map { it.candidateMoves(position) }.collect(Collectors.toList())
+        val candidateMovesLists: List<List<MoveAction>> = pieceRules.parallelStream().map { it.candidateMoves(position) }.collect(Collectors.toList())
         val candidateMoves = candidateMovesLists.flatten()
         val legalityList = candidateMoves.parallelStream().map { isMoveLegal(it, position) }.collect(Collectors.toList())
-        val legalMovesBuilder: MutableList<Move> = mutableListOf()
-        val illegalMovesBuilder: MutableList<Move> = mutableListOf()
+        val legalMovesBuilder: MutableList<MoveAction> = mutableListOf()
+        val illegalMovesBuilder: MutableList<MoveAction> = mutableListOf()
         for (i: Int in candidateMoves.indices) {
             if (legalityList[i]) {
                 legalMovesBuilder.add(candidateMoves[i])
@@ -118,7 +118,7 @@ object BasicRulesEngine: RulesEngine {
         return underAttack(position.placements, kingLoc, position.activeColor)
     }
 
-    fun isMoveLegal(move: Move, position: Position): Boolean {
+    fun isMoveLegal(move: MoveAction, position: Position): Boolean {
         val newPosition = getNextPosition(position, move)
         return !inIllegalCheck(newPosition)
     }
@@ -137,31 +137,31 @@ object BasicRulesEngine: RulesEngine {
     }
 
 
-    override fun getNextPosition(position: Position, move: Move): Position {
+    override fun getNextPosition(position: Position, moveAction: MoveAction): Position {
         //TODO some sort of error handling, esp for parsing
-        if (move == WHITE_KINGSIDE_CASTLE ||
-            move == WHITE_QUEENSIDE_CASTLE ||
-            move == BLACK_KINGSIDE_CASTLE ||
-            move == BLACK_QUEENSIDE_CASTLE
+        if (moveAction == WHITE_KINGSIDE_CASTLE ||
+            moveAction == WHITE_QUEENSIDE_CASTLE ||
+            moveAction == BLACK_KINGSIDE_CASTLE ||
+            moveAction == BLACK_QUEENSIDE_CASTLE
         ) {
-            return doCastle(position, move)
+            return doCastle(position, moveAction)
         }
         val placements = position.placements
-        val piece = placements[move.startLoc.first][move.startLoc.second]
+        val piece = placements[moveAction.startLoc.first][moveAction.startLoc.second]
         if (piece.type == PAWN) {
-            return doPawnMove(position, move, piece)
+            return doPawnMove(position, moveAction, piece)
         }
         val newPlacements = position.copyPlacements()
-        newPlacements[move.startLoc.first][move.startLoc.second] = EMPTY
-        newPlacements[move.endLoc.first][move.endLoc.second] = piece
+        newPlacements[moveAction.startLoc.first][moveAction.startLoc.second] = EMPTY
+        newPlacements[moveAction.endLoc.first][moveAction.endLoc.second] = piece
 
-        val newCastling = calculateNewCastling(move, position.castling, position.activeColor, piece)
+        val newCastling = calculateNewCastling(moveAction, position.castling, position.activeColor, piece)
         val nextTurn = nextTurn(position)
 
         return Position(newPlacements, !position.activeColor, newCastling, null, nextTurn)
     }
 
-    private fun doCastle(position: Position, move: Move): Position {
+    private fun doCastle(position: Position, move: MoveAction): Position {
         val newPlacements = position.copyPlacements()
         val castleRank = if (position.activeColor) 0 else GRID_SIZE - 1
         val newCastling = position.castling.copy()
@@ -198,7 +198,7 @@ object BasicRulesEngine: RulesEngine {
         return Position(newPlacements, !position.activeColor, newCastling, null, nextTurn)
     }
 
-    private fun doPawnMove(position: Position, move: Move, pawnPiece: Piece): Position {
+    private fun doPawnMove(position: Position, move: MoveAction, pawnPiece: Piece): Position {
         val newPlacements = position.copyPlacements()
         newPlacements[move.startLoc.first][move.startLoc.second] = EMPTY
         val resultPiece = move.promotion ?: pawnPiece
@@ -223,7 +223,7 @@ object BasicRulesEngine: RulesEngine {
         return Position(newPlacements, !position.activeColor, newCastling, enPassantTarget, nextTurn)
     }
 
-    private fun calculateNewCastling(move: Move, castling: Castling, activeColor: Boolean, piece: Piece): Castling {
+    private fun calculateNewCastling(move: MoveAction, castling: Castling, activeColor: Boolean, piece: Piece): Castling {
         val newCastling = castling.copy()
         if (piece.type == KING) {
             if (activeColor) {

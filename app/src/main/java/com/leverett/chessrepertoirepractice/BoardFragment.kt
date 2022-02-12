@@ -14,6 +14,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import com.leverett.chessrepertoirepractice.ui.views.SquareLayout
 import com.leverett.chessrepertoirepractice.utils.*
+import com.leverett.repertoire.chess.move.MoveDefinition
 import com.leverett.repertoire.chess.pgn.makeMoveNotation
 import com.leverett.rules.chess.basic.BasicRulesEngine
 import com.leverett.rules.chess.representation.*
@@ -123,12 +124,12 @@ class BoardFragment(var viewModel: BoardViewModel = BoardViewModel()) : Fragment
         }
     }
 
-    fun doMove(move: Move) {
+    fun doMove(moveAction: MoveAction) {
         var nextGameState = gameHistory.nextGameState()
-        if (nextGameState == null || nextGameState.move != move) {
-            val nextPosition = rulesEngine.getNextPosition(position, move)
+        if (nextGameState == null || nextGameState.moveAction != moveAction) {
+            val nextPosition = rulesEngine.getNextPosition(position, moveAction)
             val nextPositionStatus = rulesEngine.positionStatus(nextPosition)
-            nextGameState = GameState(nextPosition, nextPositionStatus, move, makeMoveNotation(position, move))
+            nextGameState = GameState(nextPosition, nextPositionStatus, moveAction, makeMoveNotation(position, moveAction))
             gameHistory.addGameState(nextGameState)
         }
         setGameState(nextGameState)
@@ -149,10 +150,11 @@ class BoardFragment(var viewModel: BoardViewModel = BoardViewModel()) : Fragment
     }
 
     private fun setGameState(gameState: GameState, undo: Boolean = false) {
+        val moveDefinition = MoveDefinition(gameHistory.currentGameState.position.copy(), gameState.position.copy(), gameState.moveAction!!.copy())
         gameHistory.currentGameState = gameState
         viewModel.activeSquareCoords = null
         updateBoardView()
-        activity.handleMove(gameState.move, undo)
+        activity.handleMove(moveDefinition, undo)
     }
 
     fun updateBoardView() {
@@ -164,7 +166,7 @@ class BoardFragment(var viewModel: BoardViewModel = BoardViewModel()) : Fragment
         historyView.text = viewModel.gameHistory.stringToNow()
     }
 
-    private fun findMoveAndStatus(startCoords: Pair<Int,Int>, endCoords: Pair<Int,Int>, promotionPiece: Piece? = null) : Pair<Move?, MoveStatus> {
+    private fun findMoveAndStatus(startCoords: Pair<Int,Int>, endCoords: Pair<Int,Int>, promotionPiece: Piece? = null) : Pair<MoveAction?, MoveStatus> {
         val startLoc = viewModel.coordsToLoc(startCoords)
         val endLoc = viewModel.coordsToLoc(endCoords)
         return positionStatus.findMoveAndStatus(startLoc, endLoc, promotionPiece)

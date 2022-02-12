@@ -18,9 +18,7 @@ import com.leverett.chessrepertoirepractice.utils.makeConfirmationDialog
 import com.leverett.chessrepertoirepractice.utils.storeConfigurations
 import com.leverett.chessrepertoirepractice.utils.storeRepertoire
 import com.leverett.repertoire.chess.RepertoireManager
-import com.leverett.repertoire.chess.RepertoireManager.printConfigurationRepertoires
 import com.leverett.repertoire.chess.lines.*
-import com.leverett.rules.chess.representation.log
 
 class RepertoireListAdapter(private val context: Context,
                             private val layoutInflater: LayoutInflater,
@@ -121,7 +119,6 @@ class RepertoireListAdapter(private val context: Context,
                 }
                 refreshListViewChecks()
             }
-            printConfigurationRepertoires()
             storeConfigurations(context)
         }
     }

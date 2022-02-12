@@ -12,8 +12,8 @@ class Pawn(i: Int, j: Int) : PieceRulesBase(i, j) {
 
     private val startCoord: Pair<Int,Int> = Pair(i,j)
 
-    override fun candidateMoves(position: Position) : List<Move> {
-        val candidateMoves: MutableList<Move> = mutableListOf()
+    override fun candidateMoves(position: Position) : List<MoveAction> {
+        val candidateMoves: MutableList<MoveAction> = mutableListOf()
         val activeColor = position.activeColor
         val direction = if (activeColor) 1 else -1
         val moveRank = j + direction
@@ -25,17 +25,17 @@ class Pawn(i: Int, j: Int) : PieceRulesBase(i, j) {
             if (promotion) {
                 for (promotionType in PROMOTION_TYPES)  {
                     val promotionPiece = getPiece(activeColor, promotionType)
-                    candidateMoves.add(Move(startCoord, Pair(i,moveRank), EMPTY, promotion = promotionPiece))
+                    candidateMoves.add(MoveAction(startCoord, Pair(i,moveRank), EMPTY, promotion = promotionPiece))
                 }
             }
             // Regular
             else {
-                candidateMoves.add(Move(startCoord, Pair(i,moveRank), EMPTY))
+                candidateMoves.add(MoveAction(startCoord, Pair(i,moveRank), EMPTY))
             }
             // Double pushes
             val homeRank = homeRank(activeColor)
             if (j == homeRank && position.placements[i][j + (2*direction)] == EMPTY) {
-                candidateMoves.add(Move(startCoord, Pair(i,j+(2*direction)), EMPTY))
+                candidateMoves.add(MoveAction(startCoord, Pair(i,j+(2*direction)), EMPTY))
             }
         }
         // Captures to the left
@@ -48,13 +48,13 @@ class Pawn(i: Int, j: Int) : PieceRulesBase(i, j) {
                     if (promotion) {
                         for (promotionType in PROMOTION_TYPES) {
                             val promotionPiece = getPiece(activeColor, promotionType)
-                            candidateMoves.add(Move(startCoord, Pair(leftFile, moveRank), leftCapturePiece, promotion = promotionPiece)
+                            candidateMoves.add(MoveAction(startCoord, Pair(leftFile, moveRank), leftCapturePiece, promotion = promotionPiece)
                             )
                         }
                     }
                     // Regular
                     else {
-                        candidateMoves.add(Move(startCoord, Pair(leftFile, moveRank), leftCapturePiece)
+                        candidateMoves.add(MoveAction(startCoord, Pair(leftFile, moveRank), leftCapturePiece)
                         )
                     }
                 }
@@ -70,12 +70,12 @@ class Pawn(i: Int, j: Int) : PieceRulesBase(i, j) {
                     if (promotion) {
                         for (promotionType in PROMOTION_TYPES)  {
                             val promotionPiece = getPiece(activeColor, promotionType)
-                            candidateMoves.add(Move(startCoord, Pair(rightFile,moveRank), rightCapturePiece, promotion = promotionPiece))
+                            candidateMoves.add(MoveAction(startCoord, Pair(rightFile,moveRank), rightCapturePiece, promotion = promotionPiece))
                         }
                     }
                     // Regular
                     else {
-                        candidateMoves.add(Move(startCoord, Pair(rightFile,moveRank), rightCapturePiece))
+                        candidateMoves.add(MoveAction(startCoord, Pair(rightFile,moveRank), rightCapturePiece))
                     }
                 }
             }
@@ -85,7 +85,7 @@ class Pawn(i: Int, j: Int) : PieceRulesBase(i, j) {
         if (enPassantTargetFile != null &&
             ((enPassantTargetFile + 1 == i) || (enPassantTargetFile - 1 == i)) &&
             (position.enPassantTarget.second == moveRank)) {
-            candidateMoves.add(Move(startCoord, Pair(enPassantTargetFile,moveRank), getPiece(!activeColor, PAWN), enPassant = true))
+            candidateMoves.add(MoveAction(startCoord, Pair(enPassantTargetFile,moveRank), getPiece(!activeColor, PAWN), enPassant = true))
         }
         return candidateMoves
     }
@@ -130,7 +130,7 @@ class Pawn(i: Int, j: Int) : PieceRulesBase(i, j) {
         if (maybeHomeRank == homeRank(color) && placements[i][startRank] == EMPTY && placements[i][maybeHomeRank] == pawnPiece) {
             moves.add(Pair(i, maybeHomeRank))
         }
-        return moves.filter { rulesEngine.isMoveLegal(Move(it, Pair(i, j), null), position) }
+        return moves.filter { rulesEngine.isMoveLegal(MoveAction(it, Pair(i, j), null), position) }
     }
 
     private fun homeRank(color: Boolean): Int {

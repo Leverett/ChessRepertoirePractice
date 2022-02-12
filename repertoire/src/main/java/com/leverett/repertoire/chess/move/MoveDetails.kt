@@ -13,6 +13,8 @@ class MoveDetails(var description: String? = null) {
         get() = tags.contains(Tag.PREFERRED)
     val mistake: Boolean
         get() = tags.contains(Tag.MISTAKE)
+    val first: Boolean
+        get() = tags.contains(Tag.FIRST)
 
     fun addTag(tag: Tag?) {
         if (tag != null) tags.add(tag)
@@ -31,7 +33,8 @@ class MoveDetails(var description: String? = null) {
         MISTAKE,
         PREFERRED,
         GAMBIT,
-        BEST
+        BEST,
+        FIRST
     }
 
     override fun equals(other: Any?): Boolean {

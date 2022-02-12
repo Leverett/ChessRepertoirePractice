@@ -2,15 +2,15 @@ package com.leverett.rules.chess.representation
 
 import com.leverett.rules.chess.parsing.locationToNotation
 
-class Move(val startLoc: Pair<Int,Int>, val endLoc: Pair<Int,Int>, val capture: Piece?,
-           val promotion: Piece? = null, val enPassant: Boolean = false) {
+class MoveAction(val startLoc: Pair<Int,Int>, val endLoc: Pair<Int,Int>, val capture: Piece?,
+                 val promotion: Piece? = null, val enPassant: Boolean = false) {
 
     override fun toString(): String {
         return "${locationToNotation(startLoc)} -> ${locationToNotation(endLoc)}"
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other == null || other !is Move) {
+        if (other == null || other !is MoveAction) {
             return false
         }
         if (startLoc != other.startLoc) {
@@ -28,8 +28,8 @@ class Move(val startLoc: Pair<Int,Int>, val endLoc: Pair<Int,Int>, val capture: 
         return true
     }
 
-    fun copy(): Move {
-        return Move(startLoc.copy(), endLoc.copy(), capture, promotion, enPassant)
+    fun copy(): MoveAction {
+        return MoveAction(startLoc.copy(), endLoc.copy(), capture, promotion, enPassant)
     }
 
     override fun hashCode(): Int {

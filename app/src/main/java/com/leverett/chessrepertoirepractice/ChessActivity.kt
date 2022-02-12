@@ -6,7 +6,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.leverett.chessrepertoirepractice.utils.BoardStyle
 import com.leverett.chessrepertoirepractice.utils.PieceStyle
-import com.leverett.rules.chess.representation.Move
+import com.leverett.repertoire.chess.move.MoveDefinition
 
 abstract class ChessActivity : AppCompatActivity() {
 
@@ -16,7 +16,7 @@ abstract class ChessActivity : AppCompatActivity() {
     open val boardViewModel: BoardViewModel
         get() = boardFragment.viewModel
 
-    open fun handleMove(move: Move?, undo:Boolean = false) {}
+    open fun handleMove(moveDefinition: MoveDefinition, undo:Boolean = false) {}
 
     fun undoMove(view: View) {
         boardViewModel.canMove = true

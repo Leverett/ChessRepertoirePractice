@@ -1,4 +1,4 @@
-package com.leverett.rules.chess.representation;
+package com.leverett.rules.chess.representation
 
 class GameHistory(private val startingGameState: GameState) {
 
@@ -11,7 +11,7 @@ class GameHistory(private val startingGameState: GameState) {
             val result = mutableListOf<String>()
             var gameState: GameState? = startingGameState
             while (gameState != null) {
-                if (gameState!!.fen != "")
+                if (gameState.fen != "")
                     result.add(gameState.algMove)
                 gameState = gameStatesForward[gameState.fen]
             }
@@ -34,7 +34,7 @@ class GameHistory(private val startingGameState: GameState) {
     fun stringToNow(): String {
         var result = ""
         var gameState: GameState? = gameStatesForward[startingGameState.fen]
-        if (currentGameState.fen != startingGameState.fen && gameState?.move != null) {
+        if (currentGameState.fen != startingGameState.fen && gameState?.moveAction != null) {
             do {
                 if (!gameState!!.position.activeColor) {
                     result += gameState.position.turn.toString() + ". "

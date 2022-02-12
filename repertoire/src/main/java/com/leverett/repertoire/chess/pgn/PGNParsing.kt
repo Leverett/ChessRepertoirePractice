@@ -4,6 +4,7 @@ import com.leverett.repertoire.chess.lines.Book
 import com.leverett.repertoire.chess.lines.Chapter
 import com.leverett.repertoire.chess.lines.LineTree
 import com.leverett.repertoire.chess.move.LineMove
+import com.leverett.repertoire.chess.move.MoveDefinition
 import com.leverett.repertoire.chess.move.MoveDetails
 import com.leverett.repertoire.chess.move.MoveDetails.Tag
 import com.leverett.repertoire.chess.move.MoveDetails.Tag.*
@@ -98,7 +99,7 @@ private fun extractLineTreeNames(chapterMetadataString: String): Pair<String, St
 
 internal fun parseMoves(chapter: Chapter, chapterMoves: String, position: Position, previousLineMove: LineMove? = null) {
     var currentPosition = position
-    var latestMove: Move? = null
+    var latestMove: MoveAction? = null
     var latestMoveDetails = MoveDetails()
     var latestMoveToken = ""
     var latestLineMove: LineMove? = previousLineMove
@@ -115,9 +116,7 @@ internal fun parseMoves(chapter: Chapter, chapterMoves: String, position: Positi
                     val nextPosition = rulesEngine.getNextPosition(currentPosition, latestMove)
                     val lineMove = LineMove(
                         chapter,
-                        currentPosition.copy(),
-                        nextPosition.copy(),
-                        latestMove.copy(),
+                        MoveDefinition(currentPosition.copy(), nextPosition.copy(), latestMove.copy()),
                         latestMoveDetails.copy(),
                         latestLineMove,
                         latestMoveToken
@@ -169,9 +168,7 @@ internal fun parseMoves(chapter: Chapter, chapterMoves: String, position: Positi
     val nextPosition = rulesEngine.getNextPosition(currentPosition, latestMove!!)
     val lineMove = LineMove(
         chapter,
-        currentPosition.copy(),
-        nextPosition.copy(),
-        latestMove,
+        MoveDefinition(currentPosition.copy(), nextPosition.copy(), latestMove),
         latestMoveDetails.copy(),
         latestLineMove,
         latestMoveToken
@@ -179,7 +176,7 @@ internal fun parseMoves(chapter: Chapter, chapterMoves: String, position: Positi
     chapter.addMove(lineMove)
 }
 
-internal fun makeMove(position: Position, moveToken: String): Move {
+internal fun makeMove(position: Position, moveToken: String): MoveAction {
     val activeColor = position.activeColor
 
     var token = moveToken
@@ -213,7 +210,7 @@ internal fun makeMove(position: Position, moveToken: String): Move {
     val startLoc = findStartLoc(accessibleLocations, token)
     val enPassant = (endLoc == position.enPassantTarget && pieceType == Piece.PieceType.PAWN)
     val capture = if (enPassant) getPiece(!activeColor, Piece.PieceType.PAWN) else position.pieceAt(endLoc)
-    return Move(startLoc, endLoc, capture, promotionPiece, enPassant)
+    return MoveAction(startLoc, endLoc, capture, promotionPiece, enPassant)
 }
 
 internal fun processAnnotations(moveToken: String, moveDetails: MoveDetails): String {

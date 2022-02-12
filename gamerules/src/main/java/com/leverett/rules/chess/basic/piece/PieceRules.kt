@@ -1,6 +1,6 @@
 package com.leverett.rules.chess.basic.piece
 
-import com.leverett.rules.chess.representation.Move
+import com.leverett.rules.chess.representation.MoveAction
 import com.leverett.rules.chess.representation.Piece
 import com.leverett.rules.chess.representation.Position
 
@@ -10,7 +10,7 @@ interface PieceRules {
      * Finds the valid moves for a piece at the initialized coordinates. Does not validate legality (i.e. check)
      * The color Property of the Piece instance is the color of the moving piece
      */
-    fun candidateMoves(position: Position): List<Move>
+    fun candidateMoves(position: Position): List<MoveAction>
 
     /**
      * Determines where pieces of the instance type threaten the initialized location from, if any

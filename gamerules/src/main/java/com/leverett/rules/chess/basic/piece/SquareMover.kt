@@ -1,4 +1,4 @@
-package com.leverett.rules.chess.basic.piece;
+package com.leverett.rules.chess.basic.piece
 
 import com.leverett.rules.chess.representation.*
 import com.leverett.rules.chess.representation.Piece.EMPTY
@@ -8,8 +8,8 @@ abstract class SquareMover(i: Int, j: Int):
 
     abstract val directions: Array<Pair<Int,Int>>
 
-    override fun candidateMoves(position: Position) : List<Move> {
-        val candidateMoves: MutableList<Move> = mutableListOf()
+    override fun candidateMoves(position: Position) : List<MoveAction> {
+        val candidateMoves: MutableList<MoveAction> = mutableListOf()
         val activeColor = position.activeColor
         val startCoords = Pair(i,j)
         for (direction in directions) {
@@ -20,7 +20,7 @@ abstract class SquareMover(i: Int, j: Int):
                     val locationPiece = position.placements[moveFile][moveRank]
                     if (locationPiece == EMPTY || activeColor != locationPiece.color!!) {
                         candidateMoves.add(
-                            Move(startCoords,
+                            MoveAction(startCoords,
                                 Pair(moveFile,moveRank),
                                 locationPiece)
                         )

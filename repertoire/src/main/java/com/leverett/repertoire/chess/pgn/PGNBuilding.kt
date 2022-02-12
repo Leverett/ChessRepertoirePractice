@@ -26,7 +26,7 @@ fun makeBookText(book: Book): String {
         result.append("\n")
     }
     for (chapter in book.lineTrees) {
-        result.append(makeChapterText(chapter as Chapter) + CHAPTER_DELIMITER)
+        result.append(makeChapterText(chapter) + CHAPTER_DELIMITER)
     }
     return result.toString()
 }
@@ -37,7 +37,7 @@ fun makeChapterText(chapter: Chapter): String {
 
 fun makeChapterHeader(chapter: Chapter): String {
     val nameText = if (chapter.isStandalone()) chapter.name
-        else chapter.book!!.name + BOOK_CHAPTER_NAME_DELIMITER + chapter.name
+        else chapter.name
     var result = makeMetadataToken(NAME_PREFIX, nameText)
     if (chapter.description != null) {
         val descriptionToken = makeMetadataToken(CHAPTER_DESCRIPTION_PREFIX, chapter.description!!)
@@ -51,17 +51,23 @@ fun makeChapterHeader(chapter: Chapter): String {
     return result
 }
 
-fun makeChapterPgn(chapter: Chapter): String {
+/**
+ * The exported chapter param is because when I reconstruct the combined, single PGN from several chapters,
+ * I don't have a good way to correctly assign the previousLineMove field as I was creating the line moves.
+ * This field is necessary to generate normal lineTree pgns in order to prevent possible loops and stuff
+ * between the branches. Fortunately, it is guaranteed to not be necessary generated pgns
+ */
+fun makeChapterPgn(chapter: Chapter, exportedChapter: Boolean = false): String {
     val currentPosition = if (chapter.startingPositionFen == null) startingPosition() else positionFromFen(chapter.startingPositionFen)
     val lineMoves = chapter.getMoves(currentPosition)
-    return generateLinePgn(currentPosition, lineMoves, chapter, true) + " $CHAPTER_END"
+    return generateLinePgn(currentPosition, lineMoves, chapter, true, exportedChapter) + " $CHAPTER_END"
 }
 
 fun makeMetadataToken(metadataPrefix: String, metadataValue: String): String {
     return METADATA_TOKEN_START + metadataPrefix + METADATA_VALUE_TAG + metadataValue + METADATA_VALUE_TAG + METADATA_TOKEN_END
 }
 
-private fun generateLinePgn(currentPosition: Position, lineMoves: List<LineMove>, lineTree: LineTree, isFirstMove: Boolean = false): String {
+private fun generateLinePgn(currentPosition: Position, lineMoves: List<LineMove>, lineTree: LineTree, isFirstMove: Boolean = false, exportedChapter: Boolean = false): String {
     val turn = currentPosition.turn.toString()
     val result = StringBuilder()
     result.append(if (isFirstMove && !currentPosition.activeColor) "$turn... " else "")
@@ -69,7 +75,7 @@ private fun generateLinePgn(currentPosition: Position, lineMoves: List<LineMove>
         if (branchNumber > 0) {
             result.append(TOKEN_DELIMITER)
             result.append(BRANCH_START)
-            result.append(generateLinePgn(currentPosition, listOf(lineMoves[branchNumber]), lineTree, true))
+            result.append(generateLinePgn(currentPosition, listOf(lineMoves[branchNumber]), lineTree, true, exportedChapter))
             result.append(BRANCH_END)
         } else {
             val turnToken =
@@ -87,10 +93,10 @@ private fun generateLinePgn(currentPosition: Position, lineMoves: List<LineMove>
     if (lineMoves.isNotEmpty()) {
         val currentMove = lineMoves.first()
         val nextPosition = currentMove.nextPosition
-        val nextMoves = lineTree.getMoves(nextPosition).filter{it.previousLineMove == currentMove}
+        val nextMoves = lineTree.getMoves(nextPosition).filter{it.previousLineMove == currentMove || exportedChapter}
         if (nextMoves.isNotEmpty()) {
             result.append(TOKEN_DELIMITER)
-            result.append(generateLinePgn(nextPosition, nextMoves, lineTree))
+            result.append(generateLinePgn(nextPosition, nextMoves, lineTree, exportedChapter = exportedChapter))
         }
     }
     return result.toString()
@@ -112,29 +118,29 @@ private fun tagToAnnotation(tag: MoveDetails.Tag): String? {
     }
 }
 
-fun makeMoveNotation(position: Position?, move: Move?): String {
+fun makeMoveNotation(position: Position?, moveAction: MoveAction?): String {
     var legalitylessMove = ""
-    if (move == null || position == null) {
+    if (moveAction == null || position == null) {
         return legalitylessMove
     }
-    if (move == WHITE_KINGSIDE_CASTLE || move == BLACK_KINGSIDE_CASTLE) {
+    if (moveAction == WHITE_KINGSIDE_CASTLE || moveAction == BLACK_KINGSIDE_CASTLE) {
         legalitylessMove = KINGSIDE_CASTLE
-    } else if (move == WHITE_QUEENSIDE_CASTLE || move == BLACK_QUEENSIDE_CASTLE) {
+    } else if (moveAction == WHITE_QUEENSIDE_CASTLE || moveAction == BLACK_QUEENSIDE_CASTLE) {
             legalitylessMove = QUEENSIDE_CASTLE
     } else {
-        val startLoc = move.startLoc
+        val startLoc = moveAction.startLoc
         val piece = position.pieceAt(startLoc)
         val pieceType = piece.type
         if (pieceType != Piece.PieceType.PAWN) {
             legalitylessMove += pieceType.pieceTypeChar
         }
 
-        val endLoc = move.endLoc
+        val endLoc = moveAction.endLoc
         val pieceRules = getPieceRules(pieceType, endLoc) as PieceRules
         if (pieceType != Piece.PieceType.PAWN) {
             legalitylessMove += disambiguatePieceToken(position, startLoc, pieceRules)
         }
-        if (move.capture != Piece.EMPTY) {
+        if (moveAction.capture != Piece.EMPTY) {
             // not done in the disambiguation as it always appears in notation regardless of ambiguity
             if (pieceType == Piece.PieceType.PAWN) {
                 legalitylessMove += fileToNotation(startLoc.first)
@@ -142,12 +148,12 @@ fun makeMoveNotation(position: Position?, move: Move?): String {
             legalitylessMove += CAPTURE_CHAR
         }
         legalitylessMove += locationToNotation(endLoc)
-        if (move.promotion != null) {
-            legalitylessMove += (PROMOTION_CHAR.toString() + move.promotion!!.type.pieceTypeChar)
+        if (moveAction.promotion != null) {
+            legalitylessMove += (PROMOTION_CHAR.toString() + moveAction.promotion!!.type.pieceTypeChar)
         }
     }
 
-    return annotateLegality(legalitylessMove, rulesEngine.getNextPosition(position, move))
+    return annotateLegality(legalitylessMove, rulesEngine.getNextPosition(position, moveAction))
 }
 
 fun annotatedMoveNotation(algMove: String, moveDetails: MoveDetails): String {

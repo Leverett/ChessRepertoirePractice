@@ -21,8 +21,8 @@ class King(i: Int, j: Int) : SquareMover(i, j) {
             Pair(1, 0),
             Pair(1, 1))
 
-    override fun candidateMoves(position: Position) : List<Move> {
-        val candidateMoves: MutableList<Move> = super.candidateMoves(position) as MutableList<Move>
+    override fun candidateMoves(position: Position) : List<MoveAction> {
+        val candidateMoves: MutableList<MoveAction> = super.candidateMoves(position) as MutableList<MoveAction>
         val activeColor = position.activeColor
         val placements = position.placements
 

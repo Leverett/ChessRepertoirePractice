@@ -2,9 +2,10 @@ package com.leverett.repertoire.chess.lines
 
 import com.leverett.repertoire.chess.move.LineMove
 import com.leverett.rules.chess.representation.Position
+import java.lang.StringBuilder
 
 class Chapter(val chapterName: String, description: String? = null, val startingPositionFen: String? = null, var book: Book? = null) :
-    LineTreeBase(if (book != null) {"${book.name} : $chapterName"} else chapterName, description), LineTree {
+    LineTreeBase(if (book != null) {"${book.name}: $chapterName"} else chapterName, description), LineTree {
 
     private val statelessHashToPosition: MutableMap<String, MutableList<Position>> = mutableMapOf() // unlikely to ever have more than one state but who knows
     private val positionHashToMoves: MutableMap<String, MutableList<LineMove>> = mutableMapOf()
@@ -49,16 +50,30 @@ class Chapter(val chapterName: String, description: String? = null, val starting
         }
     }
 
+    fun getPreferredMoves(position: Position): List<LineMove> {
+        val moves = getMoves(position)
+        val preferredMoves = if (moves.isNotEmpty()) {
+            moves
+                .filter{it.preferred}
+                .ifEmpty{listOf(moves.first())}
+                .map{it.algMove}
+        } else {
+            listOf()
+        }
+        // This is to catch any descriptions that might be added on alternate branches that somehow didn't get caught
+        return moves.filter{preferredMoves.contains(it.algMove)}
+    }
+
     fun isStandalone(): Boolean {
         return book == null
     }
 
     fun quickDisplay(): String {
-        var result = ""
+        val result = StringBuilder()
         for (value in positionHashToMoves.values) {
-            result += value.joinToString(" ", "(", ")")
+            result.append(value.joinToString(" ", "(", ")"))
         }
-        return result
+        return result.toString()
     }
 
     override fun copy(): LineTree {
