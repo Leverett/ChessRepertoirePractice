@@ -6,18 +6,16 @@ import com.leverett.repertoire.chess.pgn.BASELINE_CHAPTER_NAME
 import com.leverett.repertoire.chess.settings.PlaySettings
 import java.lang.StringBuilder
 
-class MoveResults() {
+class MoveResults(private val playSettings: PlaySettings) {
 
     private val repertoireManager = RepertoireManager
-    private val playSettings: PlaySettings
-        get() = repertoireManager.playSettings
 
-    constructor(nextMoveResults: Map<MoveDefinition, MoveResult>, movesToLineMoves: Map<MoveDefinition,MutableList<LineMove>>): this() {
+    constructor(nextMoveResults: Map<MoveDefinition, MoveResult>, movesToLineMoves: Map<MoveDefinition,MutableList<LineMove>>, playSettings: PlaySettings): this(playSettings) {
         this.nextMoveResults.putAll(nextMoveResults)
         this.equivalentMovesMap.putAll(movesToLineMoves)
     }
 
-    constructor(lineMoves: Collection<LineMove>, playerMove: Boolean): this() {
+    constructor(lineMoves: Collection<LineMove>, playerMove: Boolean, playSettings: PlaySettings): this(playSettings) {
         for (nextLineMove in lineMoves) {
             val lineMoveSet = equivalentMovesMap[nextLineMove.moveDefinition]
             if (lineMoveSet != null) {
@@ -246,7 +244,7 @@ class MoveResults() {
     }
 
     fun copy(): MoveResults {
-        return MoveResults(nextMoveResults.toMap(), equivalentMovesMap.toMap())
+        return MoveResults(nextMoveResults.toMap(), equivalentMovesMap.toMap(), playSettings.copy())
     }
 
 }

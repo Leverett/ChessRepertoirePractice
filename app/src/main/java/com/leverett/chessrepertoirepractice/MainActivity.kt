@@ -17,30 +17,13 @@ import com.google.android.gms.tasks.Task
 import com.google.api.services.drive.DriveScopes
 import com.leverett.chessrepertoirepractice.utils.*
 import com.leverett.rules.chess.representation.log
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import java.io.File
 
 
 class MainActivity : AppCompatActivity() {
 
-    private var signInResultLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            // Signed in successfully, show authenticated UI.
-            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-            try {
-                account =
-                    task.getResult(ApiException::class.java)
-            } catch (e: ApiException) {
-                log("signIn", "failure")
-            }
-            setupDriveInfo(this)
-        }
-    }
-
-    private lateinit var account: GoogleSignInAccount
+    private val signInResultLauncher = registerSignInResult(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,15 +54,11 @@ class MainActivity : AppCompatActivity() {
 
     fun signInButton(view: View) {
         signIn(this, signInResultLauncher)
-//        setupDriveInfo(this)
+        setupDriveInfo(this)
     }
 
     fun testButton(view: View) {
-        setupDriveInfo(this)
-        val files: MutableList<File> = mutableListOf()
-        writeLocalTempFiles(this.applicationContext, files)
-        for (file in files) {
-            log("testButton", file.name)
-        }
+        val context = this.applicationContext
+        CoroutineScope(Dispatchers.IO).launch { uploadRepertoire(context) }
     }
 }

@@ -3,18 +3,17 @@ package com.leverett.repertoire.chess
 import com.leverett.repertoire.chess.lines.*
 import com.leverett.repertoire.chess.move.LineMove
 import com.leverett.repertoire.chess.settings.Configuration
-import com.leverett.repertoire.chess.settings.PlaySettings
 import com.leverett.rules.chess.representation.Position
 
 object RepertoireManager {
 
     const val DEFAULT_CONFIGURATION_NAME = "Default"
-    private val DEFAULT_CONFIGURATION = Configuration(DEFAULT_CONFIGURATION_NAME, mutableSetOf(), PlaySettings(), true)
+    private val DEFAULT_CONFIGURATION = Configuration(DEFAULT_CONFIGURATION_NAME, mutableSetOf(), true)
 
     var repertoire: Repertoire = Repertoire(mutableListOf())
 
     var currentConfigurationName: String = DEFAULT_CONFIGURATION_NAME
-    private val configuration: Configuration
+    val configuration: Configuration
         get() = configurations[currentConfigurationName]!!
     var configurations: MutableMap<String, Configuration> = mutableMapOf(Pair(DEFAULT_CONFIGURATION_NAME, DEFAULT_CONFIGURATION))
     val configurationNames: List<String>
@@ -22,8 +21,6 @@ object RepertoireManager {
 
     private val activeRepertoire
         get() = configuration.activeRepertoire
-    val playSettings: PlaySettings
-        get() = configuration.playSettings
     val color: Boolean
         get() = configuration.color
 
@@ -39,7 +36,7 @@ object RepertoireManager {
 
     fun newConfiguration(configurationName: String, color: Boolean) {
         configurations[configurationName] =
-            Configuration(configurationName, mutableSetOf(), PlaySettings(), color)
+            Configuration(configurationName, mutableSetOf(), color)
         currentConfigurationName = configurationName
     }
 

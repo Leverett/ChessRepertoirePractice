@@ -7,4 +7,10 @@
     <dimen name="popup_button_width">96dp</dimen>
     <dimen name="configuration_option_height">48dp</dimen>
     <dimen name="board_bar_height">32dp</dimen>
+    <dimen name="sync_buttons_text">24sp</dimen>
+    <dimen name="sync_option_side_margin">10dp</dimen>
+    <dimen name="configuration_circle_size">16dp</dimen>
+    <dimen name="configuration_item_margin">12dp</dimen>
+    <dimen name="configuration_item_text">26sp</dimen>
+    <dimen name="configuration_circle_margin">8dp</dimen>
 </resources>

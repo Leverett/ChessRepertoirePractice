@@ -50,12 +50,28 @@ class Chapter(val chapterName: String, description: String? = null, val starting
         }
     }
 
+    /**
+     * This function gets the preferred moves for a given position. This is determined as the fist of:
+     * 1. Any moves specifically labelled as 'preferred'
+     * 2. The first non-mistake move available in the position
+     * (3. Empty list)
+     *
+     * Which is then mapped to the algMove key, and the whole list is filtered for that algMove in case
+     * there was a branch that reached the same position with a different comment that doesn't ever
+     * fit one of the above criteria
+     */
     fun getPreferredMoves(position: Position): List<LineMove> {
         val moves = getMoves(position)
         val preferredMoves = if (moves.isNotEmpty()) {
-            moves
+             moves
                 .filter{it.preferred}
-                .ifEmpty{listOf(moves.first())}
+                .ifEmpty{
+                    try {
+                        listOf(moves.first{!it.mistake})
+                    } catch (e: NoSuchElementException) {
+                        listOf()
+                    }
+                }
                 .map{it.algMove}
         } else {
             listOf()

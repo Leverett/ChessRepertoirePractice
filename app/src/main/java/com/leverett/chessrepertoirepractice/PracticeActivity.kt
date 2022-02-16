@@ -26,8 +26,7 @@ class PracticeActivity : ChessActivity() {
     override val boardId = R.id.practice_board
 
     private val repertoireManager = RepertoireManager
-    private val playSettings: PlaySettings
-        get() = repertoireManager.playSettings
+    private val playSettings = PlaySettings()
 
     private var sandboxMode = false
     private var automateOpponent = false
@@ -72,7 +71,7 @@ class PracticeActivity : ChessActivity() {
     private val previousMoveResults: MoveResults?
         get(){
             val previousGameState = boardViewModel.gameHistory.previousGameState()
-            return if (previousGameState == null) null else  MoveResults(repertoireManager.getMoves(previousGameState.position), !playerMove)
+            return if (previousGameState == null) null else  MoveResults(repertoireManager.getMoves(previousGameState.position), !playerMove, playSettings)
         }
 
 
@@ -82,7 +81,7 @@ class PracticeActivity : ChessActivity() {
         practiceButtons = findViewById(R.id.practice_activity_move_buttons)
         displayView = findViewById(R.id.display_view)
         displayView.movementMethod = ScrollingMovementMethod()
-        moveResults = MoveResults(lineMoves, playerMove)
+        moveResults = MoveResults(lineMoves, playerMove, playSettings)
         setupConfigurationsMenu()
     }
 
@@ -115,14 +114,14 @@ class PracticeActivity : ChessActivity() {
     }
 
     private fun calculateMoveResults() {
-        moveResults = MoveResults(lineMoves, playerMove)
+        moveResults = MoveResults(lineMoves, playerMove, playSettings)
     }
 
     private fun calculateUndoMoveResults() {
         moveResults = if (previousMoveResults != null) {
             previousMoveResults!!.copy()
         } else {
-            MoveResults(lineMoves, playerMove)
+            MoveResults(lineMoves, playerMove, playSettings)
         }
     }
 
@@ -377,7 +376,7 @@ class PracticeActivity : ChessActivity() {
     }
 
     override fun resetActivity() {
-        moveResults = MoveResults(lineMoves, playerMove)
+        moveResults = MoveResults(lineMoves, playerMove, playSettings)
         playButtonsLayout = if (playerMove) {
             playerMovesButtonLayoutId()
         } else {

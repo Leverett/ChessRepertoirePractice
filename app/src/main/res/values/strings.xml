@@ -59,5 +59,9 @@
     <string name="practice_mode">Practice Mode</string>
     <string name="color_text">Color</string>
     <string name="test_button">Test</string>
+    <string name="sync_options">Sync Options</string>
+    <string name="lichess_sync_button">Sync Repertoire with Lichess</string>
+    <string name="download_configurations_button">Download Configurations</string>
+    <string name="upload_repertoire_button">Upload Repertoire</string>
 
 </resources>

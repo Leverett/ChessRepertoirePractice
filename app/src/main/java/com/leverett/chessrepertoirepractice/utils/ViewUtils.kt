@@ -27,30 +27,3 @@ fun makeConfirmationDialog(context: Context, layoutInflater: LayoutInflater, anc
         popupWindow.dismiss()
     }
 }
-
-fun makeAccountInfoPopup(context: Context, layoutInflater: LayoutInflater, anchorView: View, action: (() -> Unit)? = null) {
-    val accountInfo = LichessAccountInfo
-    val popupView = layoutInflater.inflate(R.layout.account_info_popup, null) as ConstraintLayout
-    val popupWindow = PopupWindow(popupView, popupWidthDp(context, 2.5f), ConstraintLayout.LayoutParams.WRAP_CONTENT, true)
-    val accountNameInputView = popupView.findViewById<TextInputEditText>(R.id.account_name_input)
-    val apiTokenInputView = popupView.findViewById<TextInputEditText>(R.id.api_token_input)
-    if (accountInfo.accountName != null) {
-        accountNameInputView.setText(accountInfo.accountName)
-    }
-    if (accountInfo.apiToken != null) {
-        apiTokenInputView.setText(accountInfo.apiToken)
-    }
-    popupWindow.showAtLocation(anchorView, Gravity.CENTER, 0, 0)
-    popupView.findViewById<Button>(R.id.ok_button).setOnClickListener {
-        accountInfo.accountName = accountNameInputView.text.toString()
-        accountInfo.apiToken = apiTokenInputView.text.toString()
-        storeLichessAccountInfo(context)
-        if (!accountInfo.incompleteInfo && action != null) {
-            action()
-        }
-        popupWindow.dismiss()
-    }
-    popupView.findViewById<Button>(R.id.cancel_button).setOnClickListener {
-        popupWindow.dismiss()
-    }
-}
