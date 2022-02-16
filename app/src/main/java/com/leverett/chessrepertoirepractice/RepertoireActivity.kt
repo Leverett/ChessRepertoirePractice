@@ -49,8 +49,6 @@ class RepertoireActivity : AppCompatActivity() {
     }
 
     private fun setupConfigurationsMenu() {
-//        configurationViewAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, repertoireManager.configurationNames.toMutableList())
-//            .also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
         configurationViewAdapter = ConfigurationListAdapter(this)
         configurationsView = findViewById(R.id.configurations_menu)
         configurationsView.adapter = configurationViewAdapter
@@ -187,8 +185,6 @@ class RepertoireActivity : AppCompatActivity() {
     }
 
     private fun updateConfigurationsMenu() {
-//        configurationViewAdapter.clear()
-//        configurationViewAdapter.addAll(repertoireManager.configurations.values)
         configurationViewAdapter.notifyDataSetChanged()
         configurationsView.setSelection(configurationViewAdapter.getPosition(repertoireManager.configuration))
     }
