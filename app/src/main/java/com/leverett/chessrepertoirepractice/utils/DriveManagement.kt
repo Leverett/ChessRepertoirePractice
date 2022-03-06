@@ -19,12 +19,14 @@ import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import com.google.api.services.drive.model.File
 import com.leverett.repertoire.chess.RepertoireManager
+import com.leverett.repertoire.chess.lines.Book
+import com.leverett.repertoire.chess.pgn.makeRepertoirePgnForBook
+import com.leverett.repertoire.chess.pgn.makeRepertoirePgnForConfiguration
 import com.leverett.rules.chess.representation.log
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import java.io.FileOutputStream
-import java.io.OutputStream
 
 private const val DRIVE_SPACE = "drive"
 private const val DRIVE_FIELDS = "nextPageToken, files(id, name, parents, modifiedTime)"
@@ -32,6 +34,7 @@ private const val PLAINTEXT_TYPE = "text/plain"
 
 private const val APP_FOLDER_NAME = "RepertoirePractice"
 private const val TEMPO_FOLDER_NAME = "TempoPGNs"
+private const val COMPONENT_FOLDER_NAME = "ComponentPGNs"
 
 
 fun signIn(activity: Activity, signInResultLauncher: ActivityResultLauncher<Intent>) = runBlocking {
@@ -74,7 +77,7 @@ fun setupDriveInfo(context: Context) = runBlocking {
                     when (file.name) {
                         APP_FOLDER_NAME -> driveInfo.appFolderId = file.id
                         TEMPO_FOLDER_NAME -> driveInfo.tempoFolderId = file.id
-                        CONFIGURATIONS_FILE_NAME -> configFiles.add(file)
+                        COMPONENT_FOLDER_NAME -> driveInfo.componentFolderId = file.id
                         else -> {}
                     }
                 }
@@ -90,23 +93,52 @@ suspend fun uploadRepertoire(context: Context) {
         val job = setupDriveInfo(context)
         job.join()
     }
+    val tempDir = java.io.File(context.filesDir, TEMP_DIR_NAME)
+    if (tempDir.exists()) {
+        tempDir.deleteRecursively()
+    }
     val tempoDirectory = listOf(driveInfo.tempoFolderId!!)
     writeLocalTempoFiles(context).collect { uploadFile(it, tempoDirectory) }
+    val componentDirectory = listOf(driveInfo.componentFolderId!!)
+    writeLocalTempoComponentFiles(context).collect {
+        uploadFile(it, componentDirectory)
+    }
     val configurationsFile = configurationsFile(context)
     if (!configurationsFile.exists()) {
         storeConfigurations(context)
     }
     uploadFile(configurationsFile, listOf(driveInfo.appFolderId!!))
-
 }
 
 fun writeLocalTempoFiles(context: Context) = flow {
     val repertoireManager = RepertoireManager
     repertoireManager.configurations.values
         .forEach {
-            val tempoFile = storeTempoPgnFile(context, it)
+            val pgn = makeRepertoirePgnForConfiguration(it)
+            val tempoFile = makeTempoFile(context, it.name, it.color, pgn)
             emit(tempoFile)
         }
+}
+
+fun writeLocalTempoComponentFiles(context: Context) = flow {
+    val repertoireManager = RepertoireManager
+    repertoireManager.repertoire.lineTrees.forEach {
+        if (it is Book) {
+            val whiteTempoFile =
+                makeTempoFile(context, it.name, true, makeRepertoirePgnForBook(it, true))
+            emit(whiteTempoFile)
+            val blackTempoFile =
+                makeTempoFile(context, it.name, false, makeRepertoirePgnForBook(it, false))
+            emit(blackTempoFile)
+        } //TODO: Also emit if there is a standalone chapter
+    }
+}
+
+fun makeTempoFile(context: Context, name: String, color: Boolean, pgn: String): java.io.File {
+    val colorString = if (color) {"white"} else {"black"}
+    val safeName = name.replace("/", "-")
+    val filename = "${safeName}_$colorString.pgn"
+    return storeTempoPgnFile(context, filename, pgn)
 }
 
 fun uploadFile(file: java.io.File, parents: List<String>?) {
@@ -124,20 +156,19 @@ fun uploadFile(file: java.io.File, parents: List<String>?) {
 
 suspend fun downloadConfigurations(context: Context) {
     val driveInfo = DriveInfo
-    log("downloadConfigurations", "before")
     if (driveInfo.incomplete) {
-        log("downloadConfigurations", "update drive info")
         val job =
             setupDriveInfo(context)
         job.join()
-        log("downloadConfigurations", "done updating drive info")
     }
-    log("downloadConfigurations", "setting up download")
+    if (driveInfo.configurationFileId == null) {
+        // TODO: give message
+        return
+    }
     val localConfigurationsFile = configurationsFile(context)
     val outputStream = FileOutputStream(localConfigurationsFile)
     val downloadJob = CoroutineScope(Dispatchers.IO).launch { driveInfo.drive!!.files().get(driveInfo.configurationFileId).executeMediaAndDownloadTo(outputStream) }
     downloadJob.join()
-    log("downloadConfigurations", "done")
     outputStream.close()
 }
 
@@ -149,9 +180,11 @@ object DriveInfo {
         get() = googleAccount == null ||
                 drive == null ||
                 appFolderId == null ||
-                tempoFolderId == null
+                tempoFolderId == null ||
+                componentFolderId == null
     var appFolderId: String? = null
     var tempoFolderId: String? = null
+    var componentFolderId: String? = null
     var configurationFileId: String? = null
 
 }

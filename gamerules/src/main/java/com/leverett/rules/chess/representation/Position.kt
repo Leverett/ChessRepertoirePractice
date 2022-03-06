@@ -53,4 +53,8 @@ class Position(val placements:Array<Array<Piece>>,
         }
         return fen == other.fen
     }
+
+    override fun hashCode(): Int {
+        return fen.hashCode()
+    }
 }

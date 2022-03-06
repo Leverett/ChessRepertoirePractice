@@ -19,20 +19,20 @@ fun makeLineTreeText(lineTree: LineTree): String {
     return if (lineTree is Book) makeBookText(lineTree) else makeChapterText(lineTree as Chapter)
 }
 
-fun makeBookText(book: Book): String {
+fun makeBookText(book: Book, exportedChapter: Boolean = false): String {
     val result = StringBuilder()
     if (book.description != null) {
         result.append(makeMetadataToken(BOOK_DESCRIPTION_PREFIX, book.description!!))
         result.append("\n")
     }
     for (chapter in book.lineTrees) {
-        result.append(makeChapterText(chapter) + CHAPTER_DELIMITER)
+        result.append(makeChapterText(chapter, exportedChapter) + CHAPTER_DELIMITER)
     }
     return result.toString()
 }
 
-fun makeChapterText(chapter: Chapter): String {
-    return makeChapterHeader(chapter) + makeChapterPgn(chapter)
+fun makeChapterText(chapter: Chapter, exportedChapter: Boolean = false): String {
+    return makeChapterHeader(chapter) + makeChapterPgn(chapter, exportedChapter)
 }
 
 fun makeChapterHeader(chapter: Chapter): String {
@@ -56,18 +56,21 @@ fun makeChapterHeader(chapter: Chapter): String {
  * I don't have a good way to correctly assign the previousLineMove field as I was creating the line moves.
  * This field is necessary to generate normal lineTree pgns in order to prevent possible loops and stuff
  * between the branches. Fortunately, it is guaranteed to not be necessary generated pgns
+ *
+ * Well that was incorrect...
  */
 fun makeChapterPgn(chapter: Chapter, exportedChapter: Boolean = false): String {
     val currentPosition = if (chapter.startingPositionFen == null) startingPosition() else positionFromFen(chapter.startingPositionFen)
     val lineMoves = chapter.getMoves(currentPosition)
-    return generateLinePgn(currentPosition, lineMoves, chapter, true, exportedChapter) + " $CHAPTER_END"
+    val visitedPositions: MutableSet<Position> = mutableSetOf()
+    return generateLinePgn(currentPosition, lineMoves, chapter, visitedPositions,true, exportedChapter) + " $CHAPTER_END"
 }
 
 fun makeMetadataToken(metadataPrefix: String, metadataValue: String): String {
     return METADATA_TOKEN_START + metadataPrefix + METADATA_VALUE_TAG + metadataValue + METADATA_VALUE_TAG + METADATA_TOKEN_END
 }
 
-private fun generateLinePgn(currentPosition: Position, lineMoves: List<LineMove>, lineTree: LineTree, isFirstMove: Boolean = false, exportedChapter: Boolean = false): String {
+private fun generateLinePgn(currentPosition: Position, lineMoves: List<LineMove>, lineTree: LineTree, visitedPositions: MutableSet<Position>, isFirstMove: Boolean = false, exportedChapter: Boolean = false): String {
     val turn = currentPosition.turn.toString()
     val result = StringBuilder()
     result.append(if (isFirstMove && !currentPosition.activeColor) "$turn... " else "")
@@ -75,7 +78,7 @@ private fun generateLinePgn(currentPosition: Position, lineMoves: List<LineMove>
         if (branchNumber > 0) {
             result.append(TOKEN_DELIMITER)
             result.append(BRANCH_START)
-            result.append(generateLinePgn(currentPosition, listOf(lineMoves[branchNumber]), lineTree, true, exportedChapter))
+            result.append(generateLinePgn(currentPosition, listOf(lineMoves[branchNumber]), lineTree, visitedPositions, true, exportedChapter))
             result.append(BRANCH_END)
         } else {
             val turnToken =
@@ -94,11 +97,12 @@ private fun generateLinePgn(currentPosition: Position, lineMoves: List<LineMove>
         val currentMove = lineMoves.first()
         val nextPosition = currentMove.nextPosition
         val nextMoves = lineTree.getMoves(nextPosition).filter{it.previousLineMove == currentMove || exportedChapter}
-        if (nextMoves.isNotEmpty()) {
+        if (nextMoves.isNotEmpty() && !visitedPositions.contains(currentPosition)) {
             result.append(TOKEN_DELIMITER)
-            result.append(generateLinePgn(nextPosition, nextMoves, lineTree, exportedChapter = exportedChapter))
+            result.append(generateLinePgn(nextPosition, nextMoves, lineTree, visitedPositions, exportedChapter = exportedChapter))
         }
     }
+    visitedPositions.add(currentPosition)
     return result.toString()
 }
 

@@ -15,19 +15,35 @@ import java.util.concurrent.ConcurrentLinkedQueue
 
 
 fun makeRepertoirePgnForConfiguration(configuration: Configuration): String {
-    val chapter = makeRepertoireChapterForConfiguration(configuration)
-    return makeChapterPgn(chapter, true)
+    val name = configuration.name
+    val chapters = getActiveChapters(configuration.activeRepertoire)
+    val color = configuration.color
+    val chapter = makeRepertoireChapterFromChapters(name, chapters, color)
+    return makeChapterText(chapter, true)
 }
 
-private fun makeRepertoireChapterForConfiguration(configuration: Configuration): Chapter {
-    val result = Chapter(configuration.name)
-    val chapters = getActiveChapters(configuration.activeRepertoire)
+fun makeRepertoirePgnForBook(book: Book, color: Boolean): String {
+    val completeBookChapter = makeRepertoireChapterFromChapters(COMPLETE_CHAPTER_NAME, book.chapters, color)
+    val chapters = book.chapters.filter{it.chapterName != BASELINE_CHAPTER_NAME}
+    val baselineChapter = book.chapters.firstOrNull{it.chapterName == BASELINE_CHAPTER_NAME}
+    val chapterList = mutableListOf(completeBookChapter)
+    for (chapter in chapters) {
+        val name = chapter.name
+        val chapterSet = if (baselineChapter == null) {setOf(chapter)} else setOf(baselineChapter, chapter)
+        chapterList.add(makeRepertoireChapterFromChapters(name, chapterSet, color))
+    }
+    val completeBook = Book(chapterList, book.name, book.description)
+    return makeBookText(completeBook, true)
+}
+
+private fun makeRepertoireChapterFromChapters(name: String, chapters: Iterable<Chapter>, color: Boolean): Chapter {
+    val result = Chapter(name)
     val equivalentMovesMap: MutableMap<MoveDefinition, MutableList<LineMove>> = mutableMapOf()
 
     val positions: Queue<Position> = ConcurrentLinkedQueue<Position>().also{it.add(startingPosition())}
     val visitedPositions: MutableSet<String> = mutableSetOf()
     var position: Position? = startingPosition()
-    var isRepertoireColor = configuration.color
+    var isRepertoireColor = color
     while (position != null) {
         val lineMoves: List<LineMove> = if (isRepertoireColor) {
             chapters.map { it.getPreferredMoves(position!!) }.flatten()
@@ -48,7 +64,7 @@ private fun makeRepertoireChapterForConfiguration(configuration: Configuration):
     }
 
     equivalentMovesMap.entries.stream()
-        .map { LineMove(it.key, getMoveDetails(it.value), null, configuration.name, null, null) }
+        .map { LineMove(it.key, getMoveDetails(it.value), null, name, null, null) }
         .forEach{result.addMove(it)}
 
     return result

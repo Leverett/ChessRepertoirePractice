@@ -21,7 +21,7 @@ const val CONFIGURATIONS_FILE_NAME = "Configurations.json"
 private const val CURRENT_CONFIGURATION_FILE_NAME = "CurrentConfiguration.txt"
 private const val ACCOUNT_INFO_FILE_NAME = "AccountInfo.txt"
 
-private const val TEMP_DIR_NAME = "temp"
+const val TEMP_DIR_NAME = "temp"
 
 private const val NULL_VALUE = "null"
 
@@ -135,7 +135,7 @@ fun setupRepertoireManager(context: Context) {
                 val reader = FileReader(repertoireFile)
                 val text = reader.readText()
                 reader.close()
-                if (text.isNullOrBlank()) {
+                if (text.isBlank()) {
                     repertoireFile.delete()
                 } else {
                     val lineTree =
@@ -209,17 +209,15 @@ fun setupLichessAccountInfo(context: Context) {
     }
 }
 
-fun storeTempoPgnFile(context: Context, configuration: Configuration): File {
-    val color = if (configuration.color) {"white"} else {"black"}
-    val name = "${configuration.name}_$color.pgn"
-    val pgn = makeRepertoirePgnForConfiguration(configuration)
+fun storeTempoPgnFile(context: Context, filename: String, pgn: String): File {
     val tempDir = File(context.filesDir, TEMP_DIR_NAME)
     if (!tempDir.exists()) {
         tempDir.mkdir()
     }
-    val file = File(tempDir, name)
+    val file = File(tempDir, filename)
     file.writeText(pgn)
     return file
+
 }
 
 private fun lineTreeFileName(lineTree: LineTree): String {

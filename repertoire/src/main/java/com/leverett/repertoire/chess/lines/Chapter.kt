@@ -7,6 +7,8 @@ import java.lang.StringBuilder
 class Chapter(val chapterName: String, description: String? = null, val startingPositionFen: String? = null, var book: Book? = null) :
     LineTreeBase(if (book != null) {"${book.name}: $chapterName"} else chapterName, description), LineTree {
 
+    override val name: String
+        get() = if (book != null) {"${book!!.name}: $chapterName"} else chapterName
     private val statelessHashToPosition: MutableMap<String, MutableList<Position>> = mutableMapOf() // unlikely to ever have more than one state but who knows
     private val positionHashToMoves: MutableMap<String, MutableList<LineMove>> = mutableMapOf()
 

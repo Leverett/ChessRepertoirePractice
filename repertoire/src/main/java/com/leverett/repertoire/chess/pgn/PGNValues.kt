@@ -38,3 +38,4 @@ const val WHITE_ATTACK_ANNOTATION = "\$40"
 const val BLACK_ATTACK_ANNOTATION = "\$41"
 
 const val BASELINE_CHAPTER_NAME = "Baseline"
+const val COMPLETE_CHAPTER_NAME = "Complete"
