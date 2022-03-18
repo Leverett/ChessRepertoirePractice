@@ -100,7 +100,7 @@ suspend fun uploadRepertoire(context: Context) {
     val tempoDirectory = listOf(driveInfo.tempoFolderId!!)
     writeLocalTempoFiles(context).collect { uploadFile(it, tempoDirectory) }
     val componentDirectory = listOf(driveInfo.componentFolderId!!)
-    writeLocalTempoComponentFiles(context).collect {
+    writeLocalTempoComponentFiles(context).collect { it.name
         uploadFile(it, componentDirectory)
     }
     val configurationsFile = configurationsFile(context)

@@ -59,6 +59,9 @@ fun parseAnnotatedPgnToChapter(chapterPgn: String, book: Book?): Chapter? {
     val chapter = createEmptyLineTree(chapterTokens[0], book) as Chapter
     val startingPositionFen = chapter.startingPositionFen
     val startingPosition = if (startingPositionFen == null) startingPosition() else positionFromFen(startingPositionFen)
+    if (chapter.chapterName == "The Vienna System") {
+        log("parseAnnotatedPgnToChapter", chapterPgn)
+    }
 
     return if (chapterTokens[1] != CHAPTER_END.toString()) {
         parseMoves(chapter, chapterTokens[1], startingPosition)

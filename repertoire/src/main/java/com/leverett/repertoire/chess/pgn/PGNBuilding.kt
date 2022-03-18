@@ -71,16 +71,12 @@ fun makeMetadataToken(metadataPrefix: String, metadataValue: String): String {
 }
 
 private fun generateLinePgn(currentPosition: Position, lineMoves: List<LineMove>, lineTree: LineTree, visitedPositions: MutableSet<Position>, isFirstMove: Boolean = false, exportedChapter: Boolean = false): String {
+    visitedPositions.add(currentPosition)
     val turn = currentPosition.turn.toString()
     val result = StringBuilder()
     result.append(if (isFirstMove && !currentPosition.activeColor) "$turn... " else "")
-    for ((branchNumber, lineMove) in lineMoves.withIndex()) {
-        if (branchNumber > 0) {
-            result.append(TOKEN_DELIMITER)
-            result.append(BRANCH_START)
-            result.append(generateLinePgn(currentPosition, listOf(lineMoves[branchNumber]), lineTree, visitedPositions, true, exportedChapter))
-            result.append(BRANCH_END)
-        } else {
+    for ((branchNumber, lineMove) in lineMoves.reversed().withIndex()) {
+        if (branchNumber == 0) {
             val turnToken =
                 if (currentPosition.activeColor) {
                     "$turn. "
@@ -91,18 +87,22 @@ private fun generateLinePgn(currentPosition: Position, lineMoves: List<LineMove>
             result.append(annotatedMoveNotation(lineMove.algMove, lineMove.moveDetails) )
             result.append(TOKEN_DELIMITER)
             result.append(makeMoveDetailsString(lineMove.moveDetails)).trim()
+        } else {
+            result.append(TOKEN_DELIMITER)
+            result.append(BRANCH_START)
+            result.append(generateLinePgn(currentPosition, listOf(lineMoves[branchNumber]), lineTree, visitedPositions, true, exportedChapter))
+            result.append(BRANCH_END)
         }
     }
     if (lineMoves.isNotEmpty()) {
         val currentMove = lineMoves.first()
         val nextPosition = currentMove.nextPosition
         val nextMoves = lineTree.getMoves(nextPosition).filter{it.previousLineMove == currentMove || exportedChapter}
-        if (nextMoves.isNotEmpty() && !visitedPositions.contains(currentPosition)) {
+        if (nextMoves.isNotEmpty() && !visitedPositions.contains(nextPosition)) {
             result.append(TOKEN_DELIMITER)
             result.append(generateLinePgn(nextPosition, nextMoves, lineTree, visitedPositions, exportedChapter = exportedChapter))
         }
     }
-    visitedPositions.add(currentPosition)
     return result.toString()
 }
 

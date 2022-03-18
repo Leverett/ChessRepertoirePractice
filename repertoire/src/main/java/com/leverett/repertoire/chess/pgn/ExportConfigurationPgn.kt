@@ -8,6 +8,7 @@ import com.leverett.repertoire.chess.move.MoveDefinition
 import com.leverett.repertoire.chess.move.MoveDetails
 import com.leverett.repertoire.chess.settings.Configuration
 import com.leverett.rules.chess.representation.Position
+import com.leverett.rules.chess.representation.log
 import com.leverett.rules.chess.representation.startingPosition
 import java.lang.StringBuilder
 import java.util.Queue
@@ -26,10 +27,12 @@ fun makeRepertoirePgnForBook(book: Book, color: Boolean): String {
     val completeBookChapter = makeRepertoireChapterFromChapters(COMPLETE_CHAPTER_NAME, book.chapters, color)
     val chapters = book.chapters.filter{it.chapterName != BASELINE_CHAPTER_NAME}
     val baselineChapter = book.chapters.firstOrNull{it.chapterName == BASELINE_CHAPTER_NAME}
-    val chapterList = mutableListOf(completeBookChapter)
+    val chapterList = mutableListOf<Chapter>(completeBookChapter)
     for (chapter in chapters) {
         val name = chapter.name
-        val chapterSet = if (baselineChapter == null) {setOf(chapter)} else setOf(baselineChapter, chapter)
+        val chapterSet = if (baselineChapter == null) {
+            setOf(chapter)
+        } else setOf(baselineChapter, chapter)
         chapterList.add(makeRepertoireChapterFromChapters(name, chapterSet, color))
     }
     val completeBook = Book(chapterList, book.name, book.description)
@@ -42,13 +45,16 @@ private fun makeRepertoireChapterFromChapters(name: String, chapters: Iterable<C
 
     val positions: Queue<Position> = ConcurrentLinkedQueue<Position>().also{it.add(startingPosition())}
     val visitedPositions: MutableSet<String> = mutableSetOf()
-    var position: Position? = startingPosition()
-    var isRepertoireColor = color
-    while (position != null) {
+    do {
+        val position = positions.poll()
+        val isRepertoireColor = color && position.activeColor
         val lineMoves: List<LineMove> = if (isRepertoireColor) {
-            chapters.map { it.getPreferredMoves(position!!) }.flatten()
+            chapters.map {
+                it.getPreferredMoves(position)
+            }.flatten()
         } else {
-            chapters.map { it.getMoves(position!!) }.flatten()
+            chapters.map {
+                it.getMoves(position) }.flatten()
         }
         lineMoves.forEach{
             equivalentMovesMap.putIfAbsent(it.moveDefinition, mutableListOf())
@@ -59,9 +65,8 @@ private fun makeRepertoireChapterFromChapters(name: String, chapters: Iterable<C
             }
             visitedPositions.add(nextPosition.statelessPositionHash)
         }
-        isRepertoireColor = !isRepertoireColor
-        position = positions.poll()
     }
+    while (positions.isNotEmpty())
 
     equivalentMovesMap.entries.stream()
         .map { LineMove(it.key, getMoveDetails(it.value), null, name, null, null) }

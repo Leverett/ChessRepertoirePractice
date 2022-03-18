@@ -30,10 +30,10 @@ class Chapter(val chapterName: String, description: String? = null, val starting
         val previousPosition = move.previousPosition
         val positionHash = previousPosition.statelessPositionHash
         val knownEquivalentPositions = statelessHashToPosition[positionHash]
-        if (knownEquivalentPositions != null && !knownEquivalentPositions.contains(previousPosition)) {
-            knownEquivalentPositions.add(previousPosition)
-        } else {
+        if (knownEquivalentPositions == null) {
             statelessHashToPosition[positionHash] = mutableListOf(previousPosition)
+        } else if (!knownEquivalentPositions.contains(previousPosition)) {
+            knownEquivalentPositions.add(previousPosition)
         }
         val moves = positionHashToMoves[previousPosition.fen]
         if (moves != null && !moves.contains(move)) {
