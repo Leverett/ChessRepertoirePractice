@@ -4,6 +4,8 @@ import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.leverett.repertoire.chess.RepertoireManager
+import com.leverett.repertoire.chess.external.LichessAccountInfo
+import com.leverett.repertoire.chess.external.getStudies
 import com.leverett.repertoire.chess.lines.Book
 import com.leverett.repertoire.chess.lines.LineTree
 import com.leverett.repertoire.chess.pgn.*

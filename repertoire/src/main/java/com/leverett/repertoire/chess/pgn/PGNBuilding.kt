@@ -36,7 +36,7 @@ fun makeChapterText(chapter: Chapter, exportedChapter: Boolean = false): String 
 }
 
 fun makeChapterHeader(chapter: Chapter): String {
-    val nameText = if (chapter.isStandalone()) chapter.name
+    val nameText = if (chapter.isStandalone) chapter.name
         else chapter.name
     var result = makeMetadataToken(NAME_PREFIX, nameText)
     if (chapter.description != null) {
@@ -75,7 +75,7 @@ private fun generateLinePgn(currentPosition: Position, lineMoves: List<LineMove>
     val turn = currentPosition.turn.toString()
     val result = StringBuilder()
     result.append(if (isFirstMove && !currentPosition.activeColor) "$turn... " else "")
-    for ((branchNumber, lineMove) in lineMoves.reversed().withIndex()) {
+    for ((branchNumber, lineMove) in lineMoves.withIndex()) {
         if (branchNumber == 0) {
             val turnToken =
                 if (currentPosition.activeColor) {

@@ -19,8 +19,11 @@ import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import com.google.api.services.drive.model.File
 import com.leverett.repertoire.chess.RepertoireManager
+import com.leverett.repertoire.chess.RepertoireManager.DEFAULT_CONFIGURATION_NAMES
 import com.leverett.repertoire.chess.lines.Book
+import com.leverett.repertoire.chess.lines.Chapter
 import com.leverett.repertoire.chess.pgn.makeRepertoirePgnForBook
+import com.leverett.repertoire.chess.pgn.makeRepertoirePgnForChapter
 import com.leverett.repertoire.chess.pgn.makeRepertoirePgnForConfiguration
 import com.leverett.rules.chess.representation.log
 import kotlinx.coroutines.*
@@ -34,7 +37,7 @@ private const val PLAINTEXT_TYPE = "text/plain"
 
 private const val APP_FOLDER_NAME = "RepertoirePractice"
 private const val TEMPO_FOLDER_NAME = "TempoPGNs"
-private const val COMPONENT_FOLDER_NAME = "ComponentPGNs"
+private val driveInfo = DriveInfo
 
 
 fun signIn(activity: Activity, signInResultLauncher: ActivityResultLauncher<Intent>) = runBlocking {
@@ -49,7 +52,6 @@ fun signIn(activity: Activity, signInResultLauncher: ActivityResultLauncher<Inte
 }
 
 fun setupDriveInfo(context: Context) = runBlocking {
-    val driveInfo = DriveInfo
     driveInfo.googleAccount = GoogleSignIn.getLastSignedInAccount(context)
     driveInfo.googleAccount.let { googleAccount ->
         val credential = GoogleAccountCredential.usingOAuth2(
@@ -77,7 +79,7 @@ fun setupDriveInfo(context: Context) = runBlocking {
                     when (file.name) {
                         APP_FOLDER_NAME -> driveInfo.appFolderId = file.id
                         TEMPO_FOLDER_NAME -> driveInfo.tempoFolderId = file.id
-                        COMPONENT_FOLDER_NAME -> driveInfo.componentFolderId = file.id
+                        CONFIGURATIONS_FILE_NAME -> configFiles.add(file)
                         else -> {}
                     }
                 }
@@ -88,7 +90,6 @@ fun setupDriveInfo(context: Context) = runBlocking {
 }
 
 suspend fun uploadRepertoire(context: Context) {
-    val driveInfo = DriveInfo
     if (driveInfo.incomplete) {
         val job = setupDriveInfo(context)
         job.join()
@@ -99,10 +100,6 @@ suspend fun uploadRepertoire(context: Context) {
     }
     val tempoDirectory = listOf(driveInfo.tempoFolderId!!)
     writeLocalTempoFiles(context).collect { uploadFile(it, tempoDirectory) }
-    val componentDirectory = listOf(driveInfo.componentFolderId!!)
-    writeLocalTempoComponentFiles(context).collect { it.name
-        uploadFile(it, componentDirectory)
-    }
     val configurationsFile = configurationsFile(context)
     if (!configurationsFile.exists()) {
         storeConfigurations(context)
@@ -114,24 +111,23 @@ fun writeLocalTempoFiles(context: Context) = flow {
     val repertoireManager = RepertoireManager
     repertoireManager.configurations.values
         .forEach {
-            val pgn = makeRepertoirePgnForConfiguration(it)
-            val tempoFile = makeTempoFile(context, it.name, it.color, pgn)
-            emit(tempoFile)
+            if (!DEFAULT_CONFIGURATION_NAMES.contains(it.name)) {
+                val pgn = makeRepertoirePgnForConfiguration(it)
+                val tempoFile = makeTempoFile(context, it.name, it.color, pgn)
+                emit(tempoFile)
+            } else  {
+                it.activeRepertoire.forEach { lt ->
+                    val lineTree = repertoireManager.repertoire.findLineTreeByName(lt)
+                    val pgn = if (lineTree is Book) {
+                        makeRepertoirePgnForBook(lineTree, it.color)
+                    } else {
+                        makeRepertoirePgnForChapter(lineTree as Chapter, it.color)
+                    }
+                    val tempoFile = makeTempoFile(context, lt, it.color, pgn)
+                    emit(tempoFile)
+                }
+            }
         }
-}
-
-fun writeLocalTempoComponentFiles(context: Context) = flow {
-    val repertoireManager = RepertoireManager
-    repertoireManager.repertoire.lineTrees.forEach {
-        if (it is Book) {
-            val whiteTempoFile =
-                makeTempoFile(context, it.name, true, makeRepertoirePgnForBook(it, true))
-            emit(whiteTempoFile)
-            val blackTempoFile =
-                makeTempoFile(context, it.name, false, makeRepertoirePgnForBook(it, false))
-            emit(blackTempoFile)
-        } //TODO: Also emit if there is a standalone chapter
-    }
 }
 
 fun makeTempoFile(context: Context, name: String, color: Boolean, pgn: String): java.io.File {
@@ -142,7 +138,6 @@ fun makeTempoFile(context: Context, name: String, color: Boolean, pgn: String): 
 }
 
 fun uploadFile(file: java.io.File, parents: List<String>?) {
-    val driveInfo = DriveInfo
     CoroutineScope(Dispatchers.IO).launch {
         val gFile = File()
         gFile.name = file.name
@@ -155,7 +150,6 @@ fun uploadFile(file: java.io.File, parents: List<String>?) {
 }
 
 suspend fun downloadConfigurations(context: Context) {
-    val driveInfo = DriveInfo
     if (driveInfo.incomplete) {
         val job =
             setupDriveInfo(context)
@@ -180,8 +174,7 @@ object DriveInfo {
         get() = googleAccount == null ||
                 drive == null ||
                 appFolderId == null ||
-                tempoFolderId == null ||
-                componentFolderId == null
+                tempoFolderId == null
     var appFolderId: String? = null
     var tempoFolderId: String? = null
     var componentFolderId: String? = null
@@ -190,7 +183,6 @@ object DriveInfo {
 }
 
 fun registerSignInResult(activity: ComponentActivity): ActivityResultLauncher<Intent> {
-    val driveInfo = DriveInfo
     return activity.registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->

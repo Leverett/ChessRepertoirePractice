@@ -1,6 +1,7 @@
 package com.leverett.repertoire.chess.lines
 
 import com.leverett.repertoire.chess.move.LineMove
+import com.leverett.rules.chess.parsing.STARTING_FEN
 import com.leverett.rules.chess.representation.Position
 import java.lang.StringBuilder
 
@@ -11,6 +12,9 @@ class Chapter(val chapterName: String, description: String? = null, val starting
         get() = if (book != null) {"${book!!.name}: $chapterName"} else chapterName
     private val statelessHashToPosition: MutableMap<String, MutableList<Position>> = mutableMapOf() // unlikely to ever have more than one state but who knows
     private val positionHashToMoves: MutableMap<String, MutableList<LineMove>> = mutableMapOf()
+    private val startsAtBeginning: Boolean = startingPositionFen != null && startingPositionFen == STARTING_FEN
+    val isStandalone: Boolean = book == null
+    private val hasBaseline: Boolean = !isStandalone && book!!.hasBaselineChapter() && startsAtBeginning
 
     override fun getMoves(position: Position): List<LineMove> {
         val moves = mutableListOf<LineMove>()
@@ -82,8 +86,15 @@ class Chapter(val chapterName: String, description: String? = null, val starting
         return moves.filter{preferredMoves.contains(it.algMove)}
     }
 
-    fun isStandalone(): Boolean {
-        return book == null
+    /**
+     * This is to get a set of chapters that includes the baseline chapter, if applicable
+     */
+    fun getChapterSetForChapter(): Set<Chapter> {
+        return if (hasBaseline) {
+            setOf(this, book!!.baselineChapter!!)
+        } else {
+            setOf(this)
+        }
     }
 
     fun quickDisplay(): String {

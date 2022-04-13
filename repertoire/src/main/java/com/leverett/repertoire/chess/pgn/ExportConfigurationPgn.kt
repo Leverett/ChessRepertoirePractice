@@ -8,7 +8,6 @@ import com.leverett.repertoire.chess.move.MoveDefinition
 import com.leverett.repertoire.chess.move.MoveDetails
 import com.leverett.repertoire.chess.settings.Configuration
 import com.leverett.rules.chess.representation.Position
-import com.leverett.rules.chess.representation.log
 import com.leverett.rules.chess.representation.startingPosition
 import java.lang.StringBuilder
 import java.util.Queue
@@ -19,27 +18,30 @@ fun makeRepertoirePgnForConfiguration(configuration: Configuration): String {
     val name = configuration.name
     val chapters = getActiveChapters(configuration.activeRepertoire)
     val color = configuration.color
-    val chapter = makeRepertoireChapterFromChapters(name, chapters, color)
+    val chapter = makeTempoChapterFromChapters(name, chapters, color)
     return makeChapterText(chapter, true)
 }
 
 fun makeRepertoirePgnForBook(book: Book, color: Boolean): String {
-    val completeBookChapter = makeRepertoireChapterFromChapters(COMPLETE_CHAPTER_NAME, book.chapters, color)
+    val completeBookChapter = makeTempoChapterFromChapters(COMPLETE_CHAPTER_NAME, book.chapters, color)
     val chapters = book.chapters.filter{it.chapterName != BASELINE_CHAPTER_NAME}
-    val baselineChapter = book.chapters.firstOrNull{it.chapterName == BASELINE_CHAPTER_NAME}
-    val chapterList = mutableListOf<Chapter>(completeBookChapter)
+    val chapterList = mutableListOf(completeBookChapter)
     for (chapter in chapters) {
         val name = chapter.name
-        val chapterSet = if (baselineChapter == null) {
-            setOf(chapter)
-        } else setOf(baselineChapter, chapter)
-        chapterList.add(makeRepertoireChapterFromChapters(name, chapterSet, color))
+        val chapterSet = chapter.getChapterSetForChapter()
+        chapterList.add(makeTempoChapterFromChapters(name, chapterSet, color))
     }
     val completeBook = Book(chapterList, book.name, book.description)
     return makeBookText(completeBook, true)
 }
 
-private fun makeRepertoireChapterFromChapters(name: String, chapters: Iterable<Chapter>, color: Boolean): Chapter {
+fun makeRepertoirePgnForChapter(chapter: Chapter, color: Boolean): String {
+    val chapterSet = chapter.getChapterSetForChapter()
+    val tempoChapter = makeTempoChapterFromChapters(chapter.name, chapterSet, color)
+    return makeChapterText(tempoChapter, true)
+}
+
+fun makeTempoChapterFromChapters(name: String, chapters: Iterable<Chapter>, color: Boolean): Chapter {
     val result = Chapter(name)
     val equivalentMovesMap: MutableMap<MoveDefinition, MutableList<LineMove>> = mutableMapOf()
 
@@ -67,7 +69,6 @@ private fun makeRepertoireChapterFromChapters(name: String, chapters: Iterable<C
         }
     }
     while (positions.isNotEmpty())
-
     equivalentMovesMap.entries.stream()
         .map { LineMove(it.key, getMoveDetails(it.value), null, name, null, null) }
         .forEach{result.addMove(it)}
@@ -105,7 +106,7 @@ fun getMoveDescriptionText(lineMoves: List<LineMove>): String {
     sortMoveOptions(lineMoves, bookToLineMoves, standaloneLineMoves)
 
     val result = StringBuilder()
-    result.append(bookToLineMoves.entries.map{ getMoveDescriptionsTextForBook(it.key, it.value) }.filter{ it.isNotBlank() }.joinToString(" - ") )
+    result.append(bookToLineMoves.entries.map{ getMoveDescriptionsTextForBook(it.value) }.filter{ it.isNotBlank() }.joinToString(" - ") )
     if (standaloneLineMoves.isNotEmpty()) {
         result.append(" --- ")
         result.append(standaloneLineMoves.joinToString(" - ") {
@@ -115,12 +116,12 @@ fun getMoveDescriptionText(lineMoves: List<LineMove>): String {
     return result.toString()
 }
 
-private fun getMoveDescriptionsTextForBook(bookName: String, lineMoves: List<LineMove>): String {
+private fun getMoveDescriptionsTextForBook(lineMoves: List<LineMove>): String {
     if (lineMoves.size == 1) {
         val lineMove = lineMoves[0]
         val description = lineMove.moveDetails.description
         if (!description.isNullOrBlank()) {
-            return "${lineMove.fullName} - ${description.trim()}"
+            return description.trim()
         }
     }
     val descriptionsToChapters = mutableMapOf<String, MutableList<String>>()
@@ -136,9 +137,10 @@ private fun getMoveDescriptionsTextForBook(bookName: String, lineMoves: List<Lin
         }
     }
     if (descriptionsToChapters.size == 1) {
-        val description = descriptionsToChapters.keys.first()
-        val chapterName = if (descriptionsToChapters.values.first().size == 1) {"${descriptionsToChapters.values.first().first()}: "} else ""
-        return "$bookName: $chapterName$description"
+//        val description = descriptionsToChapters.keys.first()
+//        val chapterName = if (descriptionsToChapters.values.first().size == 1) {"${descriptionsToChapters.values.first().first()}: "} else ""
+//        return "$bookName: $chapterName$description"
+        return descriptionsToChapters.keys.first()
     }
     if (descriptionsToChapters.size > 1) {
         return descriptionsToChapters.keys.joinToString(" - ")

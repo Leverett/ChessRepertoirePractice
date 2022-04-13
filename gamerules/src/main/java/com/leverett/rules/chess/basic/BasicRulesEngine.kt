@@ -139,15 +139,16 @@ object BasicRulesEngine: RulesEngine {
 
     override fun getNextPosition(position: Position, moveAction: MoveAction): Position {
         //TODO some sort of error handling, esp for parsing
-        if (moveAction == WHITE_KINGSIDE_CASTLE ||
-            moveAction == WHITE_QUEENSIDE_CASTLE ||
-            moveAction == BLACK_KINGSIDE_CASTLE ||
-            moveAction == BLACK_QUEENSIDE_CASTLE
+        val placements = position.placements
+        val piece = placements[moveAction.startLoc.first][moveAction.startLoc.second]
+        if (piece.type == KING &&
+            (moveAction == WHITE_KINGSIDE_CASTLE ||
+                    moveAction == WHITE_QUEENSIDE_CASTLE ||
+                    moveAction == BLACK_KINGSIDE_CASTLE ||
+                    moveAction == BLACK_QUEENSIDE_CASTLE)
         ) {
             return doCastle(position, moveAction)
         }
-        val placements = position.placements
-        val piece = placements[moveAction.startLoc.first][moveAction.startLoc.second]
         if (piece.type == PAWN) {
             return doPawnMove(position, moveAction, piece)
         }
@@ -155,7 +156,8 @@ object BasicRulesEngine: RulesEngine {
         newPlacements[moveAction.startLoc.first][moveAction.startLoc.second] = EMPTY
         newPlacements[moveAction.endLoc.first][moveAction.endLoc.second] = piece
 
-        val newCastling = calculateNewCastling(moveAction, position.castling, position.activeColor, piece)
+        val newCastling =
+            calculateNewCastling(moveAction, position.castling, position.activeColor, piece)
         val nextTurn = nextTurn(position)
 
         return Position(newPlacements, !position.activeColor, newCastling, null, nextTurn)

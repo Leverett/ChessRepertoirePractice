@@ -59,9 +59,6 @@ fun parseAnnotatedPgnToChapter(chapterPgn: String, book: Book?): Chapter? {
     val chapter = createEmptyLineTree(chapterTokens[0], book) as Chapter
     val startingPositionFen = chapter.startingPositionFen
     val startingPosition = if (startingPositionFen == null) startingPosition() else positionFromFen(startingPositionFen)
-    if (chapter.chapterName == "The Vienna System") {
-        log("parseAnnotatedPgnToChapter", chapterPgn)
-    }
 
     return if (chapterTokens[1] != CHAPTER_END.toString()) {
         parseMoves(chapter, chapterTokens[1], startingPosition)
@@ -116,6 +113,7 @@ internal fun parseMoves(chapter: Chapter, chapterMoves: String, position: Positi
                 if (latestMove != null) {
                     // the previously saved move now starts from a position in the past that we don't need,
                     // so we can calculate the position that move transitions to and add the transition to the tree
+
                     val nextPosition = rulesEngine.getNextPosition(currentPosition, latestMove)
                     val lineMove = LineMove(
                         chapter,

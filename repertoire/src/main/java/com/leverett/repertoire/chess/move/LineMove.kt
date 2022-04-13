@@ -30,7 +30,7 @@ class LineMove(val moveDefinition: MoveDefinition,
         get() = moveDefinition.previousPosition
     val nextPosition: Position
         get() = moveDefinition.nextPosition
-    val moveAction: MoveAction
+    private val moveAction: MoveAction
         get() = moveDefinition.moveAction
 
 
@@ -45,7 +45,7 @@ class LineMove(val moveDefinition: MoveDefinition,
     val mistake: Boolean
         get() = moveDetails.mistake
     val fullName: String
-        get() = if (bookName != null) {"$bookName : $chapterName"} else chapterName
+        get() = if (bookName != null) {"$bookName: $chapterName"} else chapterName
 
     // Better to make this on construction and store in than do it on demand, saves work overall I think
     val algMove: String = algMove ?: makeAlgMove()

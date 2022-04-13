@@ -13,9 +13,10 @@ import android.widget.*
 import androidx.appcompat.widget.SwitchCompat
 import com.leverett.chessrepertoirepractice.ui.views.ConfigurationListAdapter
 import com.leverett.chessrepertoirepractice.utils.*
-import com.leverett.repertoire.chess.RepertoireManager.DEFAULT_CONFIGURATION_NAME
+import com.leverett.repertoire.chess.RepertoireManager.DEFAULT_CONFIGURATION_NAMES
 import com.leverett.repertoire.chess.lines.LineTree
 import com.leverett.repertoire.chess.settings.Configuration
+import com.leverett.rules.chess.representation.log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -104,8 +105,11 @@ class RepertoireActivity : AppCompatActivity() {
 
     private suspend fun downloadConfigurations() {
         if (driveInfo.incomplete) {
+            log("downloadConfigurations", driveInfo.googleAccount == null)
+            log("downloadConfigurations", "need to sign in")
             signIn(this, signInResultLauncher)
         }
+        log("downloadConfigurations", "here")
         downloadConfigurations(applicationContext)
         loadConfigurations(applicationContext)
         updateConfigurationsMenu()
@@ -125,7 +129,7 @@ class RepertoireActivity : AppCompatActivity() {
         popupView.findViewById<Button>(R.id.ok_button).setOnClickListener {
             val configurationName = popupView.findViewById<TextInputEditText>(R.id.configuration_name_input).text.toString().trim()
             val color = !popupView.findViewById<SwitchCompat>(R.id.color_switch).isChecked
-            if (configurationName == DEFAULT_CONFIGURATION_NAME) {
+            if (DEFAULT_CONFIGURATION_NAMES.contains(configurationName)) {
                 // TODO make toast for invalid configuration name
             } else {
                 repertoireManager.newConfiguration(configurationName, color)
@@ -140,7 +144,7 @@ class RepertoireActivity : AppCompatActivity() {
     }
 
     fun deleteConfigurationButton(view: View) {
-        if (repertoireManager.currentConfigurationName != DEFAULT_CONFIGURATION_NAME) {
+        if (!DEFAULT_CONFIGURATION_NAMES.contains(repertoireManager.currentConfigurationName)) {
             makeConfirmationDialog(applicationContext, layoutInflater, repertoireView, "Delete Configuration: ${repertoireManager.currentConfigurationName}?")
             {
                 repertoireManager.deleteConfiguration()

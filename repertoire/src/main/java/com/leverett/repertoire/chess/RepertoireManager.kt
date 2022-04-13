@@ -7,15 +7,22 @@ import com.leverett.rules.chess.representation.Position
 
 object RepertoireManager {
 
-    const val DEFAULT_CONFIGURATION_NAME = "Default"
-    private val DEFAULT_CONFIGURATION = Configuration(DEFAULT_CONFIGURATION_NAME, mutableSetOf(), true)
+    private const val DEFAULT_WHITE_CONFIGURATION_NAME = "Default White"
+    private const val DEFAULT_BLACK_CONFIGURATION_NAME = "Default Black"
+    val DEFAULT_CONFIGURATION_NAMES = setOf(DEFAULT_WHITE_CONFIGURATION_NAME, DEFAULT_BLACK_CONFIGURATION_NAME)
+    private val DEFAULT_WHITE_CONFIGURATION = Configuration(DEFAULT_WHITE_CONFIGURATION_NAME, mutableSetOf(), true)
+    private val DEFAULT_BLACK_CONFIGURATION = Configuration(DEFAULT_BLACK_CONFIGURATION_NAME, mutableSetOf(), false)
 
     var repertoire: Repertoire = Repertoire(mutableListOf())
 
-    var currentConfigurationName: String = DEFAULT_CONFIGURATION_NAME
+    var currentConfigurationName: String = DEFAULT_WHITE_CONFIGURATION_NAME
+    var configurations: MutableMap<String, Configuration> =
+        mutableMapOf(
+            Pair(DEFAULT_WHITE_CONFIGURATION_NAME, DEFAULT_WHITE_CONFIGURATION),
+            Pair(DEFAULT_BLACK_CONFIGURATION_NAME, DEFAULT_BLACK_CONFIGURATION),
+        )
     val configuration: Configuration
         get() = configurations[currentConfigurationName]!!
-    var configurations: MutableMap<String, Configuration> = mutableMapOf(Pair(DEFAULT_CONFIGURATION_NAME, DEFAULT_CONFIGURATION))
     val configurationNames: List<String>
         get() = configurations.keys.toList()
 
@@ -47,7 +54,7 @@ object RepertoireManager {
     }
 
     fun deleteConfiguration() {
-        if (currentConfigurationName != DEFAULT_CONFIGURATION_NAME) {
+        if (!DEFAULT_CONFIGURATION_NAMES.contains(currentConfigurationName)) {
             configurations.remove(currentConfigurationName)
             loadConfiguration(configurationNames[0])
         }
@@ -95,7 +102,7 @@ object RepertoireManager {
         if (lineTree is Book) {
             clearBookChapters(lineTree)
         }
-        if (lineTree is Chapter && !lineTree.isStandalone()) {
+        if (lineTree is Chapter && !lineTree.isStandalone) {
             val book = lineTree.book!!
             if (activeRepertoire.containsAll(book.lineTreeNames())) {
                 activeRepertoire.removeAll(book.lineTreeNames())
@@ -113,7 +120,7 @@ object RepertoireManager {
         if (lineTree is Chapter) {
             if (activeRepertoire.contains(name)) {
                 activeRepertoire.remove(name)
-            } else if (!lineTree.isStandalone()){
+            } else if (!lineTree.isStandalone){
                 val book = lineTree.book!!
                 if (activeRepertoire.contains(book.name)) {
                     activeRepertoire.remove(book.name)
